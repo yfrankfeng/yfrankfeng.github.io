@@ -130,6 +130,44 @@ ga('send', 'pageview');
   <span class="comment">#......</span>
 <span class="keyword">end</span>      
 </code></pre>
+<h2 id="Define-customized-search-builder"><a href="#Define-customized-search-builder" class="headerlink" title="Define customized search builder"></a>Define customized search builder</h2><p>To add additional search fields into Solr search queries, a customized search builder needs to be implemented, e.g.</p>
+<pre><code class="ruby"><span class="class"><span class="keyword">module</span> <span class="title">Oasis</span></span>
+  <span class="class"><span class="keyword">class</span> <span class="title">OasisSearchBuilder</span> &lt; Hyrax::CatalogSearchBuilder</span>
+    <span class="keyword">self</span>.default_processor_chain += [<span class="symbol">:add_authority_label_field_to_query</span>, <span class="symbol">:add_oasis_text_fields_to_query</span>, <span class="symbol">:add_other_fields_to_query</span>]
+
+    <span class="comment"># Add OASIS authority label fields to Solr query parameters</span>
+    <span class="function"><span class="keyword">def</span> <span class="title">add_authority_label_field_to_query</span><span class="params">(solr_parameters)</span></span>
+      <span class="comment">#......</span>
+    <span class="keyword">end</span>
+
+    <span class="comment"># Add OASIS text fields to Solr query parameters</span>
+    <span class="function"><span class="keyword">def</span> <span class="title">add_oasis_text_fields_to_query</span><span class="params">(solr_parameters)</span></span>
+      solr_parameters[<span class="symbol">:qf</span>] += <span class="string">' publication_author_tesim'</span>
+      solr_parameters[<span class="symbol">:qf</span>] += <span class="string">' publication_title_tesim'</span>
+      solr_parameters[<span class="symbol">:qf</span>] += <span class="string">' summary_writer_tesim'</span>
+      solr_parameters[<span class="symbol">:qf</span>] += <span class="string">' title_of_summary_tesim'</span>
+    <span class="keyword">end</span>
+
+    <span class="comment"># Add 'other' fields to Solr query parameters</span>
+    <span class="function"><span class="keyword">def</span> <span class="title">add_other_fields_to_query</span><span class="params">(solr_parameters)</span></span>
+      <span class="comment">#......</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</code></pre>
+<p><a href="https://github.com/digital-york/oasis/blob/master/app/search_builders/oasis/oasis_search_builder.rb" target="_blank" rel="noopener">Source</a></p>
+<p>Don’t forget to register your search builder here:</p>
+<pre><code class="ruby"><span class="class"><span class="keyword">class</span> <span class="title">CatalogController</span> &lt; ApplicationController</span>
+
+  <span class="comment"># ......</span>
+
+  configure_blacklight <span class="keyword">do</span> <span class="params">|config|</span>
+    <span class="comment"># ......</span>
+    config.search_builder_class = Oasis::OasisSearchBuilder
+  <span class="keyword">end</span>
+  <span class="comment"># ......</span>
+<span class="keyword">end</span>  
+</code></pre>
 
       
     </div>
