@@ -184,8 +184,46 @@ end
 end
 </code></pre><p>Source code is <a href="https://github.com/digital-york/oasis/blob/master/app/models/summary.rb" target="_blank" rel="noopener">here</a></p>
 <h2 id="Define-SolrDocument"><a href="#Define-SolrDocument" class="headerlink" title="Define SolrDocument"></a>Define SolrDocument</h2><p>The attributes should be exposed in SolrDocument. By this way, these attributes are accessable directly from SolrDocument in the view later.</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">module</span> <span class="title">Oasis</span></span></span><br><span class="line">  <span class="class"><span class="keyword">module</span> <span class="title">SolrDocument</span> <span class="title">extend</span> <span class="title">ActiveSupport::Concern</span></span></span><br><span class="line">  <span class="class"><span class="keyword">module</span> <span class="title">Solr</span></span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Array</span></span></span><br><span class="line">      <span class="comment"># <span class="doctag">@return</span> [Array]</span></span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">coerce</span><span class="params">(input)</span></span></span><br><span class="line">        <span class="symbol">:</span><span class="symbol">:Array</span>.wrap(input)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">String</span></span></span><br><span class="line">      <span class="comment"># <span class="doctag">@return</span> [String]</span></span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">coerce</span><span class="params">(input)</span></span></span><br><span class="line">        <span class="symbol">:</span><span class="symbol">:Array</span>.wrap(input).first</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Date</span></span></span><br><span class="line">      <span class="comment"># <span class="doctag">@return</span> [Date]</span></span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">coerce</span><span class="params">(input)</span></span></span><br><span class="line">        field = String.coerce(input)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> field.blank?</span><br><span class="line">        <span class="keyword">begin</span></span><br><span class="line">          <span class="symbol">:</span><span class="symbol">:Date</span>.parse(field)</span><br><span class="line">        <span class="keyword">rescue</span> ArgumentError</span><br><span class="line">          Rails.logger.info <span class="string">"Unable to parse date: <span class="subst">#&#123;field.first.inspect&#125;</span>"</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  included <span class="keyword">do</span></span><br><span class="line">    attribute <span class="symbol">:title_of_summary</span>, Solr::String, solr_name(<span class="string">'title_of_summary'</span>)</span><br><span class="line">    attribute <span class="symbol">:summary_writer</span>, Solr::Array, solr_name(<span class="string">'summary_writer'</span>)</span><br><span class="line">    attribute <span class="symbol">:summary_writer_all</span>, Solr::String, solr_name(<span class="string">'summary_writer_all'</span>)</span><br><span class="line">    <span class="comment"># ......</span></span><br><span class="line">  <span class="keyword">end</span>  </span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p><a href="https://github.com/digital-york/oasis/tree/master/app/models/concerns/oasis/solr_document.rb" target="_blank" rel="noopener">Source code</a></p>
+<pre><code>module Oasis
+  module SolrDocument extend ActiveSupport::Concern
+  module Solr
+    class Array
+      # @return [Array]
+      def self.coerce(input)
+        ::Array.wrap(input)
+      end
+    end
+
+    class String
+      # @return [String]
+      def self.coerce(input)
+        ::Array.wrap(input).first
+      end
+    end
+
+    class Date
+      # @return [Date]
+      def self.coerce(input)
+        field = String.coerce(input)
+        return if field.blank?
+        begin
+          ::Date.parse(field)
+        rescue ArgumentError
+          Rails.logger.info &quot;Unable to parse date: #{field.first.inspect}&quot;
+        end
+      end
+    end
+  end
+
+  included do
+    attribute :title_of_summary, Solr::String, solr_name(&apos;title_of_summary&apos;)
+    attribute :summary_writer, Solr::Array, solr_name(&apos;summary_writer&apos;)
+    attribute :summary_writer_all, Solr::String, solr_name(&apos;summary_writer_all&apos;)
+    # ......
+  end  
+  end
+end
+</code></pre><p><a href="https://github.com/digital-york/oasis/tree/master/app/models/concerns/oasis/solr_document.rb" target="_blank" rel="noopener">Source code</a></p>
 <p>To access these attributes in the view:</p>
 <pre><code>&lt;h4&gt;&lt;%= link_to document.title_of_summary, document %&gt;&lt;/h4&gt;
 </code></pre><h2 id="Define-customized-Solr-Indexer"><a href="#Define-customized-Solr-Indexer" class="headerlink" title="Define customized Solr Indexer"></a>Define customized Solr Indexer</h2><p>Customized Solr Indexer can be defined to store extra information into solr, e.g. generate a new field in Solr, add a derived value into Solr etc.</p>
