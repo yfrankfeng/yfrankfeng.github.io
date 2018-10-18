@@ -18,19 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Archives: 2018/10 | Frank&#39;s development blog</title>
+  <title>How to use blacklight hierarchy gem to implement hierarchical facets | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Frank&#39;s development blog">
-<meta property="og:url" content="https://yfrankfeng.github.io/archives/2018/10/index.html">
+  <meta name="description" content="Blacklight hierarchy provides a light way to support hierarchical facets,but the documentation is a bit hard to understand, I just write down what I have done to get a working prototype.   Update Gemf">
+<meta name="keywords" content="blacklight solr hierarchical facets">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to use blacklight hierarchy gem to implement hierarchical facets">
+<meta property="og:url" content="https://yfrankfeng.github.io/how-to-use-blacklight-hierarchy-gem/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:description" content="Blacklight hierarchy provides a light way to support hierarchical facets,but the documentation is a bit hard to understand, I just write down what I have done to get a working prototype.   Update Gemf">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-10-18T16:11:12.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Frank&#39;s development blog">
-<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="twitter:title" content="How to use blacklight hierarchy gem to implement hierarchical facets">
+<meta name="twitter:description" content="Blacklight hierarchy provides a light way to support hierarchical facets,but the documentation is a bit hard to understand, I just write down what I have done to get a working prototype.   Update Gemf">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -81,78 +82,73 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/how-to-use-blacklight-hierarchy-gem/" class="archive-article-date">
-  <time datetime="2018-10-18T12:40:12.000Z" itemprop="datePublished">Oct 18</time>
+        <section id="main"><article id="post-how-to-use-blacklight-hierarchy-gem" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-use-blacklight-hierarchy-gem/" class="article-date">
+  <time datetime="2018-10-18T12:40:12.000Z" itemprop="datePublished">2018-10-18</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/blacklight/">blacklight</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/how-to-use-blacklight-hierarchy-gem/">How to use blacklight hierarchy gem to implement hierarchical facets</a>
+    <h1 class="article-title" itemprop="name">
+      How to use blacklight hierarchy gem to implement hierarchical facets
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/adding-new-static-page-in-hyrax/" class="archive-article-date">
-  <time datetime="2018-10-12T12:40:12.000Z" itemprop="datePublished">Oct 12</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
-    </h1>
-  
+        <p><a href="https://github.com/sul-dlss/blacklight-hierarchy" target="_blank" rel="noopener">Blacklight hierarchy</a> provides a light way to support hierarchical facets,<br>but the documentation is a bit hard to understand, I just write down what I have done to get a working prototype.  </p>
+<h2 id="Update-Gemfile"><a href="#Update-Gemfile" class="headerlink" title="Update Gemfile"></a>Update Gemfile</h2><p>Add this line to Gemfile:</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem <span class="string">'blacklight-hierarchy'</span></span><br></pre></td></tr></table></figure>
+<p>and run:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bundle install</span><br></pre></td></tr></table></figure>
+<h2 id="Define-facets-in-catalog-controller"><a href="#Define-facets-in-catalog-controller" class="headerlink" title="Define facets in catalog_controller"></a>Define facets in catalog_controller</h2><p>Edit app/controllers/catalog_controller.rb:</p>
+<pre><code>config.add_facet_field solr_name(&apos;summary_general_research_area&apos;, :facetable),
+                       label: &quot;Topic&quot;,
+                       :partial =&gt; &apos;blacklight/hierarchy/facet_hierarchy&apos;
 
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/define-customized-samvera-models-step-by-step/" class="archive-article-date">
-  <time datetime="2018-10-11T16:40:12.000Z" itemprop="datePublished">Oct 11</time>
-</a>
+config.facet_display = {
+    :hierarchy =&gt; {
+        &apos;summary_general_research_area&apos; =&gt; [[&apos;sim&apos;],&apos;:&apos;]
+    }
+}
+</code></pre><p>NB: the facet field name in solr is concatenated from above ‘summary_general_research_area’ and ‘sim’,<br>e.g. the solr facet field name is: ‘facet-summary_general_research_area_sim’  </p>
+
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/define-customized-samvera-models-step-by-step/">Define customized Samvera models in OASIS, step by step</a>
-    </h1>
-  
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-use-blacklight-hierarchy-gem/" data-id="cjnesc8iv0000pq316yvdtwuf" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/facets/">facets</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
 
-    </header>
+    </footer>
   </div>
-</article>
+  
+    
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/adding-new-static-page-in-hyrax/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Adding a new static page in Hyrax</div>
+    </a>
   
+</nav>
 
+  
+</article>
 
 </section>
         
