@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-127329943-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Build Samvera stack step by step | Frank&#39;s development blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="EnvironmentsUbuntu: 18.04.1 LTSJava: OpenJDK version 11Tomcat: 9.0.12Solr: 7.5.0Fedora: 4.5.1Ruby: 2.5.3Rails: 5.2.1 Install OpenJDK version 11sudo apt install default-jdk  sudo nano /etc/environment">
+<meta name="keywords" content="blacklight solr hyrax fedora">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Build Samvera stack step by step">
+<meta property="og:url" content="https://yfrankfeng.github.io/build-samvera-stack-step-by-step/index.html">
+<meta property="og:site_name" content="Frank&#39;s development blog">
+<meta property="og:description" content="EnvironmentsUbuntu: 18.04.1 LTSJava: OpenJDK version 11Tomcat: 9.0.12Solr: 7.5.0Fedora: 4.5.1Ruby: 2.5.3Rails: 5.2.1 Install OpenJDK version 11sudo apt install default-jdk  sudo nano /etc/environment">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-11-07T16:41:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Build Samvera stack step by step">
+<meta name="twitter:description" content="EnvironmentsUbuntu: 18.04.1 LTSJava: OpenJDK version 11Tomcat: 9.0.12Solr: 7.5.0Fedora: 4.5.1Ruby: 2.5.3Rails: 5.2.1 Install OpenJDK version 11sudo apt install default-jdk  sudo nano /etc/environment">
+  
+    <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Frank&#39;s development blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://yfrankfeng.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-build-samvera-stack-step-by-step" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/build-samvera-stack-step-by-step/" class="article-date">
+  <time datetime="2018-11-07T12:40:12.000Z" itemprop="datePublished">2018-11-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/samvera/">samvera</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Build Samvera stack step by step
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Environments"><a href="#Environments" class="headerlink" title="Environments"></a>Environments</h2><p>Ubuntu: 18.04.1 LTS<br>Java: OpenJDK version 11<br>Tomcat: 9.0.12<br>Solr: 7.5.0<br>Fedora: 4.5.1<br>Ruby: 2.5.3<br>Rails: 5.2.1</p>
+<h2 id="Install-OpenJDK-version-11"><a href="#Install-OpenJDK-version-11" class="headerlink" title="Install OpenJDK version 11"></a>Install OpenJDK version 11</h2><pre><code>sudo apt install default-jdk
+
+sudo nano /etc/environment
+</code></pre><p>Add: </p>
+<pre><code>JAVA_HOME=&quot;/usr/lib/jvm/java-11-openjdk-amd64&quot;
+</code></pre><h2 id="Install-Tomcat-9-0-12-as-a-service"><a href="#Install-Tomcat-9-0-12-as-a-service" class="headerlink" title="Install Tomcat 9.0.12 as a service"></a>Install Tomcat 9.0.12 as a service</h2><p>This part is mainly following this <a href="https://www.digitalocean.com/community/tutorials/install-tomcat-9-ubuntu-1804" target="_blank" rel="noopener">post</a></p>
+<pre><code>sudo groupadd tomcat
+sudo useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat
+cd /tmp
+curl -O http://mirror.ox.ac.uk/sites/rsync.apache.org/tomcat/tomcat-9/v9.0.12/bin/apache-tomcat-9.0.12-deployer.tar.gz
+sudo mkdir /opt/tomcat
+sudo tar xzvf apache-tomcat-9*tar.gz -C /opt/tomcat --strip-components=1
+cd /opt/tomcat
+sudo chgrp -R tomcat /opt/tomcat
+sudo chmod -R g+r conf
+sudo chmod g+x conf
+sudo chown -R tomcat webapps/ work/ temp/ logs/
+</code></pre><p>Then create a Tomcat service:</p>
+<pre><code>sudo nano /etc/systemd/system/tomcat.service
+</code></pre><p>With following content:</p>
+<pre><code>[Unit]
+Description=Apache Tomcat Web Application Container
+After=network.target
+
+[Service]
+Type=forking
+
+Environment=JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
+Environment=CATALINA_HOME=/opt/tomcat
+Environment=CATALINA_BASE=/opt/tomcat
+Environment=&apos;CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC&apos;
+Environment=&apos;JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom&apos;
+
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+
+User=tomcat
+Group=tomcat
+UMask=0007
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+</code></pre><p>Reload system daemon:</p>
+<pre><code>sudo systemctl daemon-reload
+</code></pre><p>Start Tomcat:</p>
+<pre><code>sudo systemctl start tomcat
+</code></pre><p>Test if you can access Tomcat via port 8080, then enable this service:</p>
+<pre><code>sudo systemctl enable tomcat
+</code></pre><p>Configure Tomcat web admin UI:</p>
+<pre><code>sudo nano /opt/tomcat/conf/tomcat-users.xml
+</code></pre><p>With the content:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;tomcat-users xmlns=&quot;http://tomcat.apache.org/xml&quot;
+              xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+              xsi:schemaLocation=&quot;http://tomcat.apache.org/xml tomcat-users.xsd&quot;
+              version=&quot;1.0&quot;&gt;
+  &lt;role rolename=&quot;manager-gui&quot;/&gt;
+  &lt;user username=&quot;tomcat&quot; password=&quot;PASSWORD&quot; roles=&quot;manager-gui&quot;/&gt;
+
+  &lt;role rolename=&quot;admin-gui&quot;/&gt;
+  &lt;user username=&quot;admin&quot; password=&quot;PASSWORD&quot; roles=&quot;admin-gui&quot;/&gt;
+&lt;/tomcat-users&gt;              
+</code></pre><p>By default, Tomcat adds IP restrictions for Manager UI, either comment it out or add your IP into the list.</p>
+<pre><code>sudo nano /opt/tomcat/webapps/manager/META-INF/context.xml
+</code></pre><p>And restart Tomcat</p>
+<h2 id="Install-Solr-7-5-0-as-a-service"><a href="#Install-Solr-7-5-0-as-a-service" class="headerlink" title="Install Solr 7.5.0 as a service"></a>Install Solr 7.5.0 as a service</h2><h2 id="Install-Fedora-4-5-1"><a href="#Install-Fedora-4-5-1" class="headerlink" title="Install Fedora 4.5.1"></a>Install Fedora 4.5.1</h2><h2 id="Install-Ruby-on-Rails"><a href="#Install-Ruby-on-Rails" class="headerlink" title="Install Ruby on Rails"></a>Install Ruby on Rails</h2><h2 id="Install-other-components"><a href="#Install-other-components" class="headerlink" title="Install other components"></a>Install other components</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/build-samvera-stack-step-by-step/" data-id="cjo7eats30001s105tt2cg35z" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/how-to-add-a-survey-window-before-download/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">How to add a survey window before download file</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/hyrax/" style="font-size: 15px;">hyrax</a> <a href="/tags/rails/" style="font-size: 10px;">rails</a> <a href="/tags/samvera/" style="font-size: 15px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/build-samvera-stack-step-by-step/">Build Samvera stack step by step</a>
+          </li>
+        
+          <li>
+            <a href="/how-to-add-a-survey-window-before-download/">How to add a survey window before download file</a>
+          </li>
+        
+          <li>
+            <a href="/how-to-use-blacklight-hierarchy-gem/">How to use blacklight hierarchy gem to implement hierarchical facets</a>
+          </li>
+        
+          <li>
+            <a href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
+          </li>
+        
+          <li>
+            <a href="/define-customized-samvera-models-step-by-step/">Define customized Samvera models in OASIS, step by step</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Frank<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
