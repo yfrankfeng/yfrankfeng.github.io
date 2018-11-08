@@ -178,7 +178,67 @@ WantedBy=multi-user.target
 </code></pre><p>By default, Tomcat adds IP restrictions for Manager UI, either comment it out or add your IP into the list.</p>
 <pre><code>sudo nano /opt/tomcat/webapps/manager/META-INF/context.xml
 </code></pre><p>And restart Tomcat</p>
-<h2 id="Install-Solr-7-5-0-as-a-service"><a href="#Install-Solr-7-5-0-as-a-service" class="headerlink" title="Install Solr 7.5.0 as a service"></a>Install Solr 7.5.0 as a service</h2><h2 id="Install-Fedora-4-5-1"><a href="#Install-Fedora-4-5-1" class="headerlink" title="Install Fedora 4.5.1"></a>Install Fedora 4.5.1</h2><h2 id="Install-Ruby-on-Rails"><a href="#Install-Ruby-on-Rails" class="headerlink" title="Install Ruby on Rails"></a>Install Ruby on Rails</h2><h2 id="Install-other-components"><a href="#Install-other-components" class="headerlink" title="Install other components"></a>Install other components</h2>
+<h2 id="Install-Solr-7-5-0-as-a-service"><a href="#Install-Solr-7-5-0-as-a-service" class="headerlink" title="Install Solr 7.5.0 as a service"></a>Install Solr 7.5.0 as a service</h2><pre><code>cd /tmp
+wget http://www.apache.org/dyn/closer.lua/lucene/solr/7.5.0/solr-7.5.0.tgz
+tar xvf solr-7.5.0.tgz
+cd solr-7.5.0/bin
+./install_solr_service.sh  ../../solr-7.5.0.tgz
+sudo su - solr -c &quot;/opt/solr/bin/solr create -c oasis -n data_driven_schema_configs&quot;
+</code></pre><p>Test: </p>
+<pre><code>sudo service solr status
+</code></pre><p><strong>Optional</strong>: if using Hyrax, you need to tweak solr configuration files, e.g. Copy solrconfig.xml, schema.xml from <a href="https://github.com/digital-york/arch1/tree/master/solr_conf/conf" target="_blank" rel="noopener">https://github.com/digital-york/arch1/tree/master/solr_conf/conf</a> to /var/solr/data/oasis/conf</p>
+<h2 id="Install-Fedora-4-5-1"><a href="#Install-Fedora-4-5-1" class="headerlink" title="Install Fedora 4.5.1"></a>Install Fedora 4.5.1</h2><p>Create folder and change permissions:</p>
+<pre><code>mkdir /home/frank/fcrepo-data
+mkdir /home/frank/fcrepo-data/fedora-node-types
+sudo chmod -R 755 /home/frank/fcrepo-data
+sudo chown -R tomcat:tomcat /home/frank/fcrepo-data
+</code></pre><p>And</p>
+<pre><code>sudo nano /home/frank/fcrepo-data/fedora-node-types/fedora-node-types.cnd
+</code></pre><p>content is available in: <a href="https://github.com/digital-york/fedora-config/blob/master/fedora-node-types.cnd" target="_blank" rel="noopener">https://github.com/digital-york/fedora-config/blob/master/fedora-node-types.cnd</a></p>
+<pre><code>cd /opt/tomcat/webapps
+wget https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-4.5.1/fcrepo-webapp-4.5.1.war -O fedora.war
+</code></pre><p>Edit file /opt/tomcat/bin/setclasspath.sh</p>
+<pre><code>JAVA_OPTS=&quot;${JAVA_OPTS} -Dfcrepo.home=/home/frank/fcrepo-data&quot;
+JAVA_OPTS=&quot;${JAVA_OPTS} -Dfuseki.port=3131&quot;
+JAVA_OPTS=&quot;${JAVA_OPTS} -Dfile.serializer.dir=/home/frank/fcrepo-data/files -Dfcrepo.modeshape.configuration=classpath:/config/minimal/repository.json&quot;
+CATALINA_OPTS=&quot;$CATALINA_OPTS -server -Xms512m -Xmx1024m&quot;
+JAVA_HOME=&quot;/usr/lib/jvm/java-11-openjdk-amd64&quot;
+
+sudo nano /opt/tomcat/webapps/fedora/WEB-INF/classes/config/minimal/repository.json
+</code></pre><p>Update: “node-types” : [“/home/frank/fcrepo-data/fedora-node-types/fedora-node-types.cnd”]</p>
+<p>NB: <strong>fedora won’t work with jdk 11</strong> as the jaxb jar has been removed from JDK11.<br>Quick &amp; dirty fix is to download jaxb jar and copy it to fedora webapp/WEB-INF/lib</p>
+<p>Restart Tomcat</p>
+<h2 id="Install-Ruby-on-Rails"><a href="#Install-Ruby-on-Rails" class="headerlink" title="Install Ruby on Rails"></a>Install Ruby on Rails</h2><h3 id="rbenv"><a href="#rbenv" class="headerlink" title="rbenv"></a>rbenv</h3><pre><code>cd
+git clone git://github.com/sstephenson/rbenv.git .rbenv                       
+echo &apos;export PATH=&quot;$HOME/.rbenv/bin:$PATH&quot;&apos; &gt;&gt; ~/.bash_profile
+echo &apos;eval &quot;$(rbenv init -)&quot;&apos; &gt;&gt; ~/.bash_profile
+git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+echo &apos;export PATH=&quot;$HOME/.rbenv/plugins/ruby-build/bin:$PATH&quot;&apos; &gt;&gt; ~/.bash_profile
+source ~/.bash_profile
+</code></pre><h3 id="Ruby"><a href="#Ruby" class="headerlink" title="Ruby"></a>Ruby</h3><pre><code>rbenv install -v 2.5.3
+rbenv global 2.5.3
+ruby -v
+</code></pre><h3 id="gems"><a href="#gems" class="headerlink" title="gems"></a>gems</h3><pre><code>echo &quot;gem: --no-document&quot; &gt; ~/.gemrc
+gem install bundler
+gem install rails
+</code></pre><h2 id="Install-other-components"><a href="#Install-other-components" class="headerlink" title="Install other components"></a>Install other components</h2><h3 id="Clamav"><a href="#Clamav" class="headerlink" title="Clamav"></a>Clamav</h3><pre><code>sudo apt-get install clamav
+sudo apt-get install libclamav-dev
+gem install clamav -v &apos;0.4.1&apos; --source &apos;https://rubygems.org/&apos;
+</code></pre><h3 id="Postgresql-gem"><a href="#Postgresql-gem" class="headerlink" title="Postgresql gem"></a>Postgresql gem</h3><pre><code>sudo apt-get install libpq-dev
+</code></pre><h3 id="Sqlite3"><a href="#Sqlite3" class="headerlink" title="Sqlite3"></a>Sqlite3</h3><pre><code>sudo apt-get install sqlite3 libsqlite3-dev
+</code></pre><h3 id="libreoffice"><a href="#libreoffice" class="headerlink" title="libreoffice"></a>libreoffice</h3><pre><code>sudo apt-get install libreoffice
+</code></pre><h3 id="FITS"><a href="#FITS" class="headerlink" title="FITS"></a>FITS</h3><pre><code>sudo apt-get install imagemagick
+sudo apt-get install libmediainfo-dev
+sudo apt-get install libzen-dev 
+
+cd ~
+wget http://projects.iq.harvard.edu/files/fits/files/fits-0.10.2.zip
+sudo unzip ~/fits-0.10.2.zip -d /opt
+sudo chmod a+x /opt/fits-0.10.2/fits.sh
+</code></pre><p>Add /opt/fits-0.10.2/ into PATH, e.g. in .bash_profile</p>
+<pre><code>sudo ln -s /opt/fits-0.10.2 /opt/fits
+</code></pre><h3 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h3><pre><code>sudo apt-get install redis-server
+</code></pre>
       
     </div>
     <footer class="article-footer">
