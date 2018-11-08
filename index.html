@@ -238,6 +238,12 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
 </code></pre><p>Add /opt/fits-0.10.2/ into PATH, e.g. in .bash_profile</p>
 <pre><code>sudo ln -s /opt/fits-0.10.2 /opt/fits
 </code></pre><h3 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h3><pre><code>sudo apt-get install redis-server
+</code></pre><h2 id="Hyrax-2-4-0"><a href="#Hyrax-2-4-0" class="headerlink" title="Hyrax 2.4.0"></a>Hyrax 2.4.0</h2><p>Install rails 5.1.6, as required by Hyrax 2.4.0 (PS: it seems that rails 5.2.1 is not working with Hyrax 2.4.0)</p>
+<pre><code>gem install rails -v 5.1.6
+</code></pre><p>Create Hyrax demo project</p>
+<pre><code>rails _5.1.6_ new hyraxdemo -m https://raw.githubusercontent.com/samvera/hyrax/v2.4.0/template.rb
+</code></pre><p>Run Hyrax:</p>
+<pre><code>bin/rails hydra:server    
 </code></pre>
       
     </div>
