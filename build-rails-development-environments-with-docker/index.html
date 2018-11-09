@@ -18,20 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>How to add a survey window before download file | Frank&#39;s development blog</title>
+  <title>Build Rails development environment with Docker | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
-<meta name="keywords" content="blacklight rails hyrax">
+  <meta name="description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
+<meta name="keywords" content="docker rails">
 <meta property="og:type" content="article">
-<meta property="og:title" content="How to add a survey window before download file">
-<meta property="og:url" content="https://yfrankfeng.github.io/how-to-add-a-survey-window-before-download/index.html">
+<meta property="og:title" content="Build Rails development environment with Docker">
+<meta property="og:url" content="https://yfrankfeng.github.io/build-rails-development-environments-with-docker/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
+<meta property="og:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-07T10:05:48.762Z">
+<meta property="og:updated_time" content="2018-11-09T14:08:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="How to add a survey window before download file">
-<meta name="twitter:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
+<meta name="twitter:title" content="Build Rails development environment with Docker">
+<meta name="twitter:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -82,14 +82,14 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-how-to-add-a-survey-window-before-download" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <section id="main"><article id="post-build-rails-development-environments-with-docker" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/how-to-add-a-survey-window-before-download/" class="article-date">
-  <time datetime="2018-10-18T12:40:12.000Z" itemprop="datePublished">2018-10-18</time>
+    <a href="/build-rails-development-environments-with-docker/" class="article-date">
+  <time datetime="2018-11-10T12:40:12.000Z" itemprop="datePublished">2018-11-10</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/rails/">rails</a>
+    <a class="article-category-link" href="/categories/docker/">docker</a>
   </div>
 
   </div>
@@ -100,7 +100,7 @@ ga('send', 'pageview');
         
   
     <h1 class="article-title" itemprop="name">
-      How to add a survey window before download file
+      Build Rails development environment with Docker
     </h1>
   
 
@@ -108,89 +108,51 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="First-generate-a-new-model"><a href="#First-generate-a-new-model" class="headerlink" title="First, generate a new model"></a>First, generate a new model</h2><p>Run this command to generate a new Downloader:</p>
-<pre><code>rails g hyrax:work Downloader
-</code></pre><h2 id="Add-additional-downloader-metadata"><a href="#Add-additional-downloader-metadata" class="headerlink" title="Add additional downloader metadata"></a>Add additional downloader metadata</h2><p>Add app/models/concerns/oasis/downloader_metadata.rb:</p>
-<pre><code>module Oasis
-  module DownloaderMetadata extend ActiveSupport::Concern
-    included do
-      property :time, predicate: ::RDF::URI.new(&apos;https://oasis-database.org/ontologies/oasis#downloader_time&apos;), multiple: false do |index|
-        index.as :stored_searchable
-      end
-
-      # ......
-  end
-end
-</code></pre><p>Also, edit app/models/downloader.rb to add:</p>
-<pre><code>include ::Oasis::DownloaderMetadata
-</code></pre><h2 id="Setup-relationships"><a href="#Setup-relationships" class="headerlink" title="Setup relationships"></a>Setup relationships</h2><p>Define the relationship between Summary and Downloader:</p>
-<p>In Summary,</p>
-<pre><code>class Summary &lt; ActiveFedora::Base
-  # ......
-  has_many :downloaders, dependent: :destroy, class_name: &apos;Downloader&apos;
-
-  # ......
-end  
-</code></pre><p>In Downloader,</p>
-<pre><code>class Downloader &lt; ActiveFedora::Base
-  belongs_to :summary, predicate: ::RDF::URI.new(&apos;https://oasis-database.org/ontologies/oasis#downloader&apos;)
-
-  # ......
-end
-</code></pre><h2 id="Tweaks-in-views"><a href="#Tweaks-in-views" class="headerlink" title="Tweaks in views"></a>Tweaks in views</h2><p>First, to remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;&lt;%= t(&quot;hyrax.document_language&quot;, default: &apos;&apos;) %&gt;&quot; prefix=&quot;og:http://ogp.me/ns#&quot;&gt;
-  &lt;head&gt;
-    &lt;%= render partial: &apos;layouts/head_tag_content&apos; %&gt;
-    &lt;%= content_for(:head) %&gt;
-  &lt;/head&gt;
-
-  &lt;body&gt;
-    &lt;a href=&quot;#skip_to_content&quot; class=&quot;sr-only&quot;&gt;Skip to Content&lt;/a&gt;
-
-    &lt;%= content_for(:precontainer_content) %&gt;
-    &lt;div id=&quot;content-wrapper&quot; class=&quot;container&quot; role=&quot;main&quot;&gt;
-      &lt;a name=&quot;skip_to_content&quot;&gt;&lt;/a&gt;
-      &lt;div class=&quot;col-xs-12&quot;&gt;
-        &lt;% if content_for?(:page_header) %&gt;
-          &lt;div class=&quot;row&quot;&gt;
-            &lt;div class=&quot;col-xs-12 main-header&quot;&gt;
-              &lt;%= yield(:page_header) %&gt;
-            &lt;/div&gt;
-          &lt;/div&gt;
-        &lt;% end %&gt;
-
-        &lt;%= content_for?(:content) ? yield(:content) : yield %&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;&lt;!-- /#content-wrapper --&gt;
-    &lt;%= render &apos;shared/ajax_modal&apos; %&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>Add: app/views/layouts/hyrax/1_column/blank.html.erb</p>
-<pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
-</code></pre><p>Copy (from Hyrax) and modify app/views/hyrax/base/_form.html.erb</p>
-<pre><code>&lt;% if @form.model_name==&apos;Downloader&apos; %&gt;
-  &lt;%= render &apos;hyrax/base/guts4form4downloader&apos;, f: f %&gt;
-&lt;% else %&gt;
-  &lt;%= render &apos;hyrax/base/guts4form&apos;, f: f %&gt;
-&lt;% end %&gt;
-</code></pre><p>To remove file upload and relationship tab, add app/views/hyrax/base/_guts4form4downloader.html.erb    </p>
-<pre><code>&lt;% tabs ||= %w[metadata] # default tab order %&gt;
-...
-&lt;%= render &apos;form_progress_downloader&apos;, f: f %&gt;
-</code></pre><p>Also, change the savewidget on the right, e.g.</p>
-<pre><code>&lt;div class=&quot;col-xs-12 col-sm-12&quot;&gt;
-</code></pre><p>and</p>
-<pre><code>&lt;div id=&quot;savewidget&quot; class=&quot;col-xs-12 col-sm-12 fixedsticky&quot; role=&quot;complementary&quot;&gt;
-</code></pre><p>To remove visiblity/licence, add file: app/views/hyrax/base/_form_progress_downloader.html.erb and remove unnecessary UI components.</p>
-<h2 id="Add-popup-window"><a href="#Add-popup-window" class="headerlink" title="Add popup window"></a>Add popup window</h2>
+        <h2 id="Generate-a-Rails-application"><a href="#Generate-a-Rails-application" class="headerlink" title="Generate a Rails application"></a>Generate a Rails application</h2><pre><code>rails new dockerdemo --skip-test --skip-bundle
+</code></pre><h2 id="Create-Dockerfile"><a href="#Create-Dockerfile" class="headerlink" title="Create Dockerfile"></a>Create Dockerfile</h2><pre><code>cd dockerdemo
+nano Dockerfile
+</code></pre><p>With content:</p>
+<pre><code>FROM ruby:2.5
+RUN apt-get update -yqq
+RUN apt-get install -yqq --no-install-recommends nodejs
+COPY . /usr/src/railsdemo/
+COPY Gemfile* /usr/src/railsdemo/
+WORKDIR /usr/src/railsdemo
+RUN bundle install    
+</code></pre><h2 id="Create-dockerignore"><a href="#Create-dockerignore" class="headerlink" title="Create .dockerignore"></a>Create .dockerignore</h2><p>With content:</p>
+<pre><code>.git
+.gitignore
+log/*
+tmp/*
+</code></pre><h2 id="Create-docker-compose-yml"><a href="#Create-docker-compose-yml" class="headerlink" title="Create docker-compose.yml"></a>Create docker-compose.yml</h2><pre><code>version: &apos;3&apos;
+services:
+  web:
+    build: .
+    ports:
+      - &quot;3000:3000&quot;
+    volumes:
+      - .:/usr/src/railsdemo
+    command: bash -c &quot;rm -f tmp/pids/server.pid &amp;&amp; bundle exec rails s -p 3000 -b &apos;0.0.0.0&apos;&quot;
+</code></pre><p>Then run:</p>
+<pre><code>docker-compose up --build
+</code></pre><h2 id="Useful-commands"><a href="#Useful-commands" class="headerlink" title="Useful commands"></a>Useful commands</h2><p>List of images</p>
+<pre><code>docker images
+</code></pre><p>Start a container</p>
+<pre><code>docker-compose up
+</code></pre><p>List of containers</p>
+<pre><code>docker-compose ps
+</code></pre><p>Show logs of a service</p>
+<pre><code>docker-compose logs web
+</code></pre><p>SSH to a container</p>
+<pre><code>docker-compose run web bash
+</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-add-a-survey-window-before-download/" data-id="cjo7eatsd0005s105x84uwnmb" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/build-rails-development-environments-with-docker/" data-id="cjoa3ls0p0000lt05kgtc61hz" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li></ul>
 
     </footer>
   </div>
@@ -198,19 +160,10 @@ end
     
 <nav id="article-nav">
   
-    <a href="/build-samvera-stack-step-by-step/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Build Samvera stack step by step
-        
-      </div>
-    </a>
   
-  
-    <a href="/how-to-use-blacklight-hierarchy-gem/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/build-samvera-stack-step-by-step/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">How to use blacklight hierarchy gem to implement hierarchical facets</div>
+      <div class="article-nav-title">Build Samvera stack step by step</div>
     </a>
   
 </nav>

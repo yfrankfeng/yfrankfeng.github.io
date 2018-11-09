@@ -83,6 +83,85 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-build-rails-development-environments-with-docker" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/build-rails-development-environments-with-docker/" class="article-date">
+  <time datetime="2018-11-10T12:40:12.000Z" itemprop="datePublished">2018-11-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/docker/">docker</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Generate-a-Rails-application"><a href="#Generate-a-Rails-application" class="headerlink" title="Generate a Rails application"></a>Generate a Rails application</h2><pre><code>rails new dockerdemo --skip-test --skip-bundle
+</code></pre><h2 id="Create-Dockerfile"><a href="#Create-Dockerfile" class="headerlink" title="Create Dockerfile"></a>Create Dockerfile</h2><pre><code>cd dockerdemo
+nano Dockerfile
+</code></pre><p>With content:</p>
+<pre><code>FROM ruby:2.5
+RUN apt-get update -yqq
+RUN apt-get install -yqq --no-install-recommends nodejs
+COPY . /usr/src/railsdemo/
+COPY Gemfile* /usr/src/railsdemo/
+WORKDIR /usr/src/railsdemo
+RUN bundle install    
+</code></pre><h2 id="Create-dockerignore"><a href="#Create-dockerignore" class="headerlink" title="Create .dockerignore"></a>Create .dockerignore</h2><p>With content:</p>
+<pre><code>.git
+.gitignore
+log/*
+tmp/*
+</code></pre><h2 id="Create-docker-compose-yml"><a href="#Create-docker-compose-yml" class="headerlink" title="Create docker-compose.yml"></a>Create docker-compose.yml</h2><pre><code>version: &apos;3&apos;
+services:
+  web:
+    build: .
+    ports:
+      - &quot;3000:3000&quot;
+    volumes:
+      - .:/usr/src/railsdemo
+    command: bash -c &quot;rm -f tmp/pids/server.pid &amp;&amp; bundle exec rails s -p 3000 -b &apos;0.0.0.0&apos;&quot;
+</code></pre><p>Then run:</p>
+<pre><code>docker-compose up --build
+</code></pre><h2 id="Useful-commands"><a href="#Useful-commands" class="headerlink" title="Useful commands"></a>Useful commands</h2><p>List of images</p>
+<pre><code>docker images
+</code></pre><p>Start a container</p>
+<pre><code>docker-compose up
+</code></pre><p>List of containers</p>
+<pre><code>docker-compose ps
+</code></pre><p>Show logs of a service</p>
+<pre><code>docker-compose logs web
+</code></pre><p>SSH to a container</p>
+<pre><code>docker-compose run web bash
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/build-rails-development-environments-with-docker/" data-id="cjoa3ls0p0000lt05kgtc61hz" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-build-samvera-stack-step-by-step" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/build-samvera-stack-step-by-step/" class="article-date">
@@ -745,7 +824,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li></ul>
     </div>
   </div>
 
@@ -755,7 +834,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li></ul>
     </div>
   </div>
 
@@ -765,7 +844,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/hyrax/" style="font-size: 15px;">hyrax</a> <a href="/tags/rails/" style="font-size: 10px;">rails</a> <a href="/tags/samvera/" style="font-size: 15px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a>
+      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/hyrax/" style="font-size: 15px;">hyrax</a> <a href="/tags/rails/" style="font-size: 15px;">rails</a> <a href="/tags/samvera/" style="font-size: 15px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a>
     </div>
   </div>
 
@@ -787,6 +866,10 @@ end
       <ul>
         
           <li>
+            <a href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
+          </li>
+        
+          <li>
             <a href="/build-samvera-stack-step-by-step/">Build Samvera stack step by step</a>
           </li>
         
@@ -800,10 +883,6 @@ end
         
           <li>
             <a href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
-          </li>
-        
-          <li>
-            <a href="/define-customized-samvera-models-step-by-step/">Define customized Samvera models in OASIS, step by step</a>
           </li>
         
       </ul>
