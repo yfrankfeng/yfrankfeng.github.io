@@ -144,8 +144,20 @@ services:
 <pre><code>docker-compose ps
 </code></pre><p>Show logs of a service</p>
 <pre><code>docker-compose logs web
+</code></pre><p>Manage a service</p>
+<pre><code>docker-compose [start|stop|kill|restart|pause|unpause|rm] SERVICE    
 </code></pre><p>SSH to a container</p>
 <pre><code>docker-compose run web bash
+</code></pre><p>A script to remove all containers and images:</p>
+<pre><code>#!/bin/bash
+# Stop all running containers
+docker stop $(docker ps -aq)
+
+# Delete all containers
+docker rm $(docker ps -a -q)
+
+# Delete all images and their dependent images
+docker rmi -f $(docker images -q)    
 </code></pre>
       
     </div>

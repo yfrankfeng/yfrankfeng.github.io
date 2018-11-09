@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-09T14:08:41.000Z">
+<meta property="og:updated_time" content="2018-11-09T14:16:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Build Rails development environment with Docker">
 <meta name="twitter:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
@@ -143,8 +143,20 @@ services:
 <pre><code>docker-compose ps
 </code></pre><p>Show logs of a service</p>
 <pre><code>docker-compose logs web
+</code></pre><p>Manage a service</p>
+<pre><code>docker-compose [start|stop|kill|restart|pause|unpause|rm] SERVICE    
 </code></pre><p>SSH to a container</p>
 <pre><code>docker-compose run web bash
+</code></pre><p>A script to remove all containers and images:</p>
+<pre><code>#!/bin/bash
+# Stop all running containers
+docker stop $(docker ps -aq)
+
+# Delete all containers
+docker rm $(docker ps -a -q)
+
+# Delete all images and their dependent images
+docker rmi -f $(docker images -q)    
 </code></pre>
       
     </div>
