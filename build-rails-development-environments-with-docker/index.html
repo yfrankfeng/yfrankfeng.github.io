@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-16T11:38:31.000Z">
+<meta property="og:updated_time" content="2018-11-16T16:20:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Build Rails development environment with Docker">
 <meta name="twitter:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
@@ -137,12 +137,15 @@ services:
 <pre><code>docker-compose up --build
 </code></pre><h2 id="Useful-commands"><a href="#Useful-commands" class="headerlink" title="Useful commands"></a>Useful commands</h2><h3 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h3><p>List of images</p>
 <pre><code>docker images
+</code></pre><p>Remove an image</p>
+<pre><code>docker rmi xxxx    
 </code></pre><p>Delete all images and their dependent images</p>
 <pre><code>docker rmi -f $(docker images -q) 
 </code></pre><h3 id="Container"><a href="#Container" class="headerlink" title="Container"></a>Container</h3><p>Start a container</p>
 <pre><code>docker-compose up
 </code></pre><p>List of containers</p>
-<pre><code>docker ps
+<pre><code>docker ps (ONLY running containers)
+docker ps -a (all containers)
 docker-compose ps
 </code></pre><p>Stop all running containers</p>
 <pre><code>docker stop $(docker ps -aq)
