@@ -83,6 +83,35 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-heroku-rails" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/heroku-rails/" class="article-date">
+  <time datetime="2018-11-14T09:36:22.466Z" itemprop="datePublished">2018-11-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <pre><code>sudo snap install --classic heroku
+</code></pre><p>Make sure add ‘/snap/bin’ into PATH and re-login again. Type command:</p>
+<pre><code>heroku --version
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/heroku-rails/" data-id="cjojwbupa00007a05dpmmvzqu" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-build-rails-development-environments-with-docker" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/build-rails-development-environments-with-docker/" class="article-date">
@@ -158,6 +187,20 @@ docker rm $(docker ps -a -q)
 
 # Delete all images and their dependent images
 docker rmi -f $(docker images -q)    
+</code></pre><h2 id="Add-solr-service"><a href="#Add-solr-service" class="headerlink" title="Add solr service"></a>Add solr service</h2><p>Under services, add:</p>
+<pre><code>solr:
+  image: solr
+  ports:
+  - &quot;8983:8983&quot;
+  volumes:
+  - data:/opt/solr/server/solr/oasis
+  entrypoint:
+  - docker-entrypoint.sh
+  - solr-precreate
+  - oasis
+</code></pre><p>Also, add:</p>
+<pre><code>volumes:
+  data:
 </code></pre>
       
     </div>
@@ -406,7 +449,9 @@ end
 
   # ......
 end
-</code></pre><h2 id="Tweaks-in-views"><a href="#Tweaks-in-views" class="headerlink" title="Tweaks in views"></a>Tweaks in views</h2><p>First, to remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
+</code></pre><h2 id="Update-related-files"><a href="#Update-related-files" class="headerlink" title="Update related files"></a>Update related files</h2><h3 id="form"><a href="#form" class="headerlink" title="form"></a>form</h3><p>Edit forms/hyrax/downloader_form.rb</p>
+<p>Update terms and required_fields.    </p>
+<h2 id="Tweaks-in-views"><a href="#Tweaks-in-views" class="headerlink" title="Tweaks in views"></a>Tweaks in views</h2><p>First, to remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
 <pre><code>&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;&lt;%= t(&quot;hyrax.document_language&quot;, default: &apos;&apos;) %&gt;&quot; prefix=&quot;og:http://ogp.me/ns#&quot;&gt;
   &lt;head&gt;
@@ -437,13 +482,15 @@ end
 &lt;/html&gt;
 </code></pre><p>Add: app/views/layouts/hyrax/1_column/blank.html.erb</p>
 <pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
+</code></pre><p>Remember to register this blank layout in Downloader Controller:</p>
+<pre><code>with_themed_layout &apos;blank&apos;    
 </code></pre><p>Copy (from Hyrax) and modify app/views/hyrax/base/_form.html.erb</p>
 <pre><code>&lt;% if @form.model_name==&apos;Downloader&apos; %&gt;
   &lt;%= render &apos;hyrax/base/guts4form4downloader&apos;, f: f %&gt;
 &lt;% else %&gt;
   &lt;%= render &apos;hyrax/base/guts4form&apos;, f: f %&gt;
 &lt;% end %&gt;
-</code></pre><p>To remove file upload and relationship tab, add app/views/hyrax/base/_guts4form4downloader.html.erb    </p>
+</code></pre><p>To remove file upload and relationship tab, add app/views/hyrax/base/_guts4form.html.erb    </p>
 <pre><code>&lt;% tabs ||= %w[metadata] # default tab order %&gt;
 ...
 &lt;%= render &apos;form_progress_downloader&apos;, f: f %&gt;
@@ -878,6 +925,10 @@ end
       <ul>
         
           <li>
+            <a href="/heroku-rails/">(no title)</a>
+          </li>
+        
+          <li>
             <a href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
           </li>
         
@@ -891,10 +942,6 @@ end
         
           <li>
             <a href="/how-to-use-blacklight-hierarchy-gem/">How to use blacklight hierarchy gem to implement hierarchical facets</a>
-          </li>
-        
-          <li>
-            <a href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
           </li>
         
       </ul>

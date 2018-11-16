@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-09T14:16:44.000Z">
+<meta property="og:updated_time" content="2018-11-09T14:46:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Build Rails development environment with Docker">
 <meta name="twitter:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
@@ -157,6 +157,20 @@ docker rm $(docker ps -a -q)
 
 # Delete all images and their dependent images
 docker rmi -f $(docker images -q)    
+</code></pre><h2 id="Add-solr-service"><a href="#Add-solr-service" class="headerlink" title="Add solr service"></a>Add solr service</h2><p>Under services, add:</p>
+<pre><code>solr:
+  image: solr
+  ports:
+  - &quot;8983:8983&quot;
+  volumes:
+  - data:/opt/solr/server/solr/oasis
+  entrypoint:
+  - docker-entrypoint.sh
+  - solr-precreate
+  - oasis
+</code></pre><p>Also, add:</p>
+<pre><code>volumes:
+  data:
 </code></pre>
       
     </div>
@@ -171,6 +185,15 @@ docker rmi -f $(docker images -q)
   
     
 <nav id="article-nav">
+  
+    <a href="/heroku-rails/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
   
   
     <a href="/build-samvera-stack-step-by-step/" id="article-nav-older" class="article-nav-link-wrap">
@@ -233,6 +256,10 @@ docker rmi -f $(docker images -q)
       <ul>
         
           <li>
+            <a href="/heroku-rails/">(no title)</a>
+          </li>
+        
+          <li>
             <a href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
           </li>
         
@@ -246,10 +273,6 @@ docker rmi -f $(docker images -q)
         
           <li>
             <a href="/how-to-use-blacklight-hierarchy-gem/">How to use blacklight hierarchy gem to implement hierarchical facets</a>
-          </li>
-        
-          <li>
-            <a href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
           </li>
         
       </ul>

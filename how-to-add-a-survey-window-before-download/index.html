@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-07T10:05:48.762Z">
+<meta property="og:updated_time" content="2018-11-14T13:32:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="How to add a survey window before download file">
 <meta name="twitter:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
@@ -137,7 +137,9 @@ end
 
   # ......
 end
-</code></pre><h2 id="Tweaks-in-views"><a href="#Tweaks-in-views" class="headerlink" title="Tweaks in views"></a>Tweaks in views</h2><p>First, to remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
+</code></pre><h2 id="Update-related-files"><a href="#Update-related-files" class="headerlink" title="Update related files"></a>Update related files</h2><h3 id="form"><a href="#form" class="headerlink" title="form"></a>form</h3><p>Edit forms/hyrax/downloader_form.rb</p>
+<p>Update terms and required_fields.    </p>
+<h2 id="Tweaks-in-views"><a href="#Tweaks-in-views" class="headerlink" title="Tweaks in views"></a>Tweaks in views</h2><p>First, to remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
 <pre><code>&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;&lt;%= t(&quot;hyrax.document_language&quot;, default: &apos;&apos;) %&gt;&quot; prefix=&quot;og:http://ogp.me/ns#&quot;&gt;
   &lt;head&gt;
@@ -168,13 +170,15 @@ end
 &lt;/html&gt;
 </code></pre><p>Add: app/views/layouts/hyrax/1_column/blank.html.erb</p>
 <pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
+</code></pre><p>Remember to register this blank layout in Downloader Controller:</p>
+<pre><code>with_themed_layout &apos;blank&apos;    
 </code></pre><p>Copy (from Hyrax) and modify app/views/hyrax/base/_form.html.erb</p>
 <pre><code>&lt;% if @form.model_name==&apos;Downloader&apos; %&gt;
   &lt;%= render &apos;hyrax/base/guts4form4downloader&apos;, f: f %&gt;
 &lt;% else %&gt;
   &lt;%= render &apos;hyrax/base/guts4form&apos;, f: f %&gt;
 &lt;% end %&gt;
-</code></pre><p>To remove file upload and relationship tab, add app/views/hyrax/base/_guts4form4downloader.html.erb    </p>
+</code></pre><p>To remove file upload and relationship tab, add app/views/hyrax/base/_guts4form.html.erb    </p>
 <pre><code>&lt;% tabs ||= %w[metadata] # default tab order %&gt;
 ...
 &lt;%= render &apos;form_progress_downloader&apos;, f: f %&gt;
@@ -268,6 +272,10 @@ end
       <ul>
         
           <li>
+            <a href="/heroku-rails/">(no title)</a>
+          </li>
+        
+          <li>
             <a href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
           </li>
         
@@ -281,10 +289,6 @@ end
         
           <li>
             <a href="/how-to-use-blacklight-hierarchy-gem/">How to use blacklight hierarchy gem to implement hierarchical facets</a>
-          </li>
-        
-          <li>
-            <a href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
           </li>
         
       </ul>
