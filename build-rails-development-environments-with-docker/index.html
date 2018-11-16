@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-09T14:46:50.000Z">
+<meta property="og:updated_time" content="2018-11-16T11:38:31.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Build Rails development environment with Docker">
 <meta name="twitter:description" content="Generate a Rails applicationrails new dockerdemo --skip-test --skip-bundle Create Dockerfilecd dockerdemo nano Dockerfile With content: FROM ruby:2.5 RUN apt-get update -yqq RUN apt-get install -yqq -">
@@ -135,18 +135,19 @@ services:
     command: bash -c &quot;rm -f tmp/pids/server.pid &amp;&amp; bundle exec rails s -p 3000 -b &apos;0.0.0.0&apos;&quot;
 </code></pre><p>Then run:</p>
 <pre><code>docker-compose up --build
-</code></pre><h2 id="Useful-commands"><a href="#Useful-commands" class="headerlink" title="Useful commands"></a>Useful commands</h2><p>List of images</p>
+</code></pre><h2 id="Useful-commands"><a href="#Useful-commands" class="headerlink" title="Useful commands"></a>Useful commands</h2><h3 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h3><p>List of images</p>
 <pre><code>docker images
-</code></pre><p>Start a container</p>
+</code></pre><p>Delete all images and their dependent images</p>
+<pre><code>docker rmi -f $(docker images -q) 
+</code></pre><h3 id="Container"><a href="#Container" class="headerlink" title="Container"></a>Container</h3><p>Start a container</p>
 <pre><code>docker-compose up
 </code></pre><p>List of containers</p>
-<pre><code>docker-compose ps
-</code></pre><p>Show logs of a service</p>
-<pre><code>docker-compose logs web
-</code></pre><p>Manage a service</p>
-<pre><code>docker-compose [start|stop|kill|restart|pause|unpause|rm] SERVICE    
-</code></pre><p>SSH to a container</p>
-<pre><code>docker-compose run web bash
+<pre><code>docker ps
+docker-compose ps
+</code></pre><p>Stop all running containers</p>
+<pre><code>docker stop $(docker ps -aq)
+</code></pre><p>Remove all containers</p>
+<pre><code>docker rm $(docker ps -aq)    
 </code></pre><p>A script to remove all containers and images:</p>
 <pre><code>#!/bin/bash
 # Stop all running containers
@@ -156,7 +157,13 @@ docker stop $(docker ps -aq)
 docker rm $(docker ps -a -q)
 
 # Delete all images and their dependent images
-docker rmi -f $(docker images -q)    
+docker rmi -f $(docker images -q)            
+</code></pre><h3 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h3><p>Show logs of a service</p>
+<pre><code>docker-compose logs web
+</code></pre><p>Manage a service</p>
+<pre><code>docker-compose [start|stop|kill|restart|pause|unpause|rm] SERVICE    
+</code></pre><p>SSH to a container</p>
+<pre><code>docker-compose run web bash
 </code></pre><h2 id="Add-solr-service"><a href="#Add-solr-service" class="headerlink" title="Add solr service"></a>Add solr service</h2><p>Under services, add:</p>
 <pre><code>solr:
   image: solr
@@ -185,15 +192,6 @@ docker rmi -f $(docker images -q)
   
     
 <nav id="article-nav">
-  
-    <a href="/heroku-rails/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          (no title)
-        
-      </div>
-    </a>
   
   
     <a href="/build-samvera-stack-step-by-step/" id="article-nav-older" class="article-nav-link-wrap">
@@ -256,10 +254,6 @@ docker rmi -f $(docker images -q)
       <ul>
         
           <li>
-            <a href="/heroku-rails/">(no title)</a>
-          </li>
-        
-          <li>
             <a href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
           </li>
         
@@ -273,6 +267,10 @@ docker rmi -f $(docker images -q)
         
           <li>
             <a href="/how-to-use-blacklight-hierarchy-gem/">How to use blacklight hierarchy gem to implement hierarchical facets</a>
+          </li>
+        
+          <li>
+            <a href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
           </li>
         
       </ul>
