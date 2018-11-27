@@ -83,6 +83,147 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-install-and-configure-zsh-to-be-git-friendly" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/install-and-configure-zsh-to-be-git-friendly/" class="article-date">
+  <time datetime="2018-11-25T22:40:12.000Z" itemprop="datePublished">2018-11-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Ubuntu/">Ubuntu</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/install-and-configure-zsh-to-be-git-friendly/">Install and configure zsh to be git friendly</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Install-zsh"><a href="#Install-zsh" class="headerlink" title="Install zsh"></a>Install zsh</h2><p>Install zsh:</p>
+<pre><code>sudo apt-get install zsh
+</code></pre><h2 id="Install-zsh-plugins"><a href="#Install-zsh-plugins" class="headerlink" title="Install zsh plugins"></a>Install zsh plugins</h2><p>Install Powerlevel9k theme:</p>
+<pre><code>sudo apt-get install zsh-theme-powerlevel9k
+echo &quot;source /usr/share/powerlevel9k/powerlevel9k.zsh-theme&quot; &gt;&gt; ~/.zshrc
+</code></pre><p>Install zsh-syntax-highlighting:</p>
+<pre><code>sudo apt-get install zsh-syntax-highlighting
+echo &quot;source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh&quot; &gt;&gt; ~/.zshrc    
+</code></pre><p>Install Oh-My-ZSH:</p>
+<pre><code>sh -c &quot;$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)&quot;
+</code></pre><p>Choose a theme and change .zshrc, the themes and their look can be found here:</p>
+<p><a href="https://github.com/robbyrussell/oh-my-zsh/wiki/themes" target="_blank" rel="noopener">https://github.com/robbyrussell/oh-my-zsh/wiki/themes</a></p>
+<p><strong>make sure copy all environment variables from .bashrc/.bash_profile to ~/.zshrc</strong></p>
+<h2 id="Fix-zsh-cursor-position-problem"><a href="#Fix-zsh-cursor-position-problem" class="headerlink" title="Fix zsh cursor position problem:"></a>Fix zsh cursor position problem:</h2><p>In some version of Ubuntu, the cursor is a character behind, to fix this problem:</p>
+<p>Create a sh script and run it:</p>
+<pre><code>#!/bin/sh
+DIR=&quot;$HOME/.oh-my-zsh/custom/themes&quot;
+mkdir -p $DIR
+cd $DIR
+sed &quot;s/➜/→/g;s/✗/×/g&quot; $HOME/.oh-my-zsh/themes/robbyrussell.zsh-theme &gt; robbyrussell.zsh-theme
+</code></pre><h2 id="git-friendly-zsh"><a href="#git-friendly-zsh" class="headerlink" title="git friendly zsh"></a>git friendly zsh</h2><p>It looks like:</p>
+<p><img src="/images/zsh.jpg" alt="zsh"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/install-and-configure-zsh-to-be-git-friendly/" data-id="cjoz0exw200000405q3p0yl5l" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-heroku-rails" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/heroku-rails/" class="article-date">
+  <time datetime="2018-11-24T22:40:12.000Z" itemprop="datePublished">2018-11-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Heroku/">Heroku</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/heroku-rails/">Install and configure Rails application to Heroku</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Install-heroku-cli"><a href="#Install-heroku-cli" class="headerlink" title="Install heroku cli"></a>Install heroku cli</h2><pre><code>sudo snap install --classic heroku
+</code></pre><p>Make sure add ‘/snap/bin’ into PATH and re-login again. Type command:</p>
+<pre><code>heroku --version
+</code></pre><h2 id="Setup-Rails-application-in-Heroku"><a href="#Setup-Rails-application-in-Heroku" class="headerlink" title="Setup Rails application in Heroku"></a>Setup Rails application in Heroku</h2><p>In the following, I will use <a href="https://github.com/yf508/yorkshire-dictionary" target="_blank" rel="noopener">A forked version of Yorkshire Historical Dictionary</a>, the notes below are mainly taken from the <a href="https://github.com/digital-york/yorkshire-dictionary/blob/master/README.md" target="_blank" rel="noopener">README from the original project</a>. </p>
+<pre><code>git clone git@github.com:yf508/yorkshire-dictionary.git
+
+cd yorkshire-dictionary
+
+heroku create --region eu
+</code></pre><p>In Heroku dashboard, under the application you just created, add a Heroku Postgres Add-on </p>
+<p>Then go back to Ubuntu terminal, run:</p>
+<pre><code>heroku config:set RACK_ENV=heroku RAILS_ENV=heroku --remote heroku
+
+heroku config:set RAILS_MASTER_KEY=YOUR_KEY
+
+git push heroku
+</code></pre><p>Load data:</p>
+<pre><code>heroku run rails db:schema:load
+
+heroku run rails yhd:import
+</code></pre><h2 id="Work-as-a-collaborator"><a href="#Work-as-a-collaborator" class="headerlink" title="Work as a collaborator"></a>Work as a collaborator</h2><p>Once received invitation as a collaborator, run:</p>
+<pre><code>heroku git:clone -a yhd
+</code></pre><p>then link to github repository:</p>
+<pre><code>git remote add origin git@github.com:digital-york/yorkshire-dictionary.git
+</code></pre><h2 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h2><p>SSH to heroku dyno:</p>
+<pre><code>heroku run bash
+</code></pre><h2 id="Problems-amp-solutions"><a href="#Problems-amp-solutions" class="headerlink" title="Problems &amp; solutions"></a>Problems &amp; solutions</h2><h3 id="Cannot-run-heroku-container-login-while-deploying-a-dockerized-app"><a href="#Cannot-run-heroku-container-login-while-deploying-a-dockerized-app" class="headerlink" title="Cannot run heroku container:login while deploying a dockerized app"></a>Cannot run heroku container:login while deploying a dockerized app</h3><p><strong>The error message is:</strong></p>
+<p>Error saving credentials: error storing credentials - err: exit status 1, out: <code>Cannot autolaunch D-Bus without X11 $DISPLAY</code><br>▸ Login failed with: 1</p>
+<p><strong>Solution</strong></p>
+<pre><code>sudo apt install gnupg2 pass
+gpg2 --full-generate-key
+gpg2 -kgpg2 -k
+pass init &quot; the id from abolve command&quot;
+</code></pre><p>Then run:</p>
+<pre><code>heroku container:login
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/heroku-rails/" data-id="cjoz0exxl00070405544c2rk4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heroku/">heroku</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-build-rails-development-environments-with-docker" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/build-rails-development-environments-with-docker/" class="article-date">
@@ -864,7 +1005,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li></ul>
     </div>
   </div>
 
@@ -874,7 +1015,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -884,7 +1025,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/hyrax/" style="font-size: 15px;">hyrax</a> <a href="/tags/rails/" style="font-size: 15px;">rails</a> <a href="/tags/samvera/" style="font-size: 15px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a>
+      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/heroku/" style="font-size: 10px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15px;">hyrax</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/samvera/" style="font-size: 15px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -906,6 +1047,14 @@ end
       <ul>
         
           <li>
+            <a href="/install-and-configure-zsh-to-be-git-friendly/">Install and configure zsh to be git friendly</a>
+          </li>
+        
+          <li>
+            <a href="/heroku-rails/">Install and configure Rails application to Heroku</a>
+          </li>
+        
+          <li>
             <a href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
           </li>
         
@@ -915,14 +1064,6 @@ end
         
           <li>
             <a href="/how-to-add-a-survey-window-before-download/">How to add a survey window before download file</a>
-          </li>
-        
-          <li>
-            <a href="/how-to-use-blacklight-hierarchy-gem/">How to use blacklight hierarchy gem to implement hierarchical facets</a>
-          </li>
-        
-          <li>
-            <a href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
           </li>
         
       </ul>
