@@ -561,13 +561,13 @@ end
 <p>In Summary,</p>
 <pre><code>class Summary &lt; ActiveFedora::Base
   # ......
-  has_many :downloaders, dependent: :destroy, class_name: &apos;Downloader&apos;
+  has_many :downloaders, dependent: :destroy, class_name: &apos;Downloader&apos;, :autosave =&gt; true
 
   # ......
 end  
 </code></pre><p>In Downloader,</p>
 <pre><code>class Downloader &lt; ActiveFedora::Base
-  belongs_to :summary, predicate: ::RDF::URI.new(&apos;https://oasis-database.org/ontologies/oasis#downloader&apos;)
+  belongs_to :summary, :autosave =&gt; true, predicate: ::RDF::URI.new(&apos;https://oasis-database.org/ontologies/oasis#downloader&apos;)
 
   # ......
 end
@@ -621,7 +621,49 @@ end
 </code></pre><p>and</p>
 <pre><code>&lt;div id=&quot;savewidget&quot; class=&quot;col-xs-12 col-sm-12 fixedsticky&quot; role=&quot;complementary&quot;&gt;
 </code></pre><p>To remove visiblity/licence, add file: app/views/hyrax/base/_form_progress_downloader.html.erb and remove unnecessary UI components.</p>
-<h2 id="Add-popup-window"><a href="#Add-popup-window" class="headerlink" title="Add popup window"></a>Add popup window</h2>
+<h2 id="Add-popup-window"><a href="#Add-popup-window" class="headerlink" title="Add popup window"></a>Add popup window</h2><p>I use fancybox, so declare CSS and JS:</p>
+<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.css&quot; /&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.js&quot;&gt;&lt;/script&gt;
+</code></pre><p>And make a popup window to show the Downloader form:</p>
+<pre><code>&lt;a data-fancybox
+         data-type=&quot;iframe&quot;
+         data-captain=&quot;Downloader Survey&quot;
+         data-src=&quot;/concern/parent/&lt;%= @presenter.solr_document.id %&gt;/downloaders/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&quot;
+         data-options=&apos;{
+             &quot;buttons&quot; : [&quot;close&quot;],
+             &quot;animationEffect&quot;: &quot;fade&quot;,
+             &quot;animationDuration&quot;: &quot;500&quot;,
+             &quot;autoFocus&quot;: &quot;true&quot;,
+             &quot;modal&quot;: &quot;true&quot;
+         }&apos;
+         class=&quot;btn btn-default&quot;
+         href=&quot;javascript:;&quot; &gt;
+        &lt;%= t(&apos;hyrax.file_set.show.downloadable_content.pdf_link&apos;) %&gt;
+      &lt;/a&gt;
+</code></pre><h2 id="How-to-store-parent-child-relationship-without-nested-form"><a href="#How-to-store-parent-child-relationship-without-nested-form" class="headerlink" title="How to store parent-child relationship without nested form"></a>How to store parent-child relationship without nested form</h2><p>It’s quite straightforward to relfect parent children relationship in the nested form.<br>However, I’m not sure what’s the best way to implement it in a separate forms. Here is my tweaks:</p>
+<p>First, pass the summary id to the Downloader form, e.g. (in _pdf.html.erb):</p>
+<pre><code>data-src=&quot;/concern/parent/&lt;%= @presenter.solr_document.id %&gt;/downloaders/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&quot; 
+</code></pre><p>Make sure add parent_summary_id in the Downloader model:</p>
+<pre><code>property :parent_summary_id, predicate: XXXXXXXXXXXXXXXXX
+</code></pre><p>Define parent_summary_id as a hidden field and use the passed parameter as its value.</p>
+<pre><code>&lt;%= f.input :parent_summary_id, as: :hidden,
+            input_html: { :value =&gt; params[&quot;summary_id&quot;] }
+%&gt;
+</code></pre><p>Define a post processing job e.g. in app/jobs/downloader_post_deposit_job.rb:</p>
+<pre><code>class DownloaderPostDepositJob &lt; ContentEventJob
+    def action
+        # update Downloader&apos;s id
+        if repo_object.class.to_s==&apos;Downloader&apos;
+            repo_object.summary_id = repo_object.parent_summary_id unless repo_object.parent_summary_id.nil?
+            repo_object.save
+        end
+    end
+end
+</code></pre><p>Register the DownloaderPostDepositJob in config/initializers/hyrax_callback.rb:</p>
+<pre><code>Hyrax.config.callback.set(:after_create_concern) do |curation_concern, user|
+    DownloaderPostDepositJob.perform_later(curation_concern, user)
+end    
+</code></pre>
       
     </div>
     <footer class="article-footer">
