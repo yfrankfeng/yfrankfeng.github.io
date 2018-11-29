@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-27T12:29:06.000Z">
+<meta property="og:updated_time" content="2018-11-28T12:11:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="How to add a survey window before download file">
 <meta name="twitter:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
@@ -228,6 +228,18 @@ end
 </code></pre><p>Register the DownloaderPostDepositJob in config/initializers/hyrax_callback.rb:</p>
 <pre><code>Hyrax.config.callback.set(:after_create_concern) do |curation_concern, user|
     DownloaderPostDepositJob.perform_later(curation_concern, user)
+end    
+</code></pre><h2 id="Exclude-Survey-data-from-search-results"><a href="#Exclude-Survey-data-from-search-results" class="headerlink" title="Exclude Survey data from search results"></a>Exclude Survey data from search results</h2><p>In the customized search builder:</p>
+<pre><code># Only query Summaries
+def only_search_summary(solr_parameters)
+    solr_parameters[:q] += &apos; has_model_ssim:Summary&apos;
+end    
+</code></pre><p>In the homepage_controller.rb, add additional parameter to exclude downloaders from recent documents:</p>
+<pre><code>def recent
+  # grab any recent documents
+  (_, @recent_documents) = search_results(q: &apos;has_model_ssim:Summary&apos;, sort: sort_field, rows: 4)
+rescue Blacklight::Exceptions::ECONNREFUSED, Blacklight::Exceptions::InvalidRequest
+  @recent_documents = []
 end    
 </code></pre>
       

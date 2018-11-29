@@ -663,6 +663,18 @@ end
 <pre><code>Hyrax.config.callback.set(:after_create_concern) do |curation_concern, user|
     DownloaderPostDepositJob.perform_later(curation_concern, user)
 end    
+</code></pre><h2 id="Exclude-Survey-data-from-search-results"><a href="#Exclude-Survey-data-from-search-results" class="headerlink" title="Exclude Survey data from search results"></a>Exclude Survey data from search results</h2><p>In the customized search builder:</p>
+<pre><code># Only query Summaries
+def only_search_summary(solr_parameters)
+    solr_parameters[:q] += &apos; has_model_ssim:Summary&apos;
+end    
+</code></pre><p>In the homepage_controller.rb, add additional parameter to exclude downloaders from recent documents:</p>
+<pre><code>def recent
+  # grab any recent documents
+  (_, @recent_documents) = search_results(q: &apos;has_model_ssim:Summary&apos;, sort: sort_field, rows: 4)
+rescue Blacklight::Exceptions::ECONNREFUSED, Blacklight::Exceptions::InvalidRequest
+  @recent_documents = []
+end    
 </code></pre>
       
     </div>
