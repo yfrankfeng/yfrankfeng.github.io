@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-28T12:11:22.000Z">
+<meta property="og:updated_time" content="2018-12-03T10:21:31.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="How to add a survey window before download file">
 <meta name="twitter:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
@@ -241,6 +241,21 @@ end
 rescue Blacklight::Exceptions::ECONNREFUSED, Blacklight::Exceptions::InvalidRequest
   @recent_documents = []
 end    
+</code></pre><h2 id="Add-a-standard-RoR-form"><a href="#Add-a-standard-RoR-form" class="headerlink" title="Add a standard RoR form"></a>Add a standard RoR form</h2><pre><code>rails g controller Survey new
+</code></pre><p>In Survey Controller, can do sth. like:</p>
+<pre><code>def submit
+    Create Downloader object by summary.downloaders.new
+
+    redirect_to &quot;/survey/saved?filesetid=XXXX&quot;
+end    
+</code></pre><p>Create app/views/layouts/hyrax/survey.html.erb:</p>
+<pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
+</code></pre><p>Create app/views/survey/new.html.erb, just use standard Bootstrap form, but submitting to Survey controller:</p>
+<pre><code>&lt;form action=&quot;/survey/submit&quot; method=&quot;post&quot;&gt;
+</code></pre><p>In config/routes.rb, add:</p>
+<pre><code>get &apos;survey/new&apos;
+get &apos;survey/saved&apos;
+post &apos;survey/submit&apos;
 </code></pre>
       
     </div>
@@ -294,7 +309,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -304,7 +319,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/heroku/" style="font-size: 10px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15px;">hyrax</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/samvera/" style="font-size: 15px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/heroku/" style="font-size: 15px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15px;">hyrax</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 15px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -313,7 +328,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -324,6 +339,10 @@ end
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/install-refinery-on-heroku/">How to install Refinery CMS to Heroku</a>
+          </li>
         
           <li>
             <a href="/install-and-configure-zsh-to-be-git-friendly/">Install and configure zsh to be git friendly</a>
@@ -339,10 +358,6 @@ end
         
           <li>
             <a href="/build-samvera-stack-step-by-step/">Build Samvera stack step by step</a>
-          </li>
-        
-          <li>
-            <a href="/how-to-add-a-survey-window-before-download/">How to add a survey window before download file</a>
           </li>
         
       </ul>
