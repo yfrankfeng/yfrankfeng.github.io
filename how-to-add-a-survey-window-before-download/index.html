@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-12-03T10:21:31.000Z">
+<meta property="og:updated_time" content="2018-12-19T11:55:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="How to add a survey window before download file">
 <meta name="twitter:description" content="First, generate a new modelRun this command to generate a new Downloader: rails g hyrax:work Downloader Add additional downloader metadataAdd app/models/concerns/oasis/downloader_metadata.rb: module O">
@@ -133,13 +133,35 @@ end
 end  
 </code></pre><p>In Downloader,</p>
 <pre><code>class Downloader &lt; ActiveFedora::Base
-  belongs_to :summary, :autosave =&gt; true, predicate: ::RDF::URI.new(&apos;https://oasis-database.org/ontologies/oasis#downloader&apos;)
+  belongs_to :summary, :autosave =&gt; true, predicate: ActiveFedora::RDF::Fcrepo::RelsExt.isPartOf
 
   # ......
 end
-</code></pre><h2 id="Update-related-files"><a href="#Update-related-files" class="headerlink" title="Update related files"></a>Update related files</h2><h3 id="form"><a href="#form" class="headerlink" title="form"></a>form</h3><p>Edit forms/hyrax/downloader_form.rb</p>
-<p>Update terms and required_fields.    </p>
-<h2 id="Tweaks-in-views"><a href="#Tweaks-in-views" class="headerlink" title="Tweaks in views"></a>Tweaks in views</h2><p>First, to remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
+</code></pre><h2 id="The-standard-RoR-form-not-Hyrax-form"><a href="#The-standard-RoR-form-not-Hyrax-form" class="headerlink" title="The standard RoR form (not Hyrax form)"></a>The standard RoR form (not Hyrax form)</h2><p>Since the downloader survey form does not require authentication, the Hyrax work based form (e.g. the default downloader form is not appropirate). </p>
+<p>In here, we use a standard RoR form to get users’ input and create Downloader object.</p>
+<h3 id="generate-a-standard-RoR-form-controller"><a href="#generate-a-standard-RoR-form-controller" class="headerlink" title="generate a standard RoR form/controller"></a>generate a standard RoR form/controller</h3><pre><code>rails g controller Survey new
+</code></pre><p>In Survey Controller, can do sth. like:</p>
+<pre><code>def submit
+  begin
+    summary_id         = params[&quot;summary_id&quot;]
+    summary_fileset_id = params[&quot;summary_fileset_id&quot;]
+
+    d = Summary.find(summary_id).downloaders.new
+    d.downloader_status      = params[&quot;survey&quot;][&quot;status&quot;] unless params[&quot;survey&quot;][&quot;status&quot;].nil?
+    d.downloader_email       = params[&quot;email&quot;]            unless params[&quot;email&quot;].nil?
+    d.downloader_affiliation = params[&quot;institution&quot;]      unless params[&quot;institution&quot;].nil?
+    d.downloader_contable    = params[&quot;contable&quot;]         unless params[&quot;contable&quot;].nil?
+    d.downloader_cty         = params[&quot;country&quot;]          unless params[&quot;country&quot;].nil?
+    d.save!
+
+    redirect_to &apos;/survey/saved?survey_done=yes&amp;summary_id=&apos; + summary_id.to_s + &apos;&amp;downloader_id=&apos; + d.id.to_s + &apos;&amp;fileset_id=&apos; + summary_fileset_id.to_s
+    rescue
+    redirect_to &apos;/survey/error&apos;
+  end
+end
+</code></pre><p>Create app/views/layouts/hyrax/survey.html.erb:</p>
+<pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
+</code></pre><p>To remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
 <pre><code>&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;&lt;%= t(&quot;hyrax.document_language&quot;, default: &apos;&apos;) %&gt;&quot; prefix=&quot;og:http://ogp.me/ns#&quot;&gt;
   &lt;head&gt;
@@ -168,11 +190,46 @@ end
     &lt;%= render &apos;shared/ajax_modal&apos; %&gt;
   &lt;/body&gt;
 &lt;/html&gt;
-</code></pre><p>Add: app/views/layouts/hyrax/1_column/blank.html.erb</p>
-<pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
-</code></pre><p>Remember to register this blank layout in Downloader Controller:</p>
-<pre><code>with_themed_layout &apos;blank&apos;    
-</code></pre><p>Copy (from Hyrax) and modify app/views/hyrax/base/_form.html.erb</p>
+</code></pre><p>Remember to register this blank layout in Survey Controller:</p>
+<pre><code>with_themed_layout &apos;survey&apos;
+</code></pre><p>Create app/views/survey/new.html.erb, just use standard Bootstrap form, but submitting to Survey controller:</p>
+<pre><code>&lt;form action=&quot;/survey/submit&quot; method=&quot;post&quot;&gt;
+</code></pre><p>In config/routes.rb, add:</p>
+<pre><code>get &apos;survey/new&apos;
+get &apos;survey/saved&apos;
+post &apos;survey/submit&apos;
+</code></pre><h2 id="Add-popup-window"><a href="#Add-popup-window" class="headerlink" title="Add popup window"></a>Add popup window</h2><p>I use fancybox, so declare CSS and JS:</p>
+<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.css&quot; /&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.js&quot;&gt;&lt;/script&gt;
+</code></pre><p>And make a popup window to show the Downloader form:</p>
+<pre><code>&lt;a data-fancybox
+            data-type=&quot;iframe&quot;
+            data-captain=&quot;Downloader Survey&quot;
+            data-src=&quot;/survey/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&amp;summary_fileset_id=&lt;%= file_set.id%&gt;&quot;
+            data-options=&apos;{
+              &quot;buttons&quot; : [&quot;close&quot;],
+              &quot;animationEffect&quot;: &quot;fade&quot;,
+              &quot;animationDuration&quot;: &quot;500&quot;,
+              &quot;autoFocus&quot;: &quot;true&quot;,
+              &quot;modal&quot;: &quot;true&quot;
+            }&apos;
+            class=&quot;btn btn-default&quot;
+            href=&quot;javascript:;&quot; &gt;
+          &lt;%= t(&apos;hyrax.file_set.show.downloadable_content.pdf_link&apos;) %&gt;
+        &lt;/a&gt;
+</code></pre><h2 id="Exclude-Survey-data-from-search-results"><a href="#Exclude-Survey-data-from-search-results" class="headerlink" title="Exclude Survey data from search results"></a>Exclude Survey data from search results</h2><p>In the customized search builder:</p>
+<pre><code># Only query Summaries
+def only_search_summary(solr_parameters)
+    solr_parameters[:q] += &apos; has_model_ssim:Summary&apos;
+end    
+</code></pre><p>In the homepage_controller.rb, add additional parameter to exclude downloaders from recent documents:</p>
+<pre><code>def recent
+  # grab any recent documents
+  (_, @recent_documents) = search_results(q: &apos;has_model_ssim:Summary&apos;, sort: sort_field, rows: 4)
+rescue Blacklight::Exceptions::ECONNREFUSED, Blacklight::Exceptions::InvalidRequest
+  @recent_documents = []
+end    
+</code></pre><h2 id="NOT-USED-unless-authentication-needed-Tweaks-in-views-for-Hyrax-based-work-form-Downloader-form"><a href="#NOT-USED-unless-authentication-needed-Tweaks-in-views-for-Hyrax-based-work-form-Downloader-form" class="headerlink" title="(NOT USED, unless authentication needed) Tweaks in views for Hyrax based work form (Downloader form)"></a>(NOT USED, unless authentication needed) Tweaks in views for Hyrax based work form (Downloader form)</h2><p>Copy (from Hyrax) and modify app/views/hyrax/base/_form.html.erb</p>
 <pre><code>&lt;% if @form.model_name==&apos;Downloader&apos; %&gt;
   &lt;%= render &apos;hyrax/base/guts4form4downloader&apos;, f: f %&gt;
 &lt;% else %&gt;
@@ -187,26 +244,7 @@ end
 </code></pre><p>and</p>
 <pre><code>&lt;div id=&quot;savewidget&quot; class=&quot;col-xs-12 col-sm-12 fixedsticky&quot; role=&quot;complementary&quot;&gt;
 </code></pre><p>To remove visiblity/licence, add file: app/views/hyrax/base/_form_progress_downloader.html.erb and remove unnecessary UI components.</p>
-<h2 id="Add-popup-window"><a href="#Add-popup-window" class="headerlink" title="Add popup window"></a>Add popup window</h2><p>I use fancybox, so declare CSS and JS:</p>
-<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.css&quot; /&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.js&quot;&gt;&lt;/script&gt;
-</code></pre><p>And make a popup window to show the Downloader form:</p>
-<pre><code>&lt;a data-fancybox
-         data-type=&quot;iframe&quot;
-         data-captain=&quot;Downloader Survey&quot;
-         data-src=&quot;/concern/parent/&lt;%= @presenter.solr_document.id %&gt;/downloaders/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&quot;
-         data-options=&apos;{
-             &quot;buttons&quot; : [&quot;close&quot;],
-             &quot;animationEffect&quot;: &quot;fade&quot;,
-             &quot;animationDuration&quot;: &quot;500&quot;,
-             &quot;autoFocus&quot;: &quot;true&quot;,
-             &quot;modal&quot;: &quot;true&quot;
-         }&apos;
-         class=&quot;btn btn-default&quot;
-         href=&quot;javascript:;&quot; &gt;
-        &lt;%= t(&apos;hyrax.file_set.show.downloadable_content.pdf_link&apos;) %&gt;
-      &lt;/a&gt;
-</code></pre><h2 id="How-to-store-parent-child-relationship-without-nested-form"><a href="#How-to-store-parent-child-relationship-without-nested-form" class="headerlink" title="How to store parent-child relationship without nested form"></a>How to store parent-child relationship without nested form</h2><p>It’s quite straightforward to relfect parent children relationship in the nested form.<br>However, I’m not sure what’s the best way to implement it in a separate forms. Here is my tweaks:</p>
+<h2 id="NOT-USED-for-my-own-record-How-to-store-parent-child-relationship-without-nested-form"><a href="#NOT-USED-for-my-own-record-How-to-store-parent-child-relationship-without-nested-form" class="headerlink" title="NOT USED (for my own record) How to store parent-child relationship without nested form"></a>NOT USED (for my own record) How to store parent-child relationship without nested form</h2><p>It’s quite straightforward to relfect parent children relationship in the nested form.<br>However, I’m not sure what’s the best way to implement it in a separate forms. Here is my tweaks:</p>
 <p>First, pass the summary id to the Downloader form, e.g. (in _pdf.html.erb):</p>
 <pre><code>data-src=&quot;/concern/parent/&lt;%= @presenter.solr_document.id %&gt;/downloaders/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&quot; 
 </code></pre><p>Make sure add parent_summary_id in the Downloader model:</p>
@@ -228,34 +266,7 @@ end
 </code></pre><p>Register the DownloaderPostDepositJob in config/initializers/hyrax_callback.rb:</p>
 <pre><code>Hyrax.config.callback.set(:after_create_concern) do |curation_concern, user|
     DownloaderPostDepositJob.perform_later(curation_concern, user)
-end    
-</code></pre><h2 id="Exclude-Survey-data-from-search-results"><a href="#Exclude-Survey-data-from-search-results" class="headerlink" title="Exclude Survey data from search results"></a>Exclude Survey data from search results</h2><p>In the customized search builder:</p>
-<pre><code># Only query Summaries
-def only_search_summary(solr_parameters)
-    solr_parameters[:q] += &apos; has_model_ssim:Summary&apos;
-end    
-</code></pre><p>In the homepage_controller.rb, add additional parameter to exclude downloaders from recent documents:</p>
-<pre><code>def recent
-  # grab any recent documents
-  (_, @recent_documents) = search_results(q: &apos;has_model_ssim:Summary&apos;, sort: sort_field, rows: 4)
-rescue Blacklight::Exceptions::ECONNREFUSED, Blacklight::Exceptions::InvalidRequest
-  @recent_documents = []
-end    
-</code></pre><h2 id="Add-a-standard-RoR-form"><a href="#Add-a-standard-RoR-form" class="headerlink" title="Add a standard RoR form"></a>Add a standard RoR form</h2><pre><code>rails g controller Survey new
-</code></pre><p>In Survey Controller, can do sth. like:</p>
-<pre><code>def submit
-    Create Downloader object by summary.downloaders.new
-
-    redirect_to &quot;/survey/saved?filesetid=XXXX&quot;
-end    
-</code></pre><p>Create app/views/layouts/hyrax/survey.html.erb:</p>
-<pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
-</code></pre><p>Create app/views/survey/new.html.erb, just use standard Bootstrap form, but submitting to Survey controller:</p>
-<pre><code>&lt;form action=&quot;/survey/submit&quot; method=&quot;post&quot;&gt;
-</code></pre><p>In config/routes.rb, add:</p>
-<pre><code>get &apos;survey/new&apos;
-get &apos;survey/saved&apos;
-post &apos;survey/submit&apos;
+end          
 </code></pre>
       
     </div>
