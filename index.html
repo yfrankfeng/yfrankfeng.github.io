@@ -83,6 +83,115 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-hyrax-2.4.1-customization" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/hyrax-2.4.1-customization/" class="article-date">
+  <time datetime="2019-01-28T16:40:12.000Z" itemprop="datePublished">2019-01-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Hyrax/">Hyrax</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/hyrax-2.4.1-customization/">Define customized Samvera models in OASIS, step by step</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h2><h3 id="Top-bar-for-language-login"><a href="#Top-bar-for-language-login" class="headerlink" title="Top bar for language/login"></a>Top bar for language/login</h3><p>In original Hyrax, remove this line in app/views/layouts/hyrax.html.erb:</p>
+<pre><code>&lt;%= render &apos;/masthead&apos; %&gt;
+</code></pre><p>If using a customized layout, e.g. app/views/layouts/ncelphome.html.erb, doing the same thing there.</p>
+<h3 id="Banner"><a href="#Banner" class="headerlink" title="Banner"></a>Banner</h3><p>Edit file: app/views/layouts/homepage.html.erb (copied form Hyrax):</p>
+<pre><code>&lt;% content_for(:navbar) do %&gt;
+  &lt;div class=&quot;image-masthead&quot;&gt;
+    &lt;div class=&quot;background-container&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.banner_image&apos;), alt: &quot;NCELP&quot;) %&gt;
+</code></pre><h2 id="Footer"><a href="#Footer" class="headerlink" title="Footer"></a>Footer</h2><p>Edit app/views/shared/_footer.html.erb:</p>
+<pre><code>&lt;footer class=&quot;navbar navbar-inverse site-footer ncelp-footer-border&quot;&gt;
+  &lt;div class=&quot;container-fluid row&quot;&gt;
+    &lt;div class=&quot;col-sm-4 ncelp_footer_container&quot; style=&quot;padding-top: 20px;&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.footer.ncelp_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;NCELP&quot;) %&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;col-sm-2 ncelp_footer_container&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.footer.uoy_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;University of York&quot;) %&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;col-sm-6 ncelp_footer_container&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.footer.education_dept_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;Department for Education&quot;) %&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;
+</code></pre><h2 id="Homepage"><a href="#Homepage" class="headerlink" title="Homepage"></a>Homepage</h2><p>It is defined in app/views/hyrax/home/_home_content.html.erb, so change that file something like:</p>
+<pre><code>&lt;!-- top boxes --&gt;
+&lt;div class=&quot;container row&quot;&gt;
+  &lt;div class=&quot;col-xs-12 col-sm-12 ncelp-homepage-middle-box&quot;&gt;
+    &lt;h3&gt;Search the Resource Portal&lt;/h3&gt;
+    &lt;%= render partial: &apos;homepage_search_form&apos; %&gt;
+    Enter &lt;b&gt;any text&lt;/b&gt; you wish into the search box (e.g. speaking, French, grammar) OR&lt;br/&gt;
+    Browse by: All resources; Topic; Language; Age; Type of material&lt;/br&gt;
+    Click on &quot;All Resources&quot; to view all content on the Resource Portal and then use the filters to refine your search&lt;br/&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- bottom boxes --&gt;
+&lt;div class=&quot;container row&quot;&gt;
+  &lt;div class=&quot;col-xs-12 col-sm-8 ncelp-homepage-bottom-box-left&quot;&gt;
+    &lt;h4&gt;&lt;%= t(&apos;hyrax.homepage.featured_works.tab_label&apos;) %&gt;&lt;/h4&gt;
+    &lt;%= render &apos;featured_works&apos; %&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;col-xs-12 col-sm-4 ncelp-homepage-bottom-box-right&quot;&gt;
+    &lt;h4&gt;&lt;%= t(&apos;hyrax.homepage.recently_uploaded.tab_label&apos;) %&gt;&lt;/h4&gt;
+    &lt;%= render &apos;recently_uploaded&apos;, recent_documents: @recent_documents %&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre><h3 id="Homepage-search-box"><a href="#Homepage-search-box" class="headerlink" title="Homepage search box"></a>Homepage search box</h3><p>Can be customized in app/views/hyrax/home/_homepage_search_form.html.erb:</p>
+<pre><code>&lt;%= form_tag search_form_action, method: :get, class: &quot;form-horizontal search-form&quot;, id: &quot;search-form-header&quot;, role: &quot;search&quot; do %&gt;
+  &lt;%= render_hash_as_hidden_fields(search_state.params_for_search.except(:q, :search_field, :qt, :page, :utf8)) %&gt;
+  &lt;%= hidden_field_tag :search_field, &apos;all_fields&apos; %&gt;
+  &lt;div class=&quot;form-group&quot;&gt;
+
+    &lt;div class=&quot;input-group&quot;&gt;
+      &lt;%= text_field_tag :q, current_search_parameters , class: &quot;q form-control&quot;, id: &quot;search-field-header&quot;, placeholder: t(&quot;hyrax.search.form.q.placeholder&quot;) %&gt;
+
+      &lt;div class=&quot;input-group-btn&quot;&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot; id=&quot;search-submit-header&quot;&gt;
+          &lt;%= t(&apos;hyrax.search.button.html&apos;) %&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;&lt;!-- /.input-group-btn --&gt;
+    &lt;/div&gt;&lt;!-- /.input-group --&gt;
+
+  &lt;/div&gt;&lt;!-- /.form-group --&gt;
+&lt;% end %&gt;
+</code></pre><h2 id="Menubar"><a href="#Menubar" class="headerlink" title="Menubar"></a>Menubar</h2><h3 id="Remove-searchbox"><a href="#Remove-searchbox" class="headerlink" title="Remove searchbox"></a>Remove searchbox</h3><p>Copy views/_controls.html.erb from Hyrax to your app, and remove this:</p>
+<pre><code>&lt;div class=&quot;searchbar-right navbar-right col-sm-7&quot;&gt;
+    &lt;%= render partial: &apos;catalog/search_form&apos; %&gt;
+&lt;/div&gt;
+</code></pre><h3 id="Menubar-items"><a href="#Menubar-items" class="headerlink" title="Menubar items"></a>Menubar items</h3><h2 id="Catalogue-search-page"><a href="#Catalogue-search-page" class="headerlink" title="Catalogue search page"></a>Catalogue search page</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/hyrax-2.4.1-customization/" data-id="cjrgfikup0000j905rf1wvhf4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-install-refinery-on-heroku" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/install-refinery-on-heroku/" class="article-date">
@@ -1185,7 +1294,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li></ul>
     </div>
   </div>
 
@@ -1205,7 +1314,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/heroku/" style="font-size: 15px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15px;">hyrax</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 15px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/blacklight/" style="font-size: 20px;">blacklight</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/heroku/" style="font-size: 15px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 20px;">hyrax</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 20px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1214,7 +1323,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1225,6 +1334,10 @@ end
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/hyrax-2.4.1-customization/">Define customized Samvera models in OASIS, step by step</a>
+          </li>
         
           <li>
             <a href="/install-refinery-on-heroku/">How to install Refinery CMS to Heroku</a>
@@ -1242,10 +1355,6 @@ end
             <a href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
           </li>
         
-          <li>
-            <a href="/build-samvera-stack-step-by-step/">Build Samvera stack step by step</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -1258,7 +1367,7 @@ end
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2018 Frank<br>
+      &copy; 2019 Frank<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

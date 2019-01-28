@@ -18,20 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Install and configure Rails application to Heroku | Frank&#39;s development blog</title>
+  <title>Define customized Samvera models in OASIS, step by step | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Install heroku clisudo snap install --classic heroku Make sure add ‘/snap/bin’ into PATH and re-login again. Type command: heroku --version Setup Rails application in HerokuIn the following, I will us">
-<meta name="keywords" content="heroku">
+  <meta name="description" content="HeaderTop bar for language/loginIn original Hyrax, remove this line in app/views/layouts/hyrax.html.erb: &amp;lt;%= render &amp;apos;/masthead&amp;apos; %&amp;gt; If using a customized layout, e.g. app/views/layouts/">
+<meta name="keywords" content="Hyrax UI">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Install and configure Rails application to Heroku">
-<meta property="og:url" content="https://yfrankfeng.github.io/heroku-rails/index.html">
+<meta property="og:title" content="Define customized Samvera models in OASIS, step by step">
+<meta property="og:url" content="https://yfrankfeng.github.io/hyrax-2.4.1-customization/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Install heroku clisudo snap install --classic heroku Make sure add ‘/snap/bin’ into PATH and re-login again. Type command: heroku --version Setup Rails application in HerokuIn the following, I will us">
+<meta property="og:description" content="HeaderTop bar for language/loginIn original Hyrax, remove this line in app/views/layouts/hyrax.html.erb: &amp;lt;%= render &amp;apos;/masthead&amp;apos; %&amp;gt; If using a customized layout, e.g. app/views/layouts/">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-11-29T12:05:44.000Z">
+<meta property="og:updated_time" content="2019-01-28T14:28:20.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Install and configure Rails application to Heroku">
-<meta name="twitter:description" content="Install heroku clisudo snap install --classic heroku Make sure add ‘/snap/bin’ into PATH and re-login again. Type command: heroku --version Setup Rails application in HerokuIn the following, I will us">
+<meta name="twitter:title" content="Define customized Samvera models in OASIS, step by step">
+<meta name="twitter:description" content="HeaderTop bar for language/loginIn original Hyrax, remove this line in app/views/layouts/hyrax.html.erb: &amp;lt;%= render &amp;apos;/masthead&amp;apos; %&amp;gt; If using a customized layout, e.g. app/views/layouts/">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -82,14 +82,14 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-heroku-rails" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <section id="main"><article id="post-hyrax-2.4.1-customization" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/heroku-rails/" class="article-date">
-  <time datetime="2018-11-24T22:40:12.000Z" itemprop="datePublished">2018-11-24</time>
+    <a href="/hyrax-2.4.1-customization/" class="article-date">
+  <time datetime="2019-01-28T16:40:12.000Z" itemprop="datePublished">2019-01-28</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Heroku/">Heroku</a>
+    <a class="article-category-link" href="/categories/Hyrax/">Hyrax</a>
   </div>
 
   </div>
@@ -100,7 +100,7 @@ ga('send', 'pageview');
         
   
     <h1 class="article-title" itemprop="name">
-      Install and configure Rails application to Heroku
+      Define customized Samvera models in OASIS, step by step
     </h1>
   
 
@@ -108,49 +108,81 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Install-heroku-cli"><a href="#Install-heroku-cli" class="headerlink" title="Install heroku cli"></a>Install heroku cli</h2><pre><code>sudo snap install --classic heroku
-</code></pre><p>Make sure add ‘/snap/bin’ into PATH and re-login again. Type command:</p>
-<pre><code>heroku --version
-</code></pre><h2 id="Setup-Rails-application-in-Heroku"><a href="#Setup-Rails-application-in-Heroku" class="headerlink" title="Setup Rails application in Heroku"></a>Setup Rails application in Heroku</h2><p>In the following, I will use <a href="https://github.com/yf508/yorkshire-dictionary" target="_blank" rel="noopener">A forked version of Yorkshire Historical Dictionary</a>, the notes below are mainly taken from the <a href="https://github.com/digital-york/yorkshire-dictionary/blob/master/README.md" target="_blank" rel="noopener">README from the original project</a>. </p>
-<pre><code>git clone git@github.com:yf508/yorkshire-dictionary.git
+        <h2 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h2><h3 id="Top-bar-for-language-login"><a href="#Top-bar-for-language-login" class="headerlink" title="Top bar for language/login"></a>Top bar for language/login</h3><p>In original Hyrax, remove this line in app/views/layouts/hyrax.html.erb:</p>
+<pre><code>&lt;%= render &apos;/masthead&apos; %&gt;
+</code></pre><p>If using a customized layout, e.g. app/views/layouts/ncelphome.html.erb, doing the same thing there.</p>
+<h3 id="Banner"><a href="#Banner" class="headerlink" title="Banner"></a>Banner</h3><p>Edit file: app/views/layouts/homepage.html.erb (copied form Hyrax):</p>
+<pre><code>&lt;% content_for(:navbar) do %&gt;
+  &lt;div class=&quot;image-masthead&quot;&gt;
+    &lt;div class=&quot;background-container&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.banner_image&apos;), alt: &quot;NCELP&quot;) %&gt;
+</code></pre><h2 id="Footer"><a href="#Footer" class="headerlink" title="Footer"></a>Footer</h2><p>Edit app/views/shared/_footer.html.erb:</p>
+<pre><code>&lt;footer class=&quot;navbar navbar-inverse site-footer ncelp-footer-border&quot;&gt;
+  &lt;div class=&quot;container-fluid row&quot;&gt;
+    &lt;div class=&quot;col-sm-4 ncelp_footer_container&quot; style=&quot;padding-top: 20px;&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.footer.ncelp_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;NCELP&quot;) %&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;col-sm-2 ncelp_footer_container&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.footer.uoy_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;University of York&quot;) %&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;col-sm-6 ncelp_footer_container&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.footer.education_dept_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;Department for Education&quot;) %&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;
+</code></pre><h2 id="Homepage"><a href="#Homepage" class="headerlink" title="Homepage"></a>Homepage</h2><p>It is defined in app/views/hyrax/home/_home_content.html.erb, so change that file something like:</p>
+<pre><code>&lt;!-- top boxes --&gt;
+&lt;div class=&quot;container row&quot;&gt;
+  &lt;div class=&quot;col-xs-12 col-sm-12 ncelp-homepage-middle-box&quot;&gt;
+    &lt;h3&gt;Search the Resource Portal&lt;/h3&gt;
+    &lt;%= render partial: &apos;homepage_search_form&apos; %&gt;
+    Enter &lt;b&gt;any text&lt;/b&gt; you wish into the search box (e.g. speaking, French, grammar) OR&lt;br/&gt;
+    Browse by: All resources; Topic; Language; Age; Type of material&lt;/br&gt;
+    Click on &quot;All Resources&quot; to view all content on the Resource Portal and then use the filters to refine your search&lt;br/&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
 
-cd yorkshire-dictionary
+&lt;!-- bottom boxes --&gt;
+&lt;div class=&quot;container row&quot;&gt;
+  &lt;div class=&quot;col-xs-12 col-sm-8 ncelp-homepage-bottom-box-left&quot;&gt;
+    &lt;h4&gt;&lt;%= t(&apos;hyrax.homepage.featured_works.tab_label&apos;) %&gt;&lt;/h4&gt;
+    &lt;%= render &apos;featured_works&apos; %&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;col-xs-12 col-sm-4 ncelp-homepage-bottom-box-right&quot;&gt;
+    &lt;h4&gt;&lt;%= t(&apos;hyrax.homepage.recently_uploaded.tab_label&apos;) %&gt;&lt;/h4&gt;
+    &lt;%= render &apos;recently_uploaded&apos;, recent_documents: @recent_documents %&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre><h3 id="Homepage-search-box"><a href="#Homepage-search-box" class="headerlink" title="Homepage search box"></a>Homepage search box</h3><p>Can be customized in app/views/hyrax/home/_homepage_search_form.html.erb:</p>
+<pre><code>&lt;%= form_tag search_form_action, method: :get, class: &quot;form-horizontal search-form&quot;, id: &quot;search-form-header&quot;, role: &quot;search&quot; do %&gt;
+  &lt;%= render_hash_as_hidden_fields(search_state.params_for_search.except(:q, :search_field, :qt, :page, :utf8)) %&gt;
+  &lt;%= hidden_field_tag :search_field, &apos;all_fields&apos; %&gt;
+  &lt;div class=&quot;form-group&quot;&gt;
 
-heroku create --region eu
-</code></pre><p>In Heroku dashboard, under the application you just created, add a Heroku Postgres Add-on </p>
-<p>Then go back to Ubuntu terminal, run:</p>
-<pre><code>heroku config:set RACK_ENV=heroku RAILS_ENV=heroku --remote heroku
+    &lt;div class=&quot;input-group&quot;&gt;
+      &lt;%= text_field_tag :q, current_search_parameters , class: &quot;q form-control&quot;, id: &quot;search-field-header&quot;, placeholder: t(&quot;hyrax.search.form.q.placeholder&quot;) %&gt;
 
-heroku config:set RAILS_MASTER_KEY=YOUR_KEY
+      &lt;div class=&quot;input-group-btn&quot;&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot; id=&quot;search-submit-header&quot;&gt;
+          &lt;%= t(&apos;hyrax.search.button.html&apos;) %&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;&lt;!-- /.input-group-btn --&gt;
+    &lt;/div&gt;&lt;!-- /.input-group --&gt;
 
-git push heroku
-</code></pre><p>Load data:</p>
-<pre><code>heroku run rails db:schema:load
-
-heroku run rails yhd:import
-</code></pre><h2 id="Work-as-a-collaborator"><a href="#Work-as-a-collaborator" class="headerlink" title="Work as a collaborator"></a>Work as a collaborator</h2><p>Once received invitation as a collaborator, run:</p>
-<pre><code>heroku git:clone -a yhd
-</code></pre><p>then link to github repository:</p>
-<pre><code>git remote add origin git@github.com:digital-york/yorkshire-dictionary.git
-</code></pre><h2 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h2><p>SSH to heroku dyno:</p>
-<pre><code>heroku run bash
-</code></pre><h2 id="Problems-amp-solutions"><a href="#Problems-amp-solutions" class="headerlink" title="Problems &amp; solutions"></a>Problems &amp; solutions</h2><h3 id="Cannot-run-heroku-container-login-while-deploying-a-dockerized-app"><a href="#Cannot-run-heroku-container-login-while-deploying-a-dockerized-app" class="headerlink" title="Cannot run heroku container:login while deploying a dockerized app"></a>Cannot run heroku container:login while deploying a dockerized app</h3><p><strong>The error message is:</strong></p>
-<p>Error saving credentials: error storing credentials - err: exit status 1, out: <code>Cannot autolaunch D-Bus without X11 $DISPLAY</code><br>▸ Login failed with: 1</p>
-<p><strong>Solution</strong></p>
-<pre><code>sudo apt install gnupg2 pass
-gpg2 --full-generate-key
-gpg2 -kgpg2 -k
-pass init &quot; the id from above command&quot;
-</code></pre><p>Then run:</p>
-<pre><code>heroku container:login
-</code></pre>
+  &lt;/div&gt;&lt;!-- /.form-group --&gt;
+&lt;% end %&gt;
+</code></pre><h2 id="Menubar"><a href="#Menubar" class="headerlink" title="Menubar"></a>Menubar</h2><h3 id="Remove-searchbox"><a href="#Remove-searchbox" class="headerlink" title="Remove searchbox"></a>Remove searchbox</h3><p>Copy views/_controls.html.erb from Hyrax to your app, and remove this:</p>
+<pre><code>&lt;div class=&quot;searchbar-right navbar-right col-sm-7&quot;&gt;
+    &lt;%= render partial: &apos;catalog/search_form&apos; %&gt;
+&lt;/div&gt;
+</code></pre><h3 id="Menubar-items"><a href="#Menubar-items" class="headerlink" title="Menubar items"></a>Menubar items</h3><h2 id="Catalogue-search-page"><a href="#Catalogue-search-page" class="headerlink" title="Catalogue search page"></a>Catalogue search page</h2>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/heroku-rails/" data-id="cjoz0exxl00070405544c2rk4" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/hyrax-2.4.1-customization/" data-id="cjrgfikup0000j905rf1wvhf4" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/heroku/">heroku</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
 
     </footer>
   </div>
@@ -158,19 +190,10 @@ pass init &quot; the id from above command&quot;
     
 <nav id="article-nav">
   
-    <a href="/install-and-configure-zsh-to-be-git-friendly/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Install and configure zsh to be git friendly
-        
-      </div>
-    </a>
   
-  
-    <a href="/build-rails-development-environments-with-docker/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/install-refinery-on-heroku/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Build Rails development environment with Docker</div>
+      <div class="article-nav-title">How to install Refinery CMS to Heroku</div>
     </a>
   
 </nav>
