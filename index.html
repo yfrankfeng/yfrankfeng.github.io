@@ -176,7 +176,12 @@ ga('send', 'pageview');
 <pre><code>&lt;div class=&quot;searchbar-right navbar-right col-sm-7&quot;&gt;
     &lt;%= render partial: &apos;catalog/search_form&apos; %&gt;
 &lt;/div&gt;
-</code></pre><h3 id="Menubar-items"><a href="#Menubar-items" class="headerlink" title="Menubar items"></a>Menubar items</h3><h2 id="Catalogue-search-page"><a href="#Catalogue-search-page" class="headerlink" title="Catalogue search page"></a>Catalogue search page</h2><p>Copy views/catalog/index.html.erb from Hyrax to your app, add the following on the top:</p>
+</code></pre><h3 id="Menubar-items"><a href="#Menubar-items" class="headerlink" title="Menubar items"></a>Menubar items</h3><p>Edit app/views/_controls.html.erb:</p>
+<pre><code>&lt;li &lt;%= &apos;class=active&apos; if current_page?(&apos;/upload&apos;) %&gt;&gt;
+  &lt;%= link_to t(:&apos;ncelp.menubar.upload&apos;), &apos;/upload&apos;, aria: current_page?(&apos;/upload&apos;) ? {current: &apos;page&apos;} : nil %&gt;&lt;/li&gt;
+&lt;li &lt;%= &apos;class=active&apos; if current_page?(&apos;/associated_resource&apos;) %&gt;&gt;
+  &lt;%= link_to t(:&apos;ncelp.menubar.associated_resource&apos;), &apos;/associated_resource&apos;, aria: current_page?(&apos;/associated_resource&apos;) ? {current: &apos;page&apos;} : nil %&gt;&lt;/li&gt;
+</code></pre><h2 id="Catalogue-search-page"><a href="#Catalogue-search-page" class="headerlink" title="Catalogue search page"></a>Catalogue search page</h2><p>Copy views/catalog/index.html.erb from Hyrax to your app, add the following on the top:</p>
 <pre><code>&lt;% content_for(:navbar) do %&gt;
   &lt;div class=&quot;image-masthead&quot;&gt;
     &lt;div class=&quot;background-container&quot;&gt;
