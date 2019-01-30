@@ -176,7 +176,28 @@ ga('send', 'pageview');
 <pre><code>&lt;div class=&quot;searchbar-right navbar-right col-sm-7&quot;&gt;
     &lt;%= render partial: &apos;catalog/search_form&apos; %&gt;
 &lt;/div&gt;
-</code></pre><h3 id="Menubar-items"><a href="#Menubar-items" class="headerlink" title="Menubar items"></a>Menubar items</h3><h2 id="Catalogue-search-page"><a href="#Catalogue-search-page" class="headerlink" title="Catalogue search page"></a>Catalogue search page</h2>
+</code></pre><h3 id="Menubar-items"><a href="#Menubar-items" class="headerlink" title="Menubar items"></a>Menubar items</h3><h2 id="Catalogue-search-page"><a href="#Catalogue-search-page" class="headerlink" title="Catalogue search page"></a>Catalogue search page</h2><p>Copy views/catalog/index.html.erb from Hyrax to your app, add the following on the top:</p>
+<pre><code>&lt;% content_for(:navbar) do %&gt;
+  &lt;div class=&quot;image-masthead&quot;&gt;
+    &lt;div class=&quot;background-container&quot;&gt;
+      &lt;%= image_tag(t(&apos;ncelp.banner_image&apos;), alt: &quot;NCELP&quot;) %&gt;
+    &lt;/div&gt;
+    &lt;span class=&quot;background-container-gradient&quot; style=&quot;background: none;&quot;&gt;&lt;/span&gt;
+
+    &lt;div class=&quot;container site-title-container&quot;&gt;
+      &lt;div class=&quot;site-title h1&quot; style=&quot;text-align: center;&quot;&gt;
+        &lt;%= render &quot;hyrax/homepage/marketing&quot; if controller_name == &apos;homepage&apos; %&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;%= render &apos;/controls&apos; %&gt;
+  &lt;/div&gt;
+&lt;% end %&gt;
+</code></pre><p>You will see duplicate menubars. To remove one, copy views/layouts/hyrax/1_column.html.erb to your app, and remove:</p>
+<pre><code>&lt;% content_for(:navbar) do %&gt;
+  &lt;%= render &apos;/controls&apos; %&gt;
+&lt;% end %&gt;
+</code></pre>
       
     </div>
     <footer class="article-footer">
