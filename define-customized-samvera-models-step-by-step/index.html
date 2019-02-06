@@ -29,7 +29,7 @@ ga('send', 'pageview');
 <meta property="og:description" content="I’ve been using Samvera stack since I’ve started working on OASIS. Building a customized model is a complex job, so I’d write down what I’ve learned, in case it might be useful for others.   Create mo">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://yfrankfeng.github.io/images/oasis.png">
-<meta property="og:updated_time" content="2018-11-07T10:05:48.762Z">
+<meta property="og:updated_time" content="2019-01-31T14:35:48.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Define customized Samvera models in OASIS, step by step">
 <meta name="twitter:description" content="I’ve been using Samvera stack since I’ve started working on OASIS. Building a customized model is a complex job, so I’d write down what I’ve learned, in case it might be useful for others.   Create mo">
@@ -125,6 +125,7 @@ ga('send', 'pageview');
   end    
 end
 </code></pre><p>Source code is <a href="https://github.com/digital-york/oasis/blob/master/app/models/concerns/oasis/oasis_metadata.rb" target="_blank" rel="noopener">here</a></p>
+<p><strong>NB:</strong> It seems that some keywords have been reserved by simple_form gem, such as country, so avoid using ‘country’ as field name.</p>
 <p>And include it in the main model:</p>
 <pre><code>class Summary &lt; ActiveFedora::Base
   include ::Hyrax::WorkBehavior
@@ -172,7 +173,9 @@ end
   end
 end
 </code></pre><p><a href="https://github.com/digital-york/oasis/tree/master/app/models/concerns/oasis/solr_document.rb" target="_blank" rel="noopener">Source code</a></p>
-<p>To access these attributes in the view:</p>
+<p>Make sure to register this model in app/models/solr_document.rb:</p>
+<pre><code>include Oasis::SolrDocument
+</code></pre><p>To access these attributes in the view:</p>
 <pre><code>&lt;h4&gt;&lt;%= link_to document.title_of_summary, document %&gt;&lt;/h4&gt;
 </code></pre><h2 id="Define-customized-Solr-Indexer"><a href="#Define-customized-Solr-Indexer" class="headerlink" title="Define customized Solr Indexer"></a>Define customized Solr Indexer</h2><p>Customized Solr Indexer can be defined to store extra information into solr, e.g. generate a new field in Solr, add a derived value into Solr etc.</p>
 <pre><code>class SummaryIndexer &lt; Hyrax::WorkIndexer
