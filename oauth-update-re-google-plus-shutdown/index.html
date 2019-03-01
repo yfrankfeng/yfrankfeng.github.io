@@ -18,19 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Archives: 2019 | Frank&#39;s development blog</title>
+  <title>OAuth login upgrade while Google+ shutdown | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Frank&#39;s development blog">
-<meta property="og:url" content="https://yfrankfeng.github.io/archives/2019/index.html">
+  <meta name="description" content="To test Google OAuth 2, try OAuth 2.0 Playground: https://developers.google.com/oauthplayground/ The following URLs seem working:  https://www.googleapis.com/oauth2/v2/userinfohttps://openidconnect.go">
+<meta name="keywords" content="oauth">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OAuth login upgrade while Google+ shutdown">
+<meta property="og:url" content="https://yfrankfeng.github.io/oauth-update-re-google-plus-shutdown/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:description" content="To test Google OAuth 2, try OAuth 2.0 Playground: https://developers.google.com/oauthplayground/ The following URLs seem working:  https://www.googleapis.com/oauth2/v2/userinfohttps://openidconnect.go">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-03-01T14:18:31.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Frank&#39;s development blog">
-<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="twitter:title" content="OAuth login upgrade while Google+ shutdown">
+<meta name="twitter:description" content="To test Google OAuth 2, try OAuth 2.0 Playground: https://developers.google.com/oauthplayground/ The following URLs seem working:  https://www.googleapis.com/oauth2/v2/userinfohttps://openidconnect.go">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -81,97 +82,70 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/oauth-update-re-google-plus-shutdown/" class="archive-article-date">
-  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">Mar 1</time>
+        <section id="main"><article id="post-oauth-update-re-google-plus-shutdown" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/oauth-update-re-google-plus-shutdown/" class="article-date">
+  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">2019-03-01</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/oauth-update-re-google-plus-shutdown/">OAuth login upgrade while Google+ shutdown</a>
+    <h1 class="article-title" itemprop="name">
+      OAuth login upgrade while Google+ shutdown
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/apache-maven/" class="archive-article-date">
-  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">Mar 1</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/apache-maven/">Install Apache Maven 3 on Ubuntu 18</a>
-    </h1>
-  
+        <p>To test Google OAuth 2, try OAuth 2.0 Playground: <a href="https://developers.google.com/oauthplayground/" target="_blank" rel="noopener">https://developers.google.com/oauthplayground/</a></p>
+<p>The following URLs seem working: </p>
+<p><strong><a href="https://www.googleapis.com/oauth2/v2/userinfo" target="_blank" rel="noopener">https://www.googleapis.com/oauth2/v2/userinfo</a></strong><br><a href="https://openidconnect.googleapis.com/v1/userinfo" target="_blank" rel="noopener">https://openidconnect.googleapis.com/v1/userinfo</a></p>
+<p>OLD Plus+ API returns:</p>
+<h2 id="https-www-googleapis-com-plus-v1-people-me"><a href="#https-www-googleapis-com-plus-v1-people-me" class="headerlink" title="https://www.googleapis.com/plus/v1/people/me"></a><a href="https://www.googleapis.com/plus/v1/people/me" target="_blank" rel="noopener">https://www.googleapis.com/plus/v1/people/me</a></h2><p>{<br>  “kind”: “plus#person”,<br>  “displayName”: “XXXXXX”,<br>  “name”: {<br>    “givenName”: “XXXXXX”,<br>    “familyName”: “XXXXXX”<br>  },<br>  “language”: “en_GB”,<br>  “isPlusUser”: true,<br>  “url”: “<a href="https://plus.google.com/+XXXXXX&quot;" target="_blank" rel="noopener">https://plus.google.com/+XXXXXX&quot;</a>,<br>  “gender”: “male”,<br>  “image”: {<br>    “url”: “<a href="https://lh6.googleusercontent.com/XXXXXX.jpg&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX.jpg&quot;</a>,<br>    “isDefault”: false<br>  },<br>  “etag”: “\”XXXXXX\””,<br>  “verified”: false,<br>  “circledByCount”: 0,<br>  “id”: “XXXXXX”,<br>  “objectType”: “person”<br>}</p>
+<p>In OAuth 2.0 Playground, the following call returns:</p>
+<h2 id="https-www-googleapis-com-oauth2-v2-userinfo"><a href="#https-www-googleapis-com-oauth2-v2-userinfo" class="headerlink" title="https://www.googleapis.com/oauth2/v2/userinfo"></a><a href="https://www.googleapis.com/oauth2/v2/userinfo" target="_blank" rel="noopener">https://www.googleapis.com/oauth2/v2/userinfo</a></h2><p>{<br>  “picture”: “<a href="https://lh6.googleusercontent.com/XXXXXX.jpg&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX.jpg&quot;</a>,<br>  “name”: “XXXXXX”,<br>  “family_name”: “XXXXXX”,<br>  “locale”: “XXXXXX”,<br>  “gender”: “male”,<br>  “link”: “<a href="https://plus.google.com/+XXXXXX&quot;" target="_blank" rel="noopener">https://plus.google.com/+XXXXXX&quot;</a>,<br>  “given_name”: “XXXXXX”,<br>  “id”: “XXXXXX”<br>}</p>
+<p>But in the Java code, it returns:<br>{<br>  “id”: “XXXXXX”,<br>  “email”: “XXXXXX”,<br>  “verified_email”: true,<br>  “name”: “XXXXXX”,<br>  “given_name”: “XXXXXX”,<br>  “family_name”: “XXXXXX”,<br>  “picture”: “<a href="https://lh6.googleusercontent.com/XXXXXX&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX&quot;</a><br>}</p>
+<p>Since the returned JSON format has been changed, so the processing code is slightly different, e.g.:</p>
+<p>// The OLD code working with Google+ has been commented out </p>
+<p>if (obj.getString(“email”)!=null)<br>   oauthUser.setEmail(obj.getString(“email”));<br>oauthUser.setId(OAuth2Manager.getOAuth2Url(OAuth2Manager.OAUTH2_PROVIDER_GOOGLE, obj.getString(“id”)));  // oauth2_google_GOOGLE_USER_ID<br>// oauthUser.setFirstName(obj.getJSONObject(“name”).getString(“givenName”));<br>oauthUser.setFirstName(obj.getString(“given_name”));<br>//oauthUser.setSurName(obj.getJSONObject(“name”).getString(“familyName”));<br>oauthUser.setSurName(obj.getString(“family_name”));</p>
+<p>REF:</p>
+<p><a href="https://stackoverflow.com/questions/53923541/how-to-migrate-from-deprecated-google-sign-in-api-to-the-new-google-identity-pl" target="_blank" rel="noopener">https://stackoverflow.com/questions/53923541/how-to-migrate-from-deprecated-google-sign-in-api-to-the-new-google-identity-pl</a><br><a href="https://github.com/aspnet/AspNetCore/issues/6069#issuecomment-449461197" target="_blank" rel="noopener">https://github.com/aspnet/AspNetCore/issues/6069#issuecomment-449461197</a><br><a href="https://github.com/aspnet/Identity/blob/fcc02103aa10dcdd8759e0463cac2717114f3c1e/src/Identity/SignInManager.cs#L611" target="_blank" rel="noopener">https://github.com/aspnet/Identity/blob/fcc02103aa10dcdd8759e0463cac2717114f3c1e/src/Identity/SignInManager.cs#L611</a></p>
 
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/add-webpack-and-vue-to-rails-app/" class="archive-article-date">
-  <time datetime="2019-02-10T22:40:12.000Z" itemprop="datePublished">Feb 10</time>
-</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/add-webpack-and-vue-to-rails-app/">How to add webpacker and Vue.js to existing Rails application</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/hyrax-2.4.1-customization/" class="archive-article-date">
-  <time datetime="2019-01-28T16:40:12.000Z" itemprop="datePublished">Jan 28</time>
-</a>
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/oauth-update-re-google-plus-shutdown/" data-id="cjsq5vxkm00004h05h3rsufrj" class="article-share-link">Share</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/hyrax-2.4.1-customization/">Hyrax UI customization</a>
-    </h1>
-  
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/google/">google+</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oauth/">oauth</a></li></ul>
 
-    </header>
+    </footer>
   </div>
-</article>
+  
+    
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/apache-maven/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Install Apache Maven 3 on Ubuntu 18</div>
+    </a>
   
+</nav>
 
+  
+</article>
 
 </section>
         
