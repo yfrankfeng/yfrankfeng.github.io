@@ -18,20 +18,19 @@ ga('send', 'pageview');
 
 
   
-  <title>How to add webpacker and Vue.js to existing Rails application | Frank&#39;s development blog</title>
+  <title>Tag: UI | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="EnvironmentsUbuntu 18.04.1 LTSruby 2.5.3p105Rails 5.2.2 InstallationAdd the following to Gemfile: gem &amp;apos;webpacker&amp;apos;, &amp;apos;~&amp;gt; 3.5&amp;apos; Run: bundle install bundle exec rails webpacker:insta">
-<meta name="keywords" content="Vue.js webpacker rails">
-<meta property="og:type" content="article">
-<meta property="og:title" content="How to add webpacker and Vue.js to existing Rails application">
-<meta property="og:url" content="https://yfrankfeng.github.io/add-webpack-and-vue-to-rails-app/index.html">
+  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Frank&#39;s development blog">
+<meta property="og:url" content="https://yfrankfeng.github.io/tags/UI/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="EnvironmentsUbuntu 18.04.1 LTSruby 2.5.3p105Rails 5.2.2 InstallationAdd the following to Gemfile: gem &amp;apos;webpacker&amp;apos;, &amp;apos;~&amp;gt; 3.5&amp;apos; Run: bundle install bundle exec rails webpacker:insta">
+<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-02-12T13:59:06.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="How to add webpacker and Vue.js to existing Rails application">
-<meta name="twitter:description" content="EnvironmentsUbuntu 18.04.1 LTSruby 2.5.3p105Rails 5.2.2 InstallationAdd the following to Gemfile: gem &amp;apos;webpacker&amp;apos;, &amp;apos;~&amp;gt; 3.5&amp;apos; Run: bundle install bundle exec rails webpacker:insta">
+<meta name="twitter:title" content="Frank&#39;s development blog">
+<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -82,177 +81,40 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-add-webpack-and-vue-to-rails-app" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/add-webpack-and-vue-to-rails-app/" class="article-date">
-  <time datetime="2019-02-10T22:40:12.000Z" itemprop="datePublished">2019-02-10</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/rails/">rails</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+        <section id="main">
   
-    <h1 class="article-title" itemprop="name">
-      How to add webpacker and Vue.js to existing Rails application
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2019" class="archive-year">2019</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/how-to-make-featured-work-working/" class="archive-article-date">
+  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">Apr 1</time>
+</a>
+      
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Environments"><a href="#Environments" class="headerlink" title="Environments"></a>Environments</h2><p>Ubuntu 18.04.1 LTS<br>ruby 2.5.3p105<br>Rails 5.2.2</p>
-<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>Add the following to Gemfile:</p>
-<pre><code>gem &apos;webpacker&apos;, &apos;~&gt; 3.5&apos;
-</code></pre><p>Run:</p>
-<pre><code>bundle install
-bundle exec rails webpacker:install    
-</code></pre><p>After the above command, lots files are created/updated:</p>
-<pre><code>git status
-</code></pre><p>It shows</p>
-<pre><code>modified:   .gitignore
-modified:   Gemfile
-modified:   Gemfile.lock
-modified:   config/environments/development.rb
-modified:   config/environments/production.rb
-modified:   package.json      
-
-.babelrc
-.postcssrc.yml
-app/javascript/
-bin/webpack
-bin/webpack-dev-server
-config/webpack/
-config/webpacker.yml
-yarn.lock              
-</code></pre><p>The app/javascript folder:</p>
-<pre><code>tree app/javascript
-</code></pre><p>The output is:</p>
-<pre><code>app/javascript
-└── packs
-    └── application.js        
-</code></pre><p>To support Vue.js, run:</p>
-<pre><code>bundle exec rails webpacker:install:vue
-</code></pre><p>To see the files being generated and updated, run:</p>
-<pre><code>git status --porcelain
-</code></pre><p>It shows:</p>
-<pre><code> M config/webpack/environment.js
- M config/webpacker.yml
- M package.json
- M yarn.lock
-?? app/javascript/app.vue
-?? app/javascript/packs/hello_vue.js
-?? config/webpack/loaders/
-</code></pre><h2 id="Add-your-own-Vue-files"><a href="#Add-your-own-Vue-files" class="headerlink" title="Add your own Vue files"></a>Add your own Vue files</h2><p>Run:</p>
-<pre><code>npm install --save bootstrap-vue
-</code></pre><p>Add your own files, the folder/files will be:</p>
-<p>Run</p>
-<pre><code>tree app/javascript
-</code></pre><p>It shows</p>
-<pre><code>app/javascript
-├── app.vue
-├── packs
-│   ├── application.js
-│   ├── hello_vue.js
-│   └── hyrax
-│       └── base
-│           └── show.js
-└── views
-    └── hyrax
-        └── base
-            └── show.vue       
-</code></pre><p>app/javascript/packs/hyrax/base/show.js:</p>
-<pre><code>import Vue from &apos;vue/dist/vue.js&apos;;
-import ResourceDetailsView from &apos;views/hyrax/base/show&apos;;
-import BootstrapVue from &apos;bootstrap-vue&apos;
-
-Vue.use(BootstrapVue);
-new Vue({
-    el: &apos;#resource-details&apos;,
-    components: {
-        &apos;resource-details-view&apos;: ResourceDetailsView
-    }
-});
-</code></pre><p>app/javascript/views/hyrax/base/show.vue</p>
-<pre><code>&lt;template&gt;
-    &lt;div class=&quot;row&quot;&gt;
-        &lt;div class=&quot;panel panel-default&quot;&gt;
-            &lt;div class=&quot;panel-heading&quot;&gt;
-                {{resource_show_title}}
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/template&gt;
-
-&lt;script&gt;
-    export default {
-        props: {
-            resource_show_title: String
-        }    
-    }
-&lt;/script&gt;
-
-&lt;style scoped&gt;
-
-&lt;/style&gt;
-</code></pre><p>app/views/hyrax/base/show.html.erb</p>
-<pre><code>&lt;% provide :page_title, @presenter.page_title %&gt;
-
-&lt;%= render &apos;shared/nceheader&apos; %&gt;
-
-&lt;%= render &apos;shared/citations&apos; %&gt;
-
-&lt;div id=&quot;resource-details&quot;&gt;
-    &lt;resource-details-view
-      resource_show_title=&quot;Resource details&quot;&gt;
-    &lt;/resource-details-view&gt;
-&lt;/div&gt;
-
-&lt;%= javascript_pack_tag &apos;hyrax/base/show&apos; %&gt;
-</code></pre><p>Run following command to get Vue files compiled in Dev environment. In production, Vue will add a hook before asset precompile automatically.</p>
-<pre><code>bin/webpack-dev-server
-</code></pre><p>Then you will be able to see the show page managed by Vue.js!</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/add-webpack-and-vue-to-rails-app/" data-id="cjs1u296500004l05owdfvvan" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webpacker/">webpacker</a></li></ul>
-
-    </footer>
+    </header>
   </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/apache-maven/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Install Apache Maven 3 on Ubuntu 18
-        
-      </div>
-    </a>
-  
-  
-    <a href="/hyrax-2.4.1-customization/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Hyrax UI customization</div>
-    </a>
-  
-</nav>
-
-  
 </article>
+  
+  
+    </div></section>
+  
+
 
 </section>
         
