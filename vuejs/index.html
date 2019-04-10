@@ -18,20 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Work on git branches | Frank&#39;s development blog</title>
+  <title>Vue.js pros &amp; cons | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Pull (maybe fetch?) master branch:git pull origin master Create feature branchgit checkout -b mybranch Work on feature branchMake sure the final commit is buildable and passes all tests. Find the last">
-<meta name="keywords" content="git branch rebase">
+  <meta name="description" content="I have been exploring Vue.js framework and here is what I’ve found: The following discussion is based on Vue.js but some points should apply to React.js &amp;amp; AngularJS as well. What is Vue.js?Vue.js">
+<meta name="keywords" content="Vue.js">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Work on git branches">
-<meta property="og:url" content="https://yfrankfeng.github.io/work-on-git-branches/index.html">
+<meta property="og:title" content="Vue.js pros &amp; cons">
+<meta property="og:url" content="https://yfrankfeng.github.io/vuejs/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Pull (maybe fetch?) master branch:git pull origin master Create feature branchgit checkout -b mybranch Work on feature branchMake sure the final commit is buildable and passes all tests. Find the last">
+<meta property="og:description" content="I have been exploring Vue.js framework and here is what I’ve found: The following discussion is based on Vue.js but some points should apply to React.js &amp;amp; AngularJS as well. What is Vue.js?Vue.js">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-01T15:30:23.000Z">
+<meta property="og:updated_time" content="2019-04-10T10:36:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Work on git branches">
-<meta name="twitter:description" content="Pull (maybe fetch?) master branch:git pull origin master Create feature branchgit checkout -b mybranch Work on feature branchMake sure the final commit is buildable and passes all tests. Find the last">
+<meta name="twitter:title" content="Vue.js pros &amp; cons">
+<meta name="twitter:description" content="I have been exploring Vue.js framework and here is what I’ve found: The following discussion is based on Vue.js but some points should apply to React.js &amp;amp; AngularJS as well. What is Vue.js?Vue.js">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -82,14 +82,14 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-work-on-git-branches" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <section id="main"><article id="post-vuejs" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/work-on-git-branches/" class="article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
+    <a href="/vuejs/" class="article-date">
+  <time datetime="2019-04-10T12:40:12.000Z" itemprop="datePublished">2019-04-10</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/git/">git</a>
+    <a class="article-category-link" href="/categories/vuejs/">vuejs</a>
   </div>
 
   </div>
@@ -100,7 +100,7 @@ ga('send', 'pageview');
         
   
     <h1 class="article-title" itemprop="name">
-      Work on git branches
+      Vue.js pros &amp; cons
     </h1>
   
 
@@ -108,26 +108,37 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="Pull-maybe-fetch-master-branch"><a href="#Pull-maybe-fetch-master-branch" class="headerlink" title="Pull (maybe fetch?) master branch:"></a>Pull (maybe fetch?) master branch:</h4><pre><code>git pull origin master
-</code></pre><h4 id="Create-feature-branch"><a href="#Create-feature-branch" class="headerlink" title="Create feature branch"></a>Create feature branch</h4><pre><code>git checkout -b mybranch
-</code></pre><h4 id="Work-on-feature-branch"><a href="#Work-on-feature-branch" class="headerlink" title="Work on feature branch"></a>Work on feature branch</h4><p>Make sure the final commit is buildable and passes all tests.</p>
-<h4 id="Find-the-last-commit-your-branch-branches-from"><a href="#Find-the-last-commit-your-branch-branches-from" class="headerlink" title="Find the last commit your branch branches from"></a>Find the last commit your branch branches from</h4><pre><code>git log --graph --decorate --pretty=oneline --abbrev-commit
-</code></pre><h4 id="Squash-to-1-commit"><a href="#Squash-to-1-commit" class="headerlink" title="Squash to 1 commit"></a>Squash to 1 commit</h4><pre><code>git rebase -i [SHA]
-</code></pre><p>Edit commits in the interactive mode.</p>
-<h4 id="Push-featured-branch-to-remote"><a href="#Push-featured-branch-to-remote" class="headerlink" title="Push featured branch to remote"></a>Push featured branch to remote</h4><pre><code>git push origin mybranch 
-</code></pre><p>OR</p>
-<pre><code>git push origin mybranch --force-with-lease
-</code></pre><h4 id="Merge-into-master"><a href="#Merge-into-master" class="headerlink" title="Merge into master"></a>Merge into master</h4><pre><code>git checkout master
-git merge mybranch
-git push origin master
-</code></pre>
+        <p>I have been exploring Vue.js framework and here is what I’ve found:</p>
+<p>The following discussion is based on Vue.js but some points should apply to React.js &amp; AngularJS as well.</p>
+<h2 id="What-is-Vue-js"><a href="#What-is-Vue-js" class="headerlink" title="What is Vue.js?"></a>What is Vue.js?</h2><p>Vue.js is a progressive framework for building frontend applications. Vues is perfectly capable of building complex Single-Page Applications (SPA).</p>
+<p>The comparison among Vue.js, React.js, AngularJS, Ember and other frameworks:</p>
+<p><a href="https://vuejs.org/v2/guide/comparison.html" target="_blank" rel="noopener">https://vuejs.org/v2/guide/comparison.html</a></p>
+<h2 id="What-Vue-js-is-good-at"><a href="#What-Vue-js-is-good-at" class="headerlink" title="What Vue.js is good at?"></a>What Vue.js is good at?</h2><ul>
+<li>Build SPAs</li>
+<li>Can work well with existing projects, e.g. migrating existing JS code to Vue.js step by step.</li>
+</ul>
+<h2 id="Benefits-of-using-Vue-js"><a href="#Benefits-of-using-Vue-js" class="headerlink" title="Benefits of using Vue.js?"></a>Benefits of using Vue.js?</h2><ul>
+<li>It’s very easy to use: for any developer familiar with JS, they can pick up Vue.js quickly.</li>
+<li>Smoother integration: while introducing Vue.js into an existing project, it’s possible to start form a smaller part without affecting to the whole application.</li>
+<li>Good performance: pages load faster when user navigates within application.</li>
+<li>Well-written documentation</li>
+</ul>
+<h2 id="Cons-of-Vue-js"><a href="#Cons-of-Vue-js" class="headerlink" title="Cons of Vue.js?"></a>Cons of Vue.js?</h2><ul>
+<li>SEO: SEO optimization can be less effective as search engine crawlers work better with distinct pages.</li>
+<li>SPAs require user to have JS turned on so it may not work in some browsers</li>
+<li>Long time running SPAs may have potential memory leaks which will slow down SPAs and event make it crash.</li>
+<li>While running in mobile devices, SPAs can drain battery power faster than MPAs.</li>
+<li>Vue.js currently has no stable way to develop mobile applications. The core team is working with Weex and NativeScript to make it happen.</li>
+</ul>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a href="https://vuejs.org/v2/guide/" target="_blank" rel="noopener">https://vuejs.org/v2/guide/</a><br><a href="https://dev.to/gentlemanoi/the-progressive-javascript-framework-4kc" target="_blank" rel="noopener">https://dev.to/gentlemanoi/the-progressive-javascript-framework-4kc</a><br><a href="https://www.quora.com/What-are-the-pros-and-cons-between-SPA-and-MPA" target="_blank" rel="noopener">https://www.quora.com/What-are-the-pros-and-cons-between-SPA-and-MPA</a></p>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/work-on-git-branches/" data-id="cju1efk9l0000r205yjzo1egj" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/vuejs/" data-id="cjub2wlv40000wn05e9td9h0r" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/branch/">branch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue-js/">Vue.js</a></li></ul>
 
     </footer>
   </div>
@@ -135,19 +146,10 @@ git push origin master
     
 <nav id="article-nav">
   
-    <a href="/build-samvera-stack-step-by-step/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Build Samvera stack step by step
-        
-      </div>
-    </a>
   
-  
-    <a href="/how-to-make-featured-work-working/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/build-samvera-stack-step-by-step/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">How to make featured work working in Hyrax</div>
+      <div class="article-nav-title">Build Samvera stack step by step</div>
     </a>
   
 </nav>
