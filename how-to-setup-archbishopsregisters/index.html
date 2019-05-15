@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="Initialize arch1_editThere are two seperate applications, sharing the same Solr instance. First get a local copy of arch1_edit,  Switch to branch: ‘update-rails-5’ Configure Fedora / Solr in the .env">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-05-15T14:03:22.000Z">
+<meta property="og:updated_time" content="2019-05-15T16:02:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="How to setup archbishopsregisters">
 <meta name="twitter:description" content="Initialize arch1_editThere are two seperate applications, sharing the same Solr instance. First get a local copy of arch1_edit,  Switch to branch: ‘update-rails-5’ Configure Fedora / Solr in the .env">
@@ -126,12 +126,16 @@ Error: &apos;undefined field preflabel_tesim&apos;,
 
 URI: http://localhost:8983/solr/arch1/select?wt=ruby&amp;q=preflabel_tesim%3A%22people%22+AND+has_model_ssim%3A%22ConceptScheme%22&amp;fl=id&amp;rows=1&amp;start=0
 </code></pre><p>Copy schema.xml and solrconfig.xml from <a href="https://github.com/digital-york/arch1/tree/master/solr_conf/conf" target="_blank" rel="noopener">https://github.com/digital-york/arch1/tree/master/solr_conf/conf</a>, and save them into solr config folder, e.g. /var/solr/data/arch1/conf</p>
-<p>Restart Solr:</p>
+<p>Also add the following lines to schema.xml:</p>
+<pre><code>&lt;dynamicField name=&quot;*_search&quot; type=&quot;text_en&quot; indexed=&quot;true&quot; stored=&quot;true&quot; multiValued=&quot;true&quot; /&gt;
+&lt;dynamicField name=&quot;*_facet&quot; type=&quot;string&quot; indexed=&quot;true&quot; stored=&quot;true&quot; multiValued=&quot;true&quot; /&gt;
+</code></pre><p>Restart Solr:</p>
 <pre><code>sudo systemctl restart solr
 </code></pre><p>And run this rake task again:</p>
 <pre><code>rake persons:add_persons
-</code></pre><p>You will see that some entries are created, together with some error messages.</p>
-<p>Run other rake tasks:</p>
+</code></pre><p><del>You will see that some entries are created, together with some error messages.</del><br>In Persons_01_02_16.csv, remove the ? in the first line can make the script running successfully.</p>
+<pre><code>? Richard; R. as written, ==&gt; Richard; R. as written,
+</code></pre><p>Run other rake tasks:</p>
 <pre><code>rake places:add_places
 </code></pre><p>and </p>
 <pre><code>rake places:load_places                    
