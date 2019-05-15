@@ -83,6 +83,104 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-how-to-setup-archbishopsregisters" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-setup-archbishopsregisters/" class="article-date">
+  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/rails/">rails</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/how-to-setup-archbishopsregisters/">How to setup archbishopsregisters</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Initialize-arch1-edit"><a href="#Initialize-arch1-edit" class="headerlink" title="Initialize arch1_edit"></a>Initialize arch1_edit</h2><p>There are two seperate applications, sharing the same Solr instance.</p>
+<p>First get a local copy of <a href="https://github.com/digital-york/arch1" target="_blank" rel="noopener">arch1_edit</a>, </p>
+<p>Switch to branch: ‘update-rails-5’</p>
+<p>Configure Fedora / Solr in the .env</p>
+<p>Run:</p>
+<pre><code>bundle install
+rake db:migrate
+#rake db:schema:load
+</code></pre><p>and run the following rake tasks:</p>
+<pre><code>rake persons:add_persons
+</code></pre><p>You will see this error:</p>
+<pre><code>Concept Scheme ... 
+ERROR in ConceptScheme!
+RSolr::Error::Http - 400 Bad Request
+Error: &apos;undefined field preflabel_tesim&apos;,
+
+URI: http://localhost:8983/solr/arch1/select?wt=ruby&amp;q=preflabel_tesim%3A%22people%22+AND+has_model_ssim%3A%22ConceptScheme%22&amp;fl=id&amp;rows=1&amp;start=0
+</code></pre><p>Copy schema.xml and solrconfig.xml from <a href="https://github.com/digital-york/arch1/tree/master/solr_conf/conf" target="_blank" rel="noopener">https://github.com/digital-york/arch1/tree/master/solr_conf/conf</a>, and save them into solr config folder, e.g. /var/solr/data/arch1/conf</p>
+<p>Restart Solr:</p>
+<pre><code>sudo systemctl restart solr
+</code></pre><p>And run this rake task again:</p>
+<pre><code>rake persons:add_persons
+</code></pre><p>You will see that some entries are created, together with some error messages.</p>
+<p>Run other rake tasks:</p>
+<pre><code>rake places:add_places
+</code></pre><p>and </p>
+<pre><code>rake places:load_places                    
+</code></pre><p>You will see lots of exceptions, mainly because of the following bugs:</p>
+<p>1) The ‘/‘ is missing in <a href="https://github.com/digital-york/arch1/blob/master/lib/tasks/places.rake#L25" target="_blank" rel="noopener">this line</a>, The code should be:</p>
+<pre><code>arr = CSV.read(Rails.root + &apos;lib/assets/lists/places/&apos; + l)    
+</code></pre><p>2) Lots of exception checks are missing, e.g. for this line:</p>
+<pre><code>auth.search(q).each do |a|
+</code></pre><p>It would be better to check exception first:</p>
+<pre><code>unless auth.search(q).nil?
+  auth.search(q).each do |a|        
+</code></pre><p>The full patched file is <a href="https://gist.github.com/yf508/fbb397917e91cc2ed5d164548137f9dc" target="_blank" rel="noopener">here</a></p>
+<p>Run this rake task:</p>
+<pre><code>rake persons:add_groups      
+</code></pre><p>It doesn’t add any group, needs investigation (maybe due to some missing Fedora objects)</p>
+<p>Run:<br>    rake concepts:load_terms<br>    rake concepts:load_subjects</p>
+<p>The above 2 tasks are stable and shouldn’t produce any problem.</p>
+<p>Run: </p>
+<pre><code>rake regfols:reg_order
+</code></pre><p>You may see the following error:</p>
+<pre><code>uninitialized constant ActiveFedora::Aggregation::ListSource
+</code></pre><p>It was caused by the backwards compatibility issue between active-fedora 10.3.0 and 9.7.0. It was fixed <a href="https://github.com/digital-york/arch1/commit/4d1e8f1646da7d40bcff877cc24d2a6ebbb83a47" target="_blank" rel="noopener">here</a></p>
+<p>Run:<br>    rake regfols:fol_order[‘Abp_Reg_31.csv’,’qv33rw85n’]<br>    rake regfols:fol_order[‘Abp_Reg_32.csv’,’w3763685q’]</p>
+<p>The above ‘Abp_Reg_32.csv’ can be found from lib/assets/new_regs_and_fols<br>The above ‘qv33rw85n’ can be get from Rails console, e.g. run within Rails console:</p>
+<pre><code>regs = Register.all
+regs[0]
+regs[1]
+etc...
+</code></pre><h2 id="Start-arch1-search"><a href="#Start-arch1-search" class="headerlink" title="Start arch1_search"></a>Start arch1_search</h2><p>Run:</p>
+<pre><code>rails s -b 0.0.0.0 
+</code></pre><p>Access:</p>
+<pre><code>http://localhost:3000
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-setup-archbishopsregisters/" data-id="cjvpaprz60000a205zjceio3s" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-ngrok" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/ngrok/" class="article-date">
@@ -837,143 +935,6 @@ new Vue({
 
 
   
-    <article id="post-hyrax-2.4.1-customization" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/hyrax-2.4.1-customization/" class="article-date">
-  <time datetime="2019-01-28T16:40:12.000Z" itemprop="datePublished">2019-01-28</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Hyrax/">Hyrax</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/hyrax-2.4.1-customization/">Hyrax UI customization</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h2><h3 id="Top-bar-for-language-login"><a href="#Top-bar-for-language-login" class="headerlink" title="Top bar for language/login"></a>Top bar for language/login</h3><p>In original Hyrax, remove this line in app/views/layouts/hyrax.html.erb:</p>
-<pre><code>&lt;%= render &apos;/masthead&apos; %&gt;
-</code></pre><p>If using a customized layout, e.g. app/views/layouts/ncelphome.html.erb, doing the same thing there.</p>
-<h3 id="Banner"><a href="#Banner" class="headerlink" title="Banner"></a>Banner</h3><p>Edit file: app/views/layouts/homepage.html.erb (copied form Hyrax):</p>
-<pre><code>&lt;% content_for(:navbar) do %&gt;
-  &lt;div class=&quot;image-masthead&quot;&gt;
-    &lt;div class=&quot;background-container&quot;&gt;
-      &lt;%= image_tag(t(&apos;ncelp.banner_image&apos;), alt: &quot;NCELP&quot;) %&gt;
-</code></pre><h2 id="Footer"><a href="#Footer" class="headerlink" title="Footer"></a>Footer</h2><p>Edit app/views/shared/_footer.html.erb:</p>
-<pre><code>&lt;footer class=&quot;navbar navbar-inverse site-footer ncelp-footer-border&quot;&gt;
-  &lt;div class=&quot;container-fluid row&quot;&gt;
-    &lt;div class=&quot;col-sm-4 ncelp_footer_container&quot; style=&quot;padding-top: 20px;&quot;&gt;
-      &lt;%= image_tag(t(&apos;ncelp.footer.ncelp_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;NCELP&quot;) %&gt;
-    &lt;/div&gt;
-    &lt;div class=&quot;col-sm-2 ncelp_footer_container&quot;&gt;
-      &lt;%= image_tag(t(&apos;ncelp.footer.uoy_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;University of York&quot;) %&gt;
-    &lt;/div&gt;
-    &lt;div class=&quot;col-sm-6 ncelp_footer_container&quot;&gt;
-      &lt;%= image_tag(t(&apos;ncelp.footer.education_dept_logo&apos;), :class=&gt;&apos;ncelp_footer_image&apos;, alt: &quot;Department for Education&quot;) %&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/footer&gt;
-</code></pre><h2 id="Homepage"><a href="#Homepage" class="headerlink" title="Homepage"></a>Homepage</h2><p>It is defined in app/views/hyrax/home/_home_content.html.erb, so change that file something like:</p>
-<pre><code>&lt;!-- top boxes --&gt;
-&lt;div class=&quot;container row&quot;&gt;
-  &lt;div class=&quot;col-xs-12 col-sm-12 ncelp-homepage-middle-box&quot;&gt;
-    &lt;h3&gt;Search the Resource Portal&lt;/h3&gt;
-    &lt;%= render partial: &apos;homepage_search_form&apos; %&gt;
-    Enter &lt;b&gt;any text&lt;/b&gt; you wish into the search box (e.g. speaking, French, grammar) OR&lt;br/&gt;
-    Browse by: All resources; Topic; Language; Age; Type of material&lt;/br&gt;
-    Click on &quot;All Resources&quot; to view all content on the Resource Portal and then use the filters to refine your search&lt;br/&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-
-&lt;!-- bottom boxes --&gt;
-&lt;div class=&quot;container row&quot;&gt;
-  &lt;div class=&quot;col-xs-12 col-sm-8 ncelp-homepage-bottom-box-left&quot;&gt;
-    &lt;h4&gt;&lt;%= t(&apos;hyrax.homepage.featured_works.tab_label&apos;) %&gt;&lt;/h4&gt;
-    &lt;%= render &apos;featured_works&apos; %&gt;
-  &lt;/div&gt;
-  &lt;div class=&quot;col-xs-12 col-sm-4 ncelp-homepage-bottom-box-right&quot;&gt;
-    &lt;h4&gt;&lt;%= t(&apos;hyrax.homepage.recently_uploaded.tab_label&apos;) %&gt;&lt;/h4&gt;
-    &lt;%= render &apos;recently_uploaded&apos;, recent_documents: @recent_documents %&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-</code></pre><h3 id="Homepage-search-box"><a href="#Homepage-search-box" class="headerlink" title="Homepage search box"></a>Homepage search box</h3><p>Can be customized in app/views/hyrax/home/_homepage_search_form.html.erb:</p>
-<pre><code>&lt;%= form_tag search_form_action, method: :get, class: &quot;form-horizontal search-form&quot;, id: &quot;search-form-header&quot;, role: &quot;search&quot; do %&gt;
-  &lt;%= render_hash_as_hidden_fields(search_state.params_for_search.except(:q, :search_field, :qt, :page, :utf8)) %&gt;
-  &lt;%= hidden_field_tag :search_field, &apos;all_fields&apos; %&gt;
-  &lt;div class=&quot;form-group&quot;&gt;
-
-    &lt;div class=&quot;input-group&quot;&gt;
-      &lt;%= text_field_tag :q, current_search_parameters , class: &quot;q form-control&quot;, id: &quot;search-field-header&quot;, placeholder: t(&quot;hyrax.search.form.q.placeholder&quot;) %&gt;
-
-      &lt;div class=&quot;input-group-btn&quot;&gt;
-        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot; id=&quot;search-submit-header&quot;&gt;
-          &lt;%= t(&apos;hyrax.search.button.html&apos;) %&gt;
-        &lt;/button&gt;
-      &lt;/div&gt;&lt;!-- /.input-group-btn --&gt;
-    &lt;/div&gt;&lt;!-- /.input-group --&gt;
-
-  &lt;/div&gt;&lt;!-- /.form-group --&gt;
-&lt;% end %&gt;
-</code></pre><h2 id="Menubar"><a href="#Menubar" class="headerlink" title="Menubar"></a>Menubar</h2><h3 id="Remove-searchbox"><a href="#Remove-searchbox" class="headerlink" title="Remove searchbox"></a>Remove searchbox</h3><p>Copy views/_controls.html.erb from Hyrax to your app, and remove this:</p>
-<pre><code>&lt;div class=&quot;searchbar-right navbar-right col-sm-7&quot;&gt;
-    &lt;%= render partial: &apos;catalog/search_form&apos; %&gt;
-&lt;/div&gt;
-</code></pre><h3 id="Menubar-items"><a href="#Menubar-items" class="headerlink" title="Menubar items"></a>Menubar items</h3><p>Edit app/views/_controls.html.erb:</p>
-<pre><code>&lt;li &lt;%= &apos;class=active&apos; if current_page?(&apos;/upload&apos;) %&gt;&gt;
-  &lt;%= link_to t(:&apos;ncelp.menubar.upload&apos;), &apos;/upload&apos;, aria: current_page?(&apos;/upload&apos;) ? {current: &apos;page&apos;} : nil %&gt;&lt;/li&gt;
-&lt;li &lt;%= &apos;class=active&apos; if current_page?(&apos;/associated_resource&apos;) %&gt;&gt;
-  &lt;%= link_to t(:&apos;ncelp.menubar.associated_resource&apos;), &apos;/associated_resource&apos;, aria: current_page?(&apos;/associated_resource&apos;) ? {current: &apos;page&apos;} : nil %&gt;&lt;/li&gt;
-</code></pre><h2 id="Catalogue-search-page"><a href="#Catalogue-search-page" class="headerlink" title="Catalogue search page"></a>Catalogue search page</h2><p>Copy views/catalog/index.html.erb from Hyrax to your app, add the following on the top:</p>
-<pre><code>&lt;% content_for(:navbar) do %&gt;
-  &lt;div class=&quot;image-masthead&quot;&gt;
-    &lt;div class=&quot;background-container&quot;&gt;
-      &lt;%= image_tag(t(&apos;ncelp.banner_image&apos;), alt: &quot;NCELP&quot;) %&gt;
-    &lt;/div&gt;
-    &lt;span class=&quot;background-container-gradient&quot; style=&quot;background: none;&quot;&gt;&lt;/span&gt;
-
-    &lt;div class=&quot;container site-title-container&quot;&gt;
-      &lt;div class=&quot;site-title h1&quot; style=&quot;text-align: center;&quot;&gt;
-        &lt;%= render &quot;hyrax/homepage/marketing&quot; if controller_name == &apos;homepage&apos; %&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-
-    &lt;%= render &apos;/controls&apos; %&gt;
-  &lt;/div&gt;
-&lt;% end %&gt;
-</code></pre><p>You will see duplicate menubars. To remove one, copy views/layouts/hyrax/1_column.html.erb to your app, and remove:</p>
-<pre><code>&lt;% content_for(:navbar) do %&gt;
-  &lt;%= render &apos;/controls&apos; %&gt;
-&lt;% end %&gt;
-</code></pre><p> Define customized facets: edit app/controllers/catalog_controller.rb</p>
-<p> Define customized search result page:</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/hyrax-2.4.1-customization/" data-id="cjrgfikup0000j905rf1wvhf4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -999,7 +960,7 @@ new Vue({
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -1009,7 +970,7 @@ new Vue({
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 14px;">blacklight</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 10px;">fedora</a> <a href="/tags/git/" style="font-size: 12px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 12px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 18px;">hyrax</a> <a href="/tags/java/" style="font-size: 12px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 16px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 20px;">samvera</a> <a href="/tags/solr/" style="font-size: 14px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 14px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 10px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 12px;">fedora</a> <a href="/tags/git/" style="font-size: 12px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 12px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 18px;">hyrax</a> <a href="/tags/java/" style="font-size: 12px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 18px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 20px;">samvera</a> <a href="/tags/solr/" style="font-size: 16px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1031,6 +992,10 @@ new Vue({
       <ul>
         
           <li>
+            <a href="/how-to-setup-archbishopsregisters/">How to setup archbishopsregisters</a>
+          </li>
+        
+          <li>
             <a href="/ngrok/">Amazing dev tool - ngrok</a>
           </li>
         
@@ -1044,10 +1009,6 @@ new Vue({
         
           <li>
             <a href="/work-on-git-branches/">Work on git branches</a>
-          </li>
-        
-          <li>
-            <a href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
           </li>
         
       </ul>

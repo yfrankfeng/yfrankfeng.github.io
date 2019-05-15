@@ -18,19 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Category: Java | Frank&#39;s development blog</title>
+  <title>How to setup archbishopsregisters | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Frank&#39;s development blog">
-<meta property="og:url" content="https://yfrankfeng.github.io/categories/Java/index.html">
+  <meta name="description" content="Initialize arch1_editThere are two seperate applications, sharing the same Solr instance. First get a local copy of arch1_edit,  Switch to branch: ‘update-rails-5’ Configure Fedora / Solr in the .env">
+<meta name="keywords" content="rails fedora solr blacklights">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to setup archbishopsregisters">
+<meta property="og:url" content="https://yfrankfeng.github.io/how-to-setup-archbishopsregisters/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:description" content="Initialize arch1_editThere are two seperate applications, sharing the same Solr instance. First get a local copy of arch1_edit,  Switch to branch: ‘update-rails-5’ Configure Fedora / Solr in the .env">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-05-15T14:03:22.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Frank&#39;s development blog">
-<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="twitter:title" content="How to setup archbishopsregisters">
+<meta name="twitter:description" content="Initialize arch1_editThere are two seperate applications, sharing the same Solr instance. First get a local copy of arch1_edit,  Switch to branch: ‘update-rails-5’ Configure Fedora / Solr in the .env">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -81,59 +82,113 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/apache-maven/" class="archive-article-date">
-  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">Mar 1</time>
+        <section id="main"><article id="post-how-to-setup-archbishopsregisters" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-setup-archbishopsregisters/" class="article-date">
+  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/rails/">rails</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/apache-maven/">Install Apache Maven 3 on Ubuntu 18</a>
+    <h1 class="article-title" itemprop="name">
+      How to setup archbishopsregisters
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/oauth-update-re-google-plus-shutdown/" class="archive-article-date">
-  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">Mar 1</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/oauth-update-re-google-plus-shutdown/">OAuth login upgrade while Google+ shutdown</a>
-    </h1>
-  
+        <h2 id="Initialize-arch1-edit"><a href="#Initialize-arch1-edit" class="headerlink" title="Initialize arch1_edit"></a>Initialize arch1_edit</h2><p>There are two seperate applications, sharing the same Solr instance.</p>
+<p>First get a local copy of <a href="https://github.com/digital-york/arch1" target="_blank" rel="noopener">arch1_edit</a>, </p>
+<p>Switch to branch: ‘update-rails-5’</p>
+<p>Configure Fedora / Solr in the .env</p>
+<p>Run:</p>
+<pre><code>bundle install
+rake db:migrate
+#rake db:schema:load
+</code></pre><p>and run the following rake tasks:</p>
+<pre><code>rake persons:add_persons
+</code></pre><p>You will see this error:</p>
+<pre><code>Concept Scheme ... 
+ERROR in ConceptScheme!
+RSolr::Error::Http - 400 Bad Request
+Error: &apos;undefined field preflabel_tesim&apos;,
 
-    </header>
+URI: http://localhost:8983/solr/arch1/select?wt=ruby&amp;q=preflabel_tesim%3A%22people%22+AND+has_model_ssim%3A%22ConceptScheme%22&amp;fl=id&amp;rows=1&amp;start=0
+</code></pre><p>Copy schema.xml and solrconfig.xml from <a href="https://github.com/digital-york/arch1/tree/master/solr_conf/conf" target="_blank" rel="noopener">https://github.com/digital-york/arch1/tree/master/solr_conf/conf</a>, and save them into solr config folder, e.g. /var/solr/data/arch1/conf</p>
+<p>Restart Solr:</p>
+<pre><code>sudo systemctl restart solr
+</code></pre><p>And run this rake task again:</p>
+<pre><code>rake persons:add_persons
+</code></pre><p>You will see that some entries are created, together with some error messages.</p>
+<p>Run other rake tasks:</p>
+<pre><code>rake places:add_places
+</code></pre><p>and </p>
+<pre><code>rake places:load_places                    
+</code></pre><p>You will see lots of exceptions, mainly because of the following bugs:</p>
+<p>1) The ‘/‘ is missing in <a href="https://github.com/digital-york/arch1/blob/master/lib/tasks/places.rake#L25" target="_blank" rel="noopener">this line</a>, The code should be:</p>
+<pre><code>arr = CSV.read(Rails.root + &apos;lib/assets/lists/places/&apos; + l)    
+</code></pre><p>2) Lots of exception checks are missing, e.g. for this line:</p>
+<pre><code>auth.search(q).each do |a|
+</code></pre><p>It would be better to check exception first:</p>
+<pre><code>unless auth.search(q).nil?
+  auth.search(q).each do |a|        
+</code></pre><p>The full patched file is <a href="https://gist.github.com/yf508/fbb397917e91cc2ed5d164548137f9dc" target="_blank" rel="noopener">here</a></p>
+<p>Run this rake task:</p>
+<pre><code>rake persons:add_groups      
+</code></pre><p>It doesn’t add any group, needs investigation (maybe due to some missing Fedora objects)</p>
+<p>Run:<br>    rake concepts:load_terms<br>    rake concepts:load_subjects</p>
+<p>The above 2 tasks are stable and shouldn’t produce any problem.</p>
+<p>Run: </p>
+<pre><code>rake regfols:reg_order
+</code></pre><p>You may see the following error:</p>
+<pre><code>uninitialized constant ActiveFedora::Aggregation::ListSource
+</code></pre><p>It was caused by the backwards compatibility issue between active-fedora 10.3.0 and 9.7.0. It was fixed <a href="https://github.com/digital-york/arch1/commit/4d1e8f1646da7d40bcff877cc24d2a6ebbb83a47" target="_blank" rel="noopener">here</a></p>
+<p>Run:<br>    rake regfols:fol_order[‘Abp_Reg_31.csv’,’qv33rw85n’]<br>    rake regfols:fol_order[‘Abp_Reg_32.csv’,’w3763685q’]</p>
+<p>The above ‘Abp_Reg_32.csv’ can be found from lib/assets/new_regs_and_fols<br>The above ‘qv33rw85n’ can be get from Rails console, e.g. run within Rails console:</p>
+<pre><code>regs = Register.all
+regs[0]
+regs[1]
+etc...
+</code></pre><h2 id="Start-arch1-search"><a href="#Start-arch1-search" class="headerlink" title="Start arch1_search"></a>Start arch1_search</h2><p>Run:</p>
+<pre><code>rails s -b 0.0.0.0 
+</code></pre><p>Access:</p>
+<pre><code>http://localhost:3000
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-setup-archbishopsregisters/" data-id="cjvpaprz60000a205zjceio3s" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+
+    </footer>
   </div>
-</article>
+  
+    
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/ngrok/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Amazing dev tool - ngrok</div>
+    </a>
   
+</nav>
 
+  
+</article>
 
 </section>
         
