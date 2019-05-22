@@ -109,7 +109,11 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Initialize-arch1-edit"><a href="#Initialize-arch1-edit" class="headerlink" title="Initialize arch1_edit"></a>Initialize arch1_edit</h2><p>There are two seperate applications, sharing the same Solr instance.</p>
+        <h2 id="Restore-fedora-data"><a href="#Restore-fedora-data" class="headerlink" title="Restore fedora data"></a>Restore fedora data</h2><p>Copy data (opal-fedora474-475-backup.2019-05-02-20190514T143512Z-001.zip) from <a href="https://drive.google.com/drive/folders/1w3c0AObfp24NvB2vGgtaQJSVEy8gduEJ" target="_blank" rel="noopener">Google Drive</a>, and unzip it to local folder.</p>
+<p>Within the fedora server, Run:</p>
+<pre><code>curl -X POST --data-binary &quot;/var/tmp/opal-fedora474-475-backup.2019-05-02&quot; &quot;http://localhost:8080/fedora/rest/fcr:restore&quot;
+</code></pre><p>It takes about 2/3 minutes to restore all data.    </p>
+<h2 id="Initialize-arch1-edit"><a href="#Initialize-arch1-edit" class="headerlink" title="Initialize arch1_edit"></a>Initialize arch1_edit</h2><p>There are two seperate applications, sharing the same Solr instance.</p>
 <p>First get a local copy of <a href="https://github.com/digital-york/arch1" target="_blank" rel="noopener">arch1_edit</a>, </p>
 <p>Switch to branch: ‘update-rails-5’</p>
 <p>Configure Fedora / Solr in the .env</p>
@@ -135,7 +139,10 @@ URI: http://localhost:8983/solr/arch1/select?wt=ruby&amp;q=preflabel_tesim%3A%22
 </code></pre><p>And run this rake task again:</p>
 <pre><code>rake persons:add_persons
 </code></pre><p><del>You will see that some entries are created, together with some error messages.</del><br>In Persons_01_02_16.csv, remove the ? in the first line can make the script running successfully.</p>
-<pre><code>? Richard; R. as written, ==&gt; Richard; R. as written,
+<pre><code>CHANGE 
+    ? Richard; R. as written, 
+TO 
+    Richard; R. as written,
 </code></pre><p>Run other rake tasks:</p>
 <pre><code>rake places:add_places
 </code></pre><p>and </p>
