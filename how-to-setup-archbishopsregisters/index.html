@@ -20,18 +20,18 @@ ga('send', 'pageview');
   
   <title>How to setup archbishopsregisters | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Initialize arch1_editThere are two seperate applications, sharing the same Solr instance. First get a local copy of arch1_edit,  Switch to branch: ‘update-rails-5’ Configure Fedora / Solr in the .env">
+  <meta name="description" content="Restore fedora data from liveGet Fedora settings rightStop Tomcat and clear fedora data folder Edit /opt/tomcat/webapps/fedora/WEB-INF/classes/spring/repo.xml: &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encodin">
 <meta name="keywords" content="rails fedora solr blacklights">
 <meta property="og:type" content="article">
 <meta property="og:title" content="How to setup archbishopsregisters">
 <meta property="og:url" content="https://yfrankfeng.github.io/how-to-setup-archbishopsregisters/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Initialize arch1_editThere are two seperate applications, sharing the same Solr instance. First get a local copy of arch1_edit,  Switch to branch: ‘update-rails-5’ Configure Fedora / Solr in the .env">
+<meta property="og:description" content="Restore fedora data from liveGet Fedora settings rightStop Tomcat and clear fedora data folder Edit /opt/tomcat/webapps/fedora/WEB-INF/classes/spring/repo.xml: &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encodin">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-05-15T16:02:33.000Z">
+<meta property="og:updated_time" content="2019-05-23T09:24:08.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="How to setup archbishopsregisters">
-<meta name="twitter:description" content="Initialize arch1_editThere are two seperate applications, sharing the same Solr instance. First get a local copy of arch1_edit,  Switch to branch: ‘update-rails-5’ Configure Fedora / Solr in the .env">
+<meta name="twitter:description" content="Restore fedora data from liveGet Fedora settings rightStop Tomcat and clear fedora data folder Edit /opt/tomcat/webapps/fedora/WEB-INF/classes/spring/repo.xml: &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encodin">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -108,7 +108,85 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Initialize-arch1-edit"><a href="#Initialize-arch1-edit" class="headerlink" title="Initialize arch1_edit"></a>Initialize arch1_edit</h2><p>There are two seperate applications, sharing the same Solr instance.</p>
+        <h2 id="Restore-fedora-data-from-live"><a href="#Restore-fedora-data-from-live" class="headerlink" title="Restore fedora data from live"></a>Restore fedora data from live</h2><h3 id="Get-Fedora-settings-right"><a href="#Get-Fedora-settings-right" class="headerlink" title="Get Fedora settings right"></a>Get Fedora settings right</h3><p>Stop Tomcat and clear fedora data folder</p>
+<p>Edit /opt/tomcat/webapps/fedora/WEB-INF/classes/spring/repo.xml:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xmlns:p=&quot;http://www.springframework.org/schema/p&quot;
+    xsi:schemaLocation=&quot;
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;&gt;
+
+    &lt;context:annotation-config/&gt;
+
+    &lt;bean name=&quot;modeshapeRepofactory&quot;
+        class=&quot;org.fcrepo.kernel.modeshape.spring.ModeShapeRepositoryFactoryBean&quot;
+        p:repositoryConfiguration=&quot;classpath:/config/file-simple/repository.json&quot;/&gt;
+
+    &lt;bean class=&quot;org.modeshape.jcr.ModeShapeEngine&quot; init-method=&quot;start&quot;/&gt;
+
+    &lt;!-- For the time being, load annotation config here too --&gt;
+    &lt;bean class=&quot;org.fcrepo.metrics.MetricsConfig&quot;/&gt;
+
+    &lt;bean id=&quot;connectionManager&quot; class=&quot;org.apache.http.impl.conn.PoolingHttpClientConnectionManager&quot; /&gt;
+&lt;/beans&gt;
+</code></pre><p>and edit file: /opt/tomcat/webapps/fedora/WEB-INF/classes/config/file-simple/repository.json</p>
+<pre><code>{
+    &quot;name&quot; : &quot;repo&quot;,
+    &quot;jndiName&quot; : &quot;&quot;,
+    &quot;workspaces&quot; : {
+        &quot;predefined&quot; : [&quot;default&quot;],
+        &quot;default&quot; : &quot;default&quot;,
+        &quot;allowCreation&quot; : true,
+        &quot;cacheSize&quot; : 10000
+    },
+    &quot;storage&quot; : {
+        &quot;persistence&quot;: {
+            &quot;type&quot;: &quot;file&quot;,
+            &quot;path&quot; : &quot;${fcrepo.object.directory:target/objects}&quot;
+        },
+        &quot;binaryStorage&quot; : {
+            &quot;type&quot; : &quot;file&quot;,
+            &quot;directory&quot; : &quot;${fcrepo.binary.directory:target/binaries}&quot;,
+            &quot;minimumBinarySizeInBytes&quot; : 4096
+        }
+    },
+    &quot;security&quot; : {
+        &quot;anonymous&quot; : {
+            &quot;roles&quot; : [&quot;readonly&quot;,&quot;readwrite&quot;,&quot;admin&quot;],
+            &quot;useOnFailedLogin&quot; : false
+        },
+        &quot;providers&quot; : [
+            { &quot;classname&quot; : &quot;org.fcrepo.auth.common.BypassSecurityServletAuthenticationProvider&quot; }
+        ]
+    },
+    &quot;garbageCollection&quot; : {
+        &quot;threadPool&quot; : &quot;modeshape-gc&quot;,
+        &quot;initialTime&quot; : &quot;00:00&quot;,
+        &quot;intervalInHours&quot; : 24
+    },
+    &quot;node-types&quot; : [&quot;/home/frank/fcrepo-data/fedora-node-types/fedora-node-types.cnd&quot;]
+}
+</code></pre><p>Restart Tomcat.</p>
+<p>Copy data (opal-fedora474-475-backup.2019-05-02-20190514T143512Z-001.zip) from <a href="https://drive.google.com/drive/folders/1w3c0AObfp24NvB2vGgtaQJSVEy8gduEJ" target="_blank" rel="noopener">Google Drive</a>, and unzip it to local folder.</p>
+<p>Run the following command to restore data:</p>
+<pre><code>curl -X POST -d &quot;/var/tmp/opal-fedora474-475-backup.2019-05-02&quot; &quot;localhost:8080/fedora/rest/fcr:restore&quot;
+</code></pre><p>It should take 2 minutes to complete.    </p>
+<h3 id="Use-fcrepo-wrapper-as-a-reference"><a href="#Use-fcrepo-wrapper-as-a-reference" class="headerlink" title="Use fcrepo_wrapper as a reference"></a>Use fcrepo_wrapper as a reference</h3><p>If the above steps are not working, can use fcrepo_wrapper as a reference and copy its config files</p>
+<p>Get a copy of arch1_search and run within the app folder:</p>
+<pre><code>bundle exec fcrepo_wrapper
+</code></pre><p>It will load fedora on port 8984, and create a temporary folder like: /tmp/fcrepo-webapp-4.7.5-jetty-console.jar_8984</p>
+<p>Go to that folder and check file webapp/WEB-INF/classes/spring/repo.xml, find modeshapeRepofactory setting:</p>
+<pre><code>&lt;bean name=&quot;modeshapeRepofactory&quot;
+      class=&quot;org.fcrepo.kernel.modeshape.spring.ModeShapeRepositoryFactoryBean&quot;
+      p:repositoryConfiguration=&quot;classpath:/config/file-simple/repository.json&quot;/&gt;
+</code></pre><h2 id="Reindex-all-fedora-data-to-Solr"><a href="#Reindex-all-fedora-data-to-Solr" class="headerlink" title="Reindex all fedora data to Solr"></a>Reindex all fedora data to Solr</h2><p>Clear solr data</p>
+<p>In arch1_edit rails console (development), run:</p>
+<pre><code>ActiveFedora::Base.reindex_everything
+</code></pre><p>It takes 1-2 hours to index everything!</p>
+<h2 id="Initialize-arch1-edit"><a href="#Initialize-arch1-edit" class="headerlink" title="Initialize arch1_edit"></a>Initialize arch1_edit</h2><p>There are two seperate applications, sharing the same Solr instance.</p>
 <p>First get a local copy of <a href="https://github.com/digital-york/arch1" target="_blank" rel="noopener">arch1_edit</a>, </p>
 <p>Switch to branch: ‘update-rails-5’</p>
 <p>Configure Fedora / Solr in the .env</p>
@@ -134,7 +212,10 @@ URI: http://localhost:8983/solr/arch1/select?wt=ruby&amp;q=preflabel_tesim%3A%22
 </code></pre><p>And run this rake task again:</p>
 <pre><code>rake persons:add_persons
 </code></pre><p><del>You will see that some entries are created, together with some error messages.</del><br>In Persons_01_02_16.csv, remove the ? in the first line can make the script running successfully.</p>
-<pre><code>? Richard; R. as written, ==&gt; Richard; R. as written,
+<pre><code>CHANGE 
+    ? Richard; R. as written, 
+TO 
+    Richard; R. as written,
 </code></pre><p>Run other rake tasks:</p>
 <pre><code>rake places:add_places
 </code></pre><p>and </p>
