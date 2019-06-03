@@ -184,10 +184,13 @@ ga('send', 'pageview');
       class=&quot;org.fcrepo.kernel.modeshape.spring.ModeShapeRepositoryFactoryBean&quot;
       p:repositoryConfiguration=&quot;classpath:/config/file-simple/repository.json&quot;/&gt;
 </code></pre><h2 id="Reindex-all-fedora-data-to-Solr"><a href="#Reindex-all-fedora-data-to-Solr" class="headerlink" title="Reindex all fedora data to Solr"></a>Reindex all fedora data to Solr</h2><p>Clear solr data</p>
-<p>In arch1_edit rails console (development), run:</p>
+<h3 id="Option-1-not-fully-working-left-around-1000-objects-not-indexed"><a href="#Option-1-not-fully-working-left-around-1000-objects-not-indexed" class="headerlink" title="Option 1 (not fully working - left around 1000 objects not indexed)"></a>Option 1 (not fully working - left around 1000 objects not indexed)</h3><p>In arch1_edit rails console (development), run:</p>
 <pre><code>ActiveFedora::Base.reindex_everything
 </code></pre><p>It takes 1-2 hours to index everything!</p>
-<h2 id="Initialize-arch1-edit"><a href="#Initialize-arch1-edit" class="headerlink" title="Initialize arch1_edit"></a>Initialize arch1_edit</h2><p>There are two seperate applications, sharing the same Solr instance.</p>
+<h3 id="Option-2"><a href="#Option-2" class="headerlink" title="Option 2"></a>Option 2</h3><p>In <strong>arch1</strong> (NOT arch1_search because some classes are missing there) app, run</p>
+<pre><code>rake sync_solr:sync
+</code></pre><p>It will index all objects</p>
+<h2 id="Get-arch1-search-fully-working"><a href="#Get-arch1-search-fully-working" class="headerlink" title="Get arch1_search fully working"></a>Get arch1_search fully working</h2><h2 id="Initialize-arch1-edit"><a href="#Initialize-arch1-edit" class="headerlink" title="Initialize arch1_edit"></a>Initialize arch1_edit</h2><p>There are two seperate applications, sharing the same Solr instance.</p>
 <p>First get a local copy of <a href="https://github.com/digital-york/arch1" target="_blank" rel="noopener">arch1_edit</a>, </p>
 <p>Switch to branch: ‘update-rails-5’</p>
 <p>Configure Fedora / Solr in the .env</p>
