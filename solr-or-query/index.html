@@ -18,19 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Tag: hyrax | Frank&#39;s development blog</title>
+  <title>Solr OR query problem and fix | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Frank&#39;s development blog">
-<meta property="og:url" content="https://yfrankfeng.github.io/tags/hyrax/index.html">
+  <meta name="description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
+<meta name="keywords" content="solr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Solr OR query problem and fix">
+<meta property="og:url" content="https://yfrankfeng.github.io/solr-or-query/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-06-28T10:28:33.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Frank&#39;s development blog">
-<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="twitter:title" content="Solr OR query problem and fix">
+<meta name="twitter:description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -81,126 +82,68 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/build-samvera-stack-step-by-step/" class="archive-article-date">
-  <time datetime="2019-04-03T12:40:12.000Z" itemprop="datePublished">Apr 3</time>
+        <section id="main"><article id="post-solr-or-query" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/solr-or-query/" class="article-date">
+  <time datetime="2019-06-28T12:40:12.000Z" itemprop="datePublished">2019-06-28</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/solr/">solr</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/build-samvera-stack-step-by-step/">Build Samvera stack step by step</a>
+    <h1 class="article-title" itemprop="name">
+      Solr OR query problem and fix
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/how-to-make-all-resources-public/" class="archive-article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">Apr 1</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/how-to-make-all-resources-public/">How to make all resources public in Hyrax</a>
-    </h1>
-  
+        <p>In Solr admin page, e.g. <a href="http://localhost:8983/solr/#/arch1_solrsync/query" target="_blank" rel="noopener">http://localhost:8983/solr/#/arch1_solrsync/query</a></p>
+<p>query for individual object works but the ‘OR’ query is NOT working, e.g. queries: </p>
+<pre><code>id:h702q6403
+id:3b591b35w
+</code></pre><p>are both working, but </p>
+<pre><code>id:3b591b35w OR id:h702q6403
+</code></pre><p>is NOT.</p>
+<p>The quick solution is to put the following in q field:</p>
+<pre><code>id:*
+</code></pre><p>and in the fq field, enter:</p>
+<pre><code>id:3b591b35w OR id:h702q6403
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/solr-or-query/" data-id="cjxfyf6nn0000lr05om4yawyx" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
 
-    </header>
+    </footer>
   </div>
-</article>
   
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/how-to-make-featured-work-working/" class="archive-article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">Apr 1</time>
-</a>
-      
+<nav id="article-nav">
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
-    </h1>
   
+    <a href="/how-to-setup-archbishopsregisters/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">How to setup archbishopsregisters</div>
+    </a>
+  
+</nav>
 
-    </header>
-  </div>
+  
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/hyrax-2.4.1-customization/" class="archive-article-date">
-  <time datetime="2019-01-28T16:40:12.000Z" itemprop="datePublished">Jan 28</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/hyrax-2.4.1-customization/">Hyrax UI customization</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-      
-        </div></section>
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/adding-new-static-page-in-hyrax/" class="archive-article-date">
-  <time datetime="2018-10-12T12:40:12.000Z" itemprop="datePublished">Oct 12</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/adding-new-static-page-in-hyrax/">Adding a new static page in Hyrax</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
 
 </section>
         
