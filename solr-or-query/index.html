@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-06-28T10:28:33.000Z">
+<meta property="og:updated_time" content="2019-06-28T10:59:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Solr OR query problem and fix">
 <meta name="twitter:description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
@@ -119,6 +119,40 @@ id:3b591b35w
 <pre><code>id:*
 </code></pre><p>and in the fq field, enter:</p>
 <pre><code>id:3b591b35w OR id:h702q6403
+</code></pre><p>For arch1, a method can be added to app/helpers/solr_query.rb, e.g. (EXPERIMENTAL):</p>
+<pre><code>def solr_query_fq(q, fq, fl=&apos;id&apos;, rows=10, sort=&apos;&apos;, start=0 )
+  CONN.get &apos;select&apos;, :params =&gt; {
+    :q=&gt;q,
+    :fq=&gt;fq,
+    :fl=&gt;fl,
+    :rows=&gt;rows,
+    :sort=&gt;sort,
+    :start=&gt;start
+  }
+end  
+</code></pre><p>And changes to register_folio.rb:</p>
+<pre><code>q.solr_query(&apos;has_model_ssim:OrderedCollection&apos;, &apos;id&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |result|
+    collection = result[&apos;id&apos;]
+
+    q.solr_query(&apos;id:&quot;&apos; + collection + &apos;/list_source&quot;&apos;, &apos;ordered_targets_ssim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |res|
+        order = res[&apos;ordered_targets_ssim&apos;]
+        query = &apos;&apos;
+        order.each do |o|
+            # to parse object id from format like: &quot;production/dz/01/0r/92/dz010r92r&quot;
+            # this may be caused by the version changes of Fedora/Active Fedora
+            id = (o.include? &apos;/&apos;) ? o.rpartition(&apos;/&apos;).last : o
+            if query==&apos;&apos;
+              query = &apos;(id:&quot;&apos; + id + &apos;&quot;&apos;
+            else
+              query = query + &apos; OR id:&quot;&apos; + id + &apos;&quot;&apos;
+            end
+        end
+        query = query + &apos;)&apos;
+        q.solr_query_fq(&apos;*:*&apos;, query, &apos;id,preflabel_tesim,reg_id_tesim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |r|
+            registers[r[&apos;id&apos;]] = [r[&apos;reg_id_tesim&apos;][0], r[&apos;preflabel_tesim&apos;][0]]
+        end
+    end
+end    
 </code></pre>
       
     </div>
