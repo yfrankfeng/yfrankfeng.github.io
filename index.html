@@ -83,6 +83,111 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-arch1_search_notes" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/arch1_search_notes/" class="article-date">
+  <time datetime="2019-07-04T12:40:12.000Z" itemprop="datePublished">2019-07-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/rails/">rails</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/arch1_search_notes/">archbishopsregisters search application notes</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="How-search-works"><a href="#How-search-works" class="headerlink" title="How search works?"></a>How search works?</h2><p>The magic starts from <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/searches_controller.rb#L79" target="_blank" rel="noopener">here</a>, e.g. the call to ‘set_search_result_arrays’ within searches_controller.rb.</p>
+<p>Within <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L5" target="_blank" rel="noopener">set_search_result_arrays method</a>, the search result is built in a few steps:</p>
+<p>NB: it uses lowercased search terms, as shown here:</p>
+<pre><code>search_term2 = @search_term.downcase.tr(&apos; &apos;, &apos;*&apos;) 
+</code></pre><p>(1) It searches all entries against the search term, e.g. </p>
+<pre><code>q = &quot;has_model_ssim:Entry AND (entry_type_search:*#{search_term2}* or section_type_search:*#{search_term2}* or summary_search:*#{search_term2}* or marginalia_search:*#{search_term2}* or subject_search:*#{search_term2}* or language_search:*#{search_term2}* or note_search:*#{search_term2}* or editorial_note_search:*#{search_term2}* or is_referenced_by_search:*#{search_term2}*)&quot;
+</code></pre><p>Search results will be saved in q_result and the facets will be updated.    </p>
+<p>More importantly, <strong>‘entry_id_set’</strong> will be updated with entry IDs.</p>
+<p><a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L26-#L40" target="_blank" rel="noopener">GH Link</a></p>
+<p>(2) Use same search term to search people/groups and get the object ID, e.g.</p>
+<pre><code>q = &quot;has_model_ssim:RelatedAgent AND (person_same_as_search:*#{search_term2}* or person_role_search:*#{search_term2}* or person_descriptor_search:*#{search_term2}* or person_descriptor_same_as_search:*#{search_term2}* or person_note_search:*#{search_term2}* or person_same_as_search:*#{search_term2}* or person_related_place_search:*#{search_term2}* or person_related_person_search:*#{search_term2}*)&quot;
+</code></pre><p>Then use the entry IDs found above (relatedAgentFor_ssim) to get entries metadata:</p>
+<pre><code>result[&apos;relatedAgentFor_ssim&apos;].each do |relatedagent|
+    q_result2 = query.solr_query(&quot;id:#{relatedagent}&quot;, &apos;id,has_model_ssim&apos;, 1, nil, 0, true, -1, &apos;index&apos;, facets, fq_entry)
+end                        
+</code></pre><p>Finally, update ‘entry_id_set’</p>
+<p><a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L45-#L73" target="_blank" rel="noopener">GH Link</a>    </p>
+<p>(3) Place</p>
+<p>Similar to (2) but use:</p>
+<pre><code>has_model_ssim:RelatedPlace
+</code></pre><p>(4) Dates    </p>
+<p>Similar to (2) but use:</p>
+<pre><code>SingleDate
+</code></pre><p>(5) Data aggregation </p>
+<p>To get data ready for frontend UI:</p>
+<p>First, some data come from Entry object, e.g. in <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L167-#L177" target="_blank" rel="noopener">Here</a></p>
+<pre><code>@element_array &lt;&lt; entry_id
+get_entry_and_folio_details(entry_id)
+@element_array &lt;&lt; get_element(result[&apos;entry_type_facet_ssim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;section_type_facet_ssim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;summary_tesim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;marginalia_tesim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;language_facet_ssim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;subject_facet_ssim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;note_tesim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;editorial_note_tesim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;is_referenced_by_tesim&apos;])
+</code></pre><p>Second, for fields like place, people, dates, doing a second search to get data store them into the same array, e.g. @element_array</p>
+<pre><code>get_places(entry_id, search_term2)
+get_people(entry_id, search_term2)
+get_dates(entry_id, search_term2)
+</code></pre><p>Finally, store the results into @partial_list_array.</p>
+<pre><code>@partial_list_array &lt;&lt; @element_array
+</code></pre><p>(6) view</p>
+<p>In the view page:</p>
+<pre><code>&lt;% @partial_list_array.each_with_index do |t, index| %&gt;
+    &lt;%
+       entry_id = t[0]
+       title = t[1]
+       folio_id = t[2]
+       entry_type = t[3]
+       section_type = t[4]
+       summary = t[5]
+       marginalia = t[6]
+       language = t[7]
+       subject = t[8]
+       note = t[9]
+       editorial_note = t[10]
+       is_referenced_by = t[11]
+       place = t[12]
+       person = t[13]
+       dates = t[14]
+    %&gt;    
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/arch1_search_notes/" data-id="cjxpysv5h0000bh05q82kabb6" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-solr-or-query" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/solr-or-query/" class="article-date">
@@ -674,60 +779,6 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
 
 
   
-    <article id="post-work-on-git-branches" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/work-on-git-branches/" class="article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/git/">git</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/work-on-git-branches/">Work on git branches</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="Pull-maybe-fetch-master-branch"><a href="#Pull-maybe-fetch-master-branch" class="headerlink" title="Pull (maybe fetch?) master branch:"></a>Pull (maybe fetch?) master branch:</h4><pre><code>git pull origin master
-</code></pre><h4 id="Create-feature-branch"><a href="#Create-feature-branch" class="headerlink" title="Create feature branch"></a>Create feature branch</h4><pre><code>git checkout -b mybranch
-</code></pre><h4 id="Work-on-feature-branch"><a href="#Work-on-feature-branch" class="headerlink" title="Work on feature branch"></a>Work on feature branch</h4><p>Make sure the final commit is buildable and passes all tests.</p>
-<h4 id="Find-the-last-commit-your-branch-branches-from"><a href="#Find-the-last-commit-your-branch-branches-from" class="headerlink" title="Find the last commit your branch branches from"></a>Find the last commit your branch branches from</h4><pre><code>git log --graph --decorate --pretty=oneline --abbrev-commit
-</code></pre><h4 id="Squash-to-1-commit"><a href="#Squash-to-1-commit" class="headerlink" title="Squash to 1 commit"></a>Squash to 1 commit</h4><pre><code>git rebase -i [SHA]
-</code></pre><p>Edit commits in the interactive mode.</p>
-<h4 id="Push-featured-branch-to-remote"><a href="#Push-featured-branch-to-remote" class="headerlink" title="Push featured branch to remote"></a>Push featured branch to remote</h4><pre><code>git push origin mybranch 
-</code></pre><p>OR</p>
-<pre><code>git push origin mybranch --force-with-lease
-</code></pre><h4 id="Merge-into-master"><a href="#Merge-into-master" class="headerlink" title="Merge into master"></a>Merge into master</h4><pre><code>git checkout master
-git merge mybranch
-git push origin master
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/work-on-git-branches/" data-id="cju1efk9l0000r205yjzo1egj" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/branch/">branch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-how-to-make-featured-work-working" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/how-to-make-featured-work-working/" class="article-date">
@@ -859,6 +910,60 @@ end
 
 
   
+    <article id="post-work-on-git-branches" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/work-on-git-branches/" class="article-date">
+  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/git/">git</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/work-on-git-branches/">Work on git branches</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="Pull-maybe-fetch-master-branch"><a href="#Pull-maybe-fetch-master-branch" class="headerlink" title="Pull (maybe fetch?) master branch:"></a>Pull (maybe fetch?) master branch:</h4><pre><code>git pull origin master
+</code></pre><h4 id="Create-feature-branch"><a href="#Create-feature-branch" class="headerlink" title="Create feature branch"></a>Create feature branch</h4><pre><code>git checkout -b mybranch
+</code></pre><h4 id="Work-on-feature-branch"><a href="#Work-on-feature-branch" class="headerlink" title="Work on feature branch"></a>Work on feature branch</h4><p>Make sure the final commit is buildable and passes all tests.</p>
+<h4 id="Find-the-last-commit-your-branch-branches-from"><a href="#Find-the-last-commit-your-branch-branches-from" class="headerlink" title="Find the last commit your branch branches from"></a>Find the last commit your branch branches from</h4><pre><code>git log --graph --decorate --pretty=oneline --abbrev-commit
+</code></pre><h4 id="Squash-to-1-commit"><a href="#Squash-to-1-commit" class="headerlink" title="Squash to 1 commit"></a>Squash to 1 commit</h4><pre><code>git rebase -i [SHA]
+</code></pre><p>Edit commits in the interactive mode.</p>
+<h4 id="Push-featured-branch-to-remote"><a href="#Push-featured-branch-to-remote" class="headerlink" title="Push featured branch to remote"></a>Push featured branch to remote</h4><pre><code>git push origin mybranch 
+</code></pre><p>OR</p>
+<pre><code>git push origin mybranch --force-with-lease
+</code></pre><h4 id="Merge-into-master"><a href="#Merge-into-master" class="headerlink" title="Merge into master"></a>Merge into master</h4><pre><code>git checkout master
+git merge mybranch
+git push origin master
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/work-on-git-branches/" data-id="cju1efk9l0000r205yjzo1egj" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/branch/">branch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-oauth-update-re-google-plus-shutdown" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/oauth-update-re-google-plus-shutdown/" class="article-date">
@@ -914,70 +1019,11 @@ end
 
 
   
-    <article id="post-apache-maven" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/apache-maven/" class="article-date">
-  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">2019-03-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Java/">Java</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/apache-maven/">Install Apache Maven 3 on Ubuntu 18</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <pre><code>cd /opt/
-sudo wget http://www-eu.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz
-sudo tar -xvf apache-maven-3.6.0-bin.tar.gz
-sudo mv apache-maven-3.6.0 maven
-sudo update-alternatives --install /usr/bin/mvn maven /opt/maven/bin/mvn 1001
-mvn -v
-</code></pre><p>You should be able to see Maven’s version info now.</p>
-<pre><code>cd /etc/profile.d/
-sudo nano maven.sh
-</code></pre><p>And add the content:    </p>
-<pre><code>export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-export M2_HOME=/opt/maven
-export MAVEN_HOME=/opt/maven
-export PATH=${M2_HOME}/bin:${PATH}
-</code></pre><p>Then run commands:</p>
-<pre><code>sudo chmod +x maven.sh
-source maven.sh
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/apache-maven/" data-id="cjspwpkvi0000wq052lphdtbe" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
   </nav>
 
 </section>
@@ -1008,7 +1054,7 @@ source maven.sh
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 15px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 10px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 12.5px;">fedora</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 12.5px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 17.5px;">hyrax</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 17.5px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 20px;">samvera</a> <a href="/tags/solr/" style="font-size: 17.5px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 15px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.5px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 12.5px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 17.5px;">hyrax</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 20px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1017,7 +1063,7 @@ source maven.sh
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1028,6 +1074,10 @@ source maven.sh
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/arch1_search_notes/">archbishopsregisters search application notes</a>
+          </li>
         
           <li>
             <a href="/solr-or-query/">Solr OR query problem and fix</a>
@@ -1043,10 +1093,6 @@ source maven.sh
         
           <li>
             <a href="/vuejs/">Vue.js pros &amp; cons</a>
-          </li>
-        
-          <li>
-            <a href="/build-samvera-stack-step-by-step/">Build Samvera stack step by step</a>
           </li>
         
       </ul>

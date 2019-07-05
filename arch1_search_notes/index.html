@@ -18,20 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Solr OR query problem and fix | Frank&#39;s development blog</title>
+  <title>archbishopsregisters search application notes | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
-<meta name="keywords" content="solr">
+  <meta name="description" content="How search works?The magic starts from here, e.g. the call to ‘set_search_result_arrays’ within searches_controller.rb. Within set_search_result_arrays method, the search result is built in a few step">
+<meta name="keywords" content="rails fedora solr blacklights">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Solr OR query problem and fix">
-<meta property="og:url" content="https://yfrankfeng.github.io/solr-or-query/index.html">
+<meta property="og:title" content="archbishopsregisters search application notes">
+<meta property="og:url" content="https://yfrankfeng.github.io/arch1_search_notes/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
+<meta property="og:description" content="How search works?The magic starts from here, e.g. the call to ‘set_search_result_arrays’ within searches_controller.rb. Within set_search_result_arrays method, the search result is built in a few step">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-06-28T10:59:36.000Z">
+<meta property="og:updated_time" content="2019-07-05T10:36:35.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Solr OR query problem and fix">
-<meta name="twitter:description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
+<meta name="twitter:title" content="archbishopsregisters search application notes">
+<meta name="twitter:description" content="How search works?The magic starts from here, e.g. the call to ‘set_search_result_arrays’ within searches_controller.rb. Within set_search_result_arrays method, the search result is built in a few step">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -82,14 +82,14 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-solr-or-query" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <section id="main"><article id="post-arch1_search_notes" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/solr-or-query/" class="article-date">
-  <time datetime="2019-06-28T12:40:12.000Z" itemprop="datePublished">2019-06-28</time>
+    <a href="/arch1_search_notes/" class="article-date">
+  <time datetime="2019-07-04T12:40:12.000Z" itemprop="datePublished">2019-07-04</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/solr/">solr</a>
+    <a class="article-category-link" href="/categories/rails/">rails</a>
   </div>
 
   </div>
@@ -100,7 +100,7 @@ ga('send', 'pageview');
         
   
     <h1 class="article-title" itemprop="name">
-      Solr OR query problem and fix
+      archbishopsregisters search application notes
     </h1>
   
 
@@ -108,59 +108,77 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>In Solr admin page, e.g. <a href="http://localhost:8983/solr/#/arch1_solrsync/query" target="_blank" rel="noopener">http://localhost:8983/solr/#/arch1_solrsync/query</a></p>
-<p>query for individual object works but the ‘OR’ query is NOT working, e.g. queries: </p>
-<pre><code>id:h702q6403
-id:3b591b35w
-</code></pre><p>are both working, but </p>
-<pre><code>id:3b591b35w OR id:h702q6403
-</code></pre><p>is NOT.</p>
-<p>The quick solution is to put the following in q field:</p>
-<pre><code>id:*
-</code></pre><p>and in the fq field, enter:</p>
-<pre><code>id:3b591b35w OR id:h702q6403
-</code></pre><p>For arch1, a method can be added to app/helpers/solr_query.rb, e.g. (EXPERIMENTAL):</p>
-<pre><code>def solr_query_fq(q, fq, fl=&apos;id&apos;, rows=10, sort=&apos;&apos;, start=0 )
-  CONN.get &apos;select&apos;, :params =&gt; {
-    :q=&gt;q,
-    :fq=&gt;fq,
-    :fl=&gt;fl,
-    :rows=&gt;rows,
-    :sort=&gt;sort,
-    :start=&gt;start
-  }
-end  
-</code></pre><p>And changes to register_folio.rb:</p>
-<pre><code>q.solr_query(&apos;has_model_ssim:OrderedCollection&apos;, &apos;id&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |result|
-    collection = result[&apos;id&apos;]
-
-    q.solr_query(&apos;id:&quot;&apos; + collection + &apos;/list_source&quot;&apos;, &apos;ordered_targets_ssim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |res|
-        order = res[&apos;ordered_targets_ssim&apos;]
-        query = &apos;&apos;
-        order.each do |o|
-            # to parse object id from format like: &quot;production/dz/01/0r/92/dz010r92r&quot;
-            # this may be caused by the version changes of Fedora/Active Fedora
-            id = (o.include? &apos;/&apos;) ? o.rpartition(&apos;/&apos;).last : o
-            if query==&apos;&apos;
-              query = &apos;(id:&quot;&apos; + id + &apos;&quot;&apos;
-            else
-              query = query + &apos; OR id:&quot;&apos; + id + &apos;&quot;&apos;
-            end
-        end
-        query = query + &apos;)&apos;
-        q.solr_query_fq(&apos;*:*&apos;, query, &apos;id,preflabel_tesim,reg_id_tesim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |r|
-            registers[r[&apos;id&apos;]] = [r[&apos;reg_id_tesim&apos;][0], r[&apos;preflabel_tesim&apos;][0]]
-        end
-    end
-end    
+        <h2 id="How-search-works"><a href="#How-search-works" class="headerlink" title="How search works?"></a>How search works?</h2><p>The magic starts from <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/searches_controller.rb#L79" target="_blank" rel="noopener">here</a>, e.g. the call to ‘set_search_result_arrays’ within searches_controller.rb.</p>
+<p>Within <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L5" target="_blank" rel="noopener">set_search_result_arrays method</a>, the search result is built in a few steps:</p>
+<p>NB: it uses lowercased search terms, as shown here:</p>
+<pre><code>search_term2 = @search_term.downcase.tr(&apos; &apos;, &apos;*&apos;) 
+</code></pre><p>(1) It searches all entries against the search term, e.g. </p>
+<pre><code>q = &quot;has_model_ssim:Entry AND (entry_type_search:*#{search_term2}* or section_type_search:*#{search_term2}* or summary_search:*#{search_term2}* or marginalia_search:*#{search_term2}* or subject_search:*#{search_term2}* or language_search:*#{search_term2}* or note_search:*#{search_term2}* or editorial_note_search:*#{search_term2}* or is_referenced_by_search:*#{search_term2}*)&quot;
+</code></pre><p>Search results will be saved in q_result and the facets will be updated.    </p>
+<p>More importantly, <strong>‘entry_id_set’</strong> will be updated with entry IDs.</p>
+<p><a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L26-#L40" target="_blank" rel="noopener">GH Link</a></p>
+<p>(2) Use same search term to search people/groups and get the object ID, e.g.</p>
+<pre><code>q = &quot;has_model_ssim:RelatedAgent AND (person_same_as_search:*#{search_term2}* or person_role_search:*#{search_term2}* or person_descriptor_search:*#{search_term2}* or person_descriptor_same_as_search:*#{search_term2}* or person_note_search:*#{search_term2}* or person_same_as_search:*#{search_term2}* or person_related_place_search:*#{search_term2}* or person_related_person_search:*#{search_term2}*)&quot;
+</code></pre><p>Then use the entry IDs found above (relatedAgentFor_ssim) to get entries metadata:</p>
+<pre><code>result[&apos;relatedAgentFor_ssim&apos;].each do |relatedagent|
+    q_result2 = query.solr_query(&quot;id:#{relatedagent}&quot;, &apos;id,has_model_ssim&apos;, 1, nil, 0, true, -1, &apos;index&apos;, facets, fq_entry)
+end                        
+</code></pre><p>Finally, update ‘entry_id_set’</p>
+<p><a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L45-#L73" target="_blank" rel="noopener">GH Link</a>    </p>
+<p>(3) Place</p>
+<p>Similar to (2) but use:</p>
+<pre><code>has_model_ssim:RelatedPlace
+</code></pre><p>(4) Dates    </p>
+<p>Similar to (2) but use:</p>
+<pre><code>SingleDate
+</code></pre><p>(5) Data aggregation </p>
+<p>To get data ready for frontend UI:</p>
+<p>First, some data come from Entry object, e.g. in <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L167-#L177" target="_blank" rel="noopener">Here</a></p>
+<pre><code>@element_array &lt;&lt; entry_id
+get_entry_and_folio_details(entry_id)
+@element_array &lt;&lt; get_element(result[&apos;entry_type_facet_ssim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;section_type_facet_ssim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;summary_tesim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;marginalia_tesim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;language_facet_ssim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;subject_facet_ssim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;note_tesim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;editorial_note_tesim&apos;])
+@element_array &lt;&lt; get_element(result[&apos;is_referenced_by_tesim&apos;])
+</code></pre><p>Second, for fields like place, people, dates, doing a second search to get data store them into the same array, e.g. @element_array</p>
+<pre><code>get_places(entry_id, search_term2)
+get_people(entry_id, search_term2)
+get_dates(entry_id, search_term2)
+</code></pre><p>Finally, store the results into @partial_list_array.</p>
+<pre><code>@partial_list_array &lt;&lt; @element_array
+</code></pre><p>(6) view</p>
+<p>In the view page:</p>
+<pre><code>&lt;% @partial_list_array.each_with_index do |t, index| %&gt;
+    &lt;%
+       entry_id = t[0]
+       title = t[1]
+       folio_id = t[2]
+       entry_type = t[3]
+       section_type = t[4]
+       summary = t[5]
+       marginalia = t[6]
+       language = t[7]
+       subject = t[8]
+       note = t[9]
+       editorial_note = t[10]
+       is_referenced_by = t[11]
+       place = t[12]
+       person = t[13]
+       dates = t[14]
+    %&gt;    
 </code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/solr-or-query/" data-id="cjxfyf6nn0000lr05om4yawyx" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/arch1_search_notes/" data-id="cjxpysv5h0000bh05q82kabb6" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
 
     </footer>
   </div>
@@ -168,19 +186,10 @@ end
     
 <nav id="article-nav">
   
-    <a href="/arch1_search_notes/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          archbishopsregisters search application notes
-        
-      </div>
-    </a>
   
-  
-    <a href="/how-to-setup-archbishopsregisters/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/solr-or-query/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">How to setup archbishopsregisters</div>
+      <div class="article-nav-title">Solr OR query problem and fix</div>
     </a>
   
 </nav>

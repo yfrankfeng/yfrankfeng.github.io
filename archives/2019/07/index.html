@@ -18,20 +18,19 @@ ga('send', 'pageview');
 
 
   
-  <title>Solr OR query problem and fix | Frank&#39;s development blog</title>
+  <title>Archives: 2019/7 | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
-<meta name="keywords" content="solr">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Solr OR query problem and fix">
-<meta property="og:url" content="https://yfrankfeng.github.io/solr-or-query/index.html">
+  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Frank&#39;s development blog">
+<meta property="og:url" content="https://yfrankfeng.github.io/archives/2019/07/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
+<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-06-28T10:59:36.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Solr OR query problem and fix">
-<meta name="twitter:description" content="In Solr admin page, e.g. http://localhost:8983/solr/#/arch1_solrsync/query query for individual object works but the ‘OR’ query is NOT working, e.g. queries:  id:h702q6403 id:3b591b35w are both workin">
+<meta name="twitter:title" content="Frank&#39;s development blog">
+<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -82,111 +81,40 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-solr-or-query" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/solr-or-query/" class="article-date">
-  <time datetime="2019-06-28T12:40:12.000Z" itemprop="datePublished">2019-06-28</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/solr/">solr</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+        <section id="main">
   
-    <h1 class="article-title" itemprop="name">
-      Solr OR query problem and fix
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2019" class="archive-year">2019</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/arch1_search_notes/" class="archive-article-date">
+  <time datetime="2019-07-04T12:40:12.000Z" itemprop="datePublished">Jul 4</time>
+</a>
+      
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/arch1_search_notes/">archbishopsregisters search application notes</a>
     </h1>
   
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>In Solr admin page, e.g. <a href="http://localhost:8983/solr/#/arch1_solrsync/query" target="_blank" rel="noopener">http://localhost:8983/solr/#/arch1_solrsync/query</a></p>
-<p>query for individual object works but the ‘OR’ query is NOT working, e.g. queries: </p>
-<pre><code>id:h702q6403
-id:3b591b35w
-</code></pre><p>are both working, but </p>
-<pre><code>id:3b591b35w OR id:h702q6403
-</code></pre><p>is NOT.</p>
-<p>The quick solution is to put the following in q field:</p>
-<pre><code>id:*
-</code></pre><p>and in the fq field, enter:</p>
-<pre><code>id:3b591b35w OR id:h702q6403
-</code></pre><p>For arch1, a method can be added to app/helpers/solr_query.rb, e.g. (EXPERIMENTAL):</p>
-<pre><code>def solr_query_fq(q, fq, fl=&apos;id&apos;, rows=10, sort=&apos;&apos;, start=0 )
-  CONN.get &apos;select&apos;, :params =&gt; {
-    :q=&gt;q,
-    :fq=&gt;fq,
-    :fl=&gt;fl,
-    :rows=&gt;rows,
-    :sort=&gt;sort,
-    :start=&gt;start
-  }
-end  
-</code></pre><p>And changes to register_folio.rb:</p>
-<pre><code>q.solr_query(&apos;has_model_ssim:OrderedCollection&apos;, &apos;id&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |result|
-    collection = result[&apos;id&apos;]
-
-    q.solr_query(&apos;id:&quot;&apos; + collection + &apos;/list_source&quot;&apos;, &apos;ordered_targets_ssim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |res|
-        order = res[&apos;ordered_targets_ssim&apos;]
-        query = &apos;&apos;
-        order.each do |o|
-            # to parse object id from format like: &quot;production/dz/01/0r/92/dz010r92r&quot;
-            # this may be caused by the version changes of Fedora/Active Fedora
-            id = (o.include? &apos;/&apos;) ? o.rpartition(&apos;/&apos;).last : o
-            if query==&apos;&apos;
-              query = &apos;(id:&quot;&apos; + id + &apos;&quot;&apos;
-            else
-              query = query + &apos; OR id:&quot;&apos; + id + &apos;&quot;&apos;
-            end
-        end
-        query = query + &apos;)&apos;
-        q.solr_query_fq(&apos;*:*&apos;, query, &apos;id,preflabel_tesim,reg_id_tesim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |r|
-            registers[r[&apos;id&apos;]] = [r[&apos;reg_id_tesim&apos;][0], r[&apos;preflabel_tesim&apos;][0]]
-        end
-    end
-end    
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/solr-or-query/" data-id="cjxfyf6nn0000lr05om4yawyx" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
+    </header>
   </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/arch1_search_notes/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          archbishopsregisters search application notes
-        
-      </div>
-    </a>
-  
-  
-    <a href="/how-to-setup-archbishopsregisters/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">How to setup archbishopsregisters</div>
-    </a>
-  
-</nav>
-
-  
 </article>
+  
+  
+    </div></section>
+  
+
 
 </section>
         
