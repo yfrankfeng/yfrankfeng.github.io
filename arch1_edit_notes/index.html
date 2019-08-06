@@ -18,19 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Archives: 2019/4 | Frank&#39;s development blog</title>
+  <title>archbishopsregisters edit application notes | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Frank&#39;s development blog">
-<meta property="og:url" content="https://yfrankfeng.github.io/archives/2019/04/index.html">
+  <meta name="description" content="How edit application works?place and person facet on the leftFor person facet, the data is generated via new_solr_fields_controller.rb, e.g. entry_person_name_authority_new = get_entry_agent_array(sdo">
+<meta name="keywords" content="rails fedora solr blacklights">
+<meta property="og:type" content="article">
+<meta property="og:title" content="archbishopsregisters edit application notes">
+<meta property="og:url" content="https://yfrankfeng.github.io/arch1_edit_notes/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:description" content="How edit application works?place and person facet on the leftFor person facet, the data is generated via new_solr_fields_controller.rb, e.g. entry_person_name_authority_new = get_entry_agent_array(sdo">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-07-10T13:16:49.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Frank&#39;s development blog">
-<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="twitter:title" content="archbishopsregisters edit application notes">
+<meta name="twitter:description" content="How edit application works?place and person facet on the leftFor person facet, the data is generated via new_solr_fields_controller.rb, e.g. entry_person_name_authority_new = get_entry_agent_array(sdo">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -81,154 +82,86 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/how-to-setup-archbishopsregisters/" class="archive-article-date">
-  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">Apr 12</time>
+        <section id="main"><article id="post-arch1_edit_notes" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/arch1_edit_notes/" class="article-date">
+  <time datetime="2019-07-07T12:40:12.000Z" itemprop="datePublished">2019-07-07</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/rails/">rails</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/how-to-setup-archbishopsregisters/">How to setup archbishopsregisters</a>
+    <h1 class="article-title" itemprop="name">
+      archbishopsregisters edit application notes
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/ngrok/" class="archive-article-date">
-  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">Apr 12</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/ngrok/">Amazing dev tool - ngrok</a>
-    </h1>
-  
+        <h2 id="How-edit-application-works"><a href="#How-edit-application-works" class="headerlink" title="How edit application works?"></a>How edit application works?</h2><h3 id="place-and-person-facet-on-the-left"><a href="#place-and-person-facet-on-the-left" class="headerlink" title="place and person facet on the left"></a>place and person facet on the left</h3><p>For person facet, the data is generated via new_solr_fields_controller.rb, e.g.</p>
+<pre><code>entry_person_name_authority_new = get_entry_agent_array(sdoc[:id])
+sdoc[&apos;entry_person_same_as_facet_ssim&apos;] = entry_person_name_authority_new
+</code></pre><p>And within get_entry_agent_array method:</p>
+<pre><code>preflabel_array = []
+query = SolrQuery.new
+q = &apos;relatedAgentFor_ssim:&apos; + id
 
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/vuejs/" class="archive-article-date">
-  <time datetime="2019-04-10T12:40:12.000Z" itemprop="datePublished">Apr 10</time>
-</a>
+unless id.nil?
+  num = query.solr_query(q, &apos;person_same_as_tesim&apos;, 0)[&apos;response&apos;][&apos;numFound&apos;].to_i
+  query.solr_query(q, &apos;person_same_as_tesim&apos;, num)[&apos;response&apos;][&apos;docs&apos;].map do |result|
+    unless result[&apos;person_same_as_tesim&apos;].nil?
+      result[&apos;person_same_as_tesim&apos;].each do |agent|
+        query.solr_query(&apos;id:&apos; + agent, &apos;preflabel_tesim&apos;, 1)[&apos;response&apos;][&apos;docs&apos;].map do |result2|
+          preflabel = result2[&apos;preflabel_tesim&apos;].join unless result2[&apos;preflabel_tesim&apos;].nil?
+          preflabel_array &lt;&lt; preflabel
+        end
+      end
+    end
+  end
+end
+
+preflabel_array
+</code></pre><p>Similarly for place:</p>
+<pre><code>get_entry_place_array    
+</code></pre><h3 id="customized-index-fields-in-NewSolrFieldsController"><a href="#customized-index-fields-in-NewSolrFieldsController" class="headerlink" title="customized index fields in NewSolrFieldsController"></a>customized index fields in NewSolrFieldsController</h3><p>The ‘modify_sdoc’ method has been used to customized which fields need to be index in solr and how to generate values for them. However, it seems that the method is a ‘God’ method, e.g. it works for all content models and makes lots of unnecessary calls for non-existing fields for some models. </p>
+<pre><code>def modify_sdoc(sdoc)
+......
+end    
+</code></pre>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/vuejs/">Vue.js pros &amp; cons</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/build-samvera-stack-step-by-step/" class="archive-article-date">
-  <time datetime="2019-04-03T12:40:12.000Z" itemprop="datePublished">Apr 3</time>
-</a>
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/arch1_edit_notes/" data-id="cjyzza0yc0000z3052tvpv2dy" class="article-share-link">Share</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/build-samvera-stack-step-by-step/">Build Samvera stack step by step</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/work-on-git-branches/" class="archive-article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">Apr 1</time>
-</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/work-on-git-branches/">Work on git branches</a>
-    </h1>
-  
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
 
-    </header>
+    </footer>
   </div>
-</article>
   
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/how-to-make-featured-work-working/" class="archive-article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">Apr 1</time>
-</a>
-      
+<nav id="article-nav">
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
-    </h1>
   
+    <a href="/arch1_search_notes/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">archbishopsregisters search application notes</div>
+    </a>
+  
+</nav>
 
-    </header>
-  </div>
+  
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/how-to-make-all-resources-public/" class="archive-article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">Apr 1</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/how-to-make-all-resources-public/">How to make all resources public in Hyrax</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
 
 </section>
         

@@ -28,10 +28,15 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="How search works?The magic starts from here, e.g. the call to ‘set_search_result_arrays’ within searches_controller.rb. Within set_search_result_arrays method, the search result is built in a few step">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-07-05T10:36:35.000Z">
+<meta property="og:image" content="https://yfrankfeng.github.io/images/arch1_search_facet_1.png">
+<meta property="og:image" content="https://yfrankfeng.github.io/images/arch1_search_facet_2.png">
+<meta property="og:image" content="https://yfrankfeng.github.io/images/arch1_search_facet_3.png">
+<meta property="og:image" content="https://yfrankfeng.github.io/images/arch1_search_facet_4.png">
+<meta property="og:updated_time" content="2019-08-06T15:27:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="archbishopsregisters search application notes">
 <meta name="twitter:description" content="How search works?The magic starts from here, e.g. the call to ‘set_search_result_arrays’ within searches_controller.rb. Within set_search_result_arrays method, the search result is built in a few step">
+<meta name="twitter:image" content="https://yfrankfeng.github.io/images/arch1_search_facet_1.png">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -171,7 +176,17 @@ get_dates(entry_id, search_term2)
        person = t[13]
        dates = t[14]
     %&gt;    
-</code></pre>
+</code></pre><h2 id="About-the-search-facet"><a href="#About-the-search-facet" class="headerlink" title="About the search facet"></a>About the search facet</h2><p>As defined in line 53 of new_solr_fields_controller.rb @ arch1_edit, ‘place_same_as_tesim’ is used to provide the facet data for ‘Place’ facet.</p>
+<p>Therefore, if the place name authority is not synced, it will bring some <strong>strange</strong> behavior in the search APP. For example,</p>
+<p>In live:</p>
+<p><img src="/images/arch1_search_facet_1.png" alt=""></p>
+<p>In local VM:</p>
+<p><img src="/images/arch1_search_facet_2.png" alt=""></p>
+<p>And no Keyby entry in local:</p>
+<p><img src="/images/arch1_search_facet_3.png" alt=""></p>
+<p>Therefore, in the search result page (local),</p>
+<p><img src="/images/arch1_search_facet_4.png" alt=""></p>
+
       
     </div>
     <footer class="article-footer">
@@ -185,6 +200,15 @@ get_dates(entry_id, search_term2)
   
     
 <nav id="article-nav">
+  
+    <a href="/arch1_edit_notes/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          archbishopsregisters edit application notes
+        
+      </div>
+    </a>
   
   
     <a href="/solr-or-query/" id="article-nav-older" class="article-nav-link-wrap">
@@ -225,7 +249,7 @@ get_dates(entry_id, search_term2)
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 15px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.5px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 12.5px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 17.5px;">hyrax</a> <a href="/tags/java/" style="font-size: 12.5px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 20px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -247,6 +271,10 @@ get_dates(entry_id, search_term2)
       <ul>
         
           <li>
+            <a href="/arch1_edit_notes/">archbishopsregisters edit application notes</a>
+          </li>
+        
+          <li>
             <a href="/arch1_search_notes/">archbishopsregisters search application notes</a>
           </li>
         
@@ -260,10 +288,6 @@ get_dates(entry_id, search_term2)
         
           <li>
             <a href="/ngrok/">Amazing dev tool - ngrok</a>
-          </li>
-        
-          <li>
-            <a href="/vuejs/">Vue.js pros &amp; cons</a>
           </li>
         
       </ul>
