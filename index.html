@@ -255,6 +255,17 @@ get_dates(entry_id, search_term2)
 <p><img src="/images/arch1_search_facet_4.png" alt=""></p>
 <p>Two ways to fix this problem:</p>
 <p>(1) Recommended - Sync data from live to local<br>(2) Manually add the place needed for this record and edit that record by linking the place to place authority.      </p>
+<h2 id="Issues-and-fixes"><a href="#Issues-and-fixes" class="headerlink" title="Issues and fixes"></a>Issues and fixes</h2><h3 id="Missing-Entry"><a href="#Missing-Entry" class="headerlink" title="Missing Entry"></a>Missing Entry</h3><blockquote>
+<p>I have just been working on Register 7, folio 115 r, and it seems that I’ve just lost entry 1 on that side of the folio somehow - I wasn’t trying to delete it or anything. This happened on Thursday, 25 July.</p>
+</blockquote>
+<p>1) First, find Folio using Solr query:</p>
+<pre><code>preflabel_tesim:&quot;Abp Reg 7 f.115 (recto)&quot;
+</code></pre><p>It return Folio with id: mg74qn90k    </p>
+<p>2) Second, find all child entries using Solr query:</p>
+<pre><code>folio_ssim:mg74qn90k
+</code></pre><p>The above ‘mg74qn90k’ is the Folio id found in Step 1.            </p>
+<p>3) Use related entries to find the missing entry. Usually the entry is linked to a different Folio. </p>
+<p>4) In Rails console, load the missing entry. Update folio property to the correct one.</p>
 
       
     </div>
