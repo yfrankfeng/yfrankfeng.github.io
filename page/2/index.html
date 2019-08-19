@@ -83,14 +83,14 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
-    <article id="post-oauth-update-re-google-plus-shutdown" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-how-to-make-all-resources-public" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/oauth-update-re-google-plus-shutdown/" class="article-date">
-  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">2019-03-01</time>
+    <a href="/how-to-make-all-resources-public/" class="article-date">
+  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Java/">Java</a>
+    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
   </div>
 
   </div>
@@ -101,7 +101,7 @@ ga('send', 'pageview');
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/oauth-update-re-google-plus-shutdown/">OAuth login upgrade while Google+ shutdown</a>
+      <a class="article-title" href="/how-to-make-all-resources-public/">How to make all resources public in Hyrax</a>
     </h1>
   
 
@@ -109,27 +109,50 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>To test Google OAuth 2, try OAuth 2.0 Playground: <a href="https://developers.google.com/oauthplayground/" target="_blank" rel="noopener">https://developers.google.com/oauthplayground/</a></p>
-<p>The following URLs seem working: </p>
-<p><strong><a href="https://www.googleapis.com/oauth2/v2/userinfo" target="_blank" rel="noopener">https://www.googleapis.com/oauth2/v2/userinfo</a></strong><br><a href="https://openidconnect.googleapis.com/v1/userinfo" target="_blank" rel="noopener">https://openidconnect.googleapis.com/v1/userinfo</a></p>
-<p>OLD Plus+ API returns:</p>
-<h2 id="https-www-googleapis-com-plus-v1-people-me"><a href="#https-www-googleapis-com-plus-v1-people-me" class="headerlink" title="https://www.googleapis.com/plus/v1/people/me"></a><a href="https://www.googleapis.com/plus/v1/people/me" target="_blank" rel="noopener">https://www.googleapis.com/plus/v1/people/me</a></h2><p>{<br>  “kind”: “plus#person”,<br>  “displayName”: “XXXXXX”,<br>  “name”: {<br>    “givenName”: “XXXXXX”,<br>    “familyName”: “XXXXXX”<br>  },<br>  “language”: “en_GB”,<br>  “isPlusUser”: true,<br>  “url”: “<a href="https://plus.google.com/+XXXXXX&quot;" target="_blank" rel="noopener">https://plus.google.com/+XXXXXX&quot;</a>,<br>  “gender”: “male”,<br>  “image”: {<br>    “url”: “<a href="https://lh6.googleusercontent.com/XXXXXX.jpg&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX.jpg&quot;</a>,<br>    “isDefault”: false<br>  },<br>  “etag”: “\”XXXXXX\””,<br>  “verified”: false,<br>  “circledByCount”: 0,<br>  “id”: “XXXXXX”,<br>  “objectType”: “person”<br>}</p>
-<p>In OAuth 2.0 Playground, the following call returns:</p>
-<h2 id="https-www-googleapis-com-oauth2-v2-userinfo"><a href="#https-www-googleapis-com-oauth2-v2-userinfo" class="headerlink" title="https://www.googleapis.com/oauth2/v2/userinfo"></a><a href="https://www.googleapis.com/oauth2/v2/userinfo" target="_blank" rel="noopener">https://www.googleapis.com/oauth2/v2/userinfo</a></h2><p>{<br>  “picture”: “<a href="https://lh6.googleusercontent.com/XXXXXX.jpg&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX.jpg&quot;</a>,<br>  “name”: “XXXXXX”,<br>  “family_name”: “XXXXXX”,<br>  “locale”: “XXXXXX”,<br>  “gender”: “male”,<br>  “link”: “<a href="https://plus.google.com/+XXXXXX&quot;" target="_blank" rel="noopener">https://plus.google.com/+XXXXXX&quot;</a>,<br>  “given_name”: “XXXXXX”,<br>  “id”: “XXXXXX”<br>}</p>
-<p>But in the Java code, it returns:<br>{<br>  “id”: “XXXXXX”,<br>  “email”: “XXXXXX”,<br>  “verified_email”: true,<br>  “name”: “XXXXXX”,<br>  “given_name”: “XXXXXX”,<br>  “family_name”: “XXXXXX”,<br>  “picture”: “<a href="https://lh6.googleusercontent.com/XXXXXX&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX&quot;</a><br>}</p>
-<p>Since the returned JSON format has been changed, so the processing code is slightly different, e.g.:</p>
-<p>// The OLD code working with Google+ has been commented out </p>
-<p>if (obj.getString(“email”)!=null)<br>   oauthUser.setEmail(obj.getString(“email”));<br>oauthUser.setId(OAuth2Manager.getOAuth2Url(OAuth2Manager.OAUTH2_PROVIDER_GOOGLE, obj.getString(“id”)));  // oauth2_google_GOOGLE_USER_ID<br>// oauthUser.setFirstName(obj.getJSONObject(“name”).getString(“givenName”));<br>oauthUser.setFirstName(obj.getString(“given_name”));<br>//oauthUser.setSurName(obj.getJSONObject(“name”).getString(“familyName”));<br>oauthUser.setSurName(obj.getString(“family_name”));</p>
-<p>REF:</p>
-<p><a href="https://stackoverflow.com/questions/53923541/how-to-migrate-from-deprecated-google-sign-in-api-to-the-new-google-identity-pl" target="_blank" rel="noopener">https://stackoverflow.com/questions/53923541/how-to-migrate-from-deprecated-google-sign-in-api-to-the-new-google-identity-pl</a><br><a href="https://github.com/aspnet/AspNetCore/issues/6069#issuecomment-449461197" target="_blank" rel="noopener">https://github.com/aspnet/AspNetCore/issues/6069#issuecomment-449461197</a><br><a href="https://github.com/aspnet/Identity/blob/fcc02103aa10dcdd8759e0463cac2717114f3c1e/src/Identity/SignInManager.cs#L611" target="_blank" rel="noopener">https://github.com/aspnet/Identity/blob/fcc02103aa10dcdd8759e0463cac2717114f3c1e/src/Identity/SignInManager.cs#L611</a></p>
-
+        <p>In most projects I’m working on, all objects are available to public - therefore the visibility feature in Hyrax is not needed. Here is how to remove it from an application:</p>
+<h2 id="form-visibility-component-html-erb"><a href="#form-visibility-component-html-erb" class="headerlink" title="_form_visibility_component.html.erb"></a>_form_visibility_component.html.erb</h2><p>Copy this file from Hyrax codebase, and make changes:</p>
+<pre><code>&lt;fieldset&gt;
+  &lt;legend class=&quot;legend-save-work&quot;&gt;Visibility&lt;/legend&gt;
+  &lt;%
+    is_public = true
+  %&gt;
+  &lt;ul class=&quot;visibility&quot;&gt;
+    &lt;li class=&quot;radio&quot;&gt;
+      &lt;label&gt;
+        &lt;%= f.radio_button :visibility, Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC, data: { &apos;target&apos;: &apos;#collapsePublic&apos; }, :checked=&gt;is_public %&gt;
+        &lt;%= visibility_badge(Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC) %&gt;
+        &lt;br /&gt;
+        &lt;%= t(&apos;hyrax.visibility.open.note_html&apos;, type: f.object.human_readable_type) %&gt;
+        &lt;div class=&quot;collapse&quot; id=&quot;collapsePublic&quot;&gt;
+          &lt;%= t(&apos;hyrax.visibility.open.warning_html&apos;, label: visibility_badge(Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC)) %&gt;
+        &lt;/div&gt;
+      &lt;/label&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/fieldset&gt;
+</code></pre><h2 id="Hide-visibility-DIV-in-the-form"><a href="#Hide-visibility-DIV-in-the-form" class="headerlink" title="Hide visibility DIV in the form"></a>Hide visibility DIV in the form</h2><p>Since ‘public’ is the only option now, so no need to display it in the form. To hide it: </p>
+<p>Copy ‘_form_progress.html.erb’ from Hyrax and update this following code:</p>
+<pre><code>&lt;div class=&quot;set-access-controls list-group-item visibility-widget&quot;&gt;
+  &lt;%= render &apos;form_visibility_component&apos;, f: f %&gt;
+&lt;/div&gt;
+</code></pre><p>The CSS class ‘visibility-widget’ just hide the whole block:</p>
+<pre><code>.visibility-widget {
+  display: none;
+}
+</code></pre><h2 id="xxxx-form-rb"><a href="#xxxx-form-rb" class="headerlink" title="xxxx_form.rb"></a>xxxx_form.rb</h2><p>In the form file, e.g. xxxx_form.rb , add the following code:</p>
+<pre><code>def self.build_permitted_params
+    super + [
+        :visibility
+    ]
+end
+</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/oauth-update-re-google-plus-shutdown/" data-id="cjsq5vxkm00004h05h3rsufrj" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/how-to-make-all-resources-public/" data-id="cjty7jr3200005o05dkw0n4yh" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/google/">google+</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oauth/">oauth</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/access-control/">access control</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
 
     </footer>
   </div>
@@ -189,6 +212,61 @@ source maven.sh
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-oauth-update-re-google-plus-shutdown" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/oauth-update-re-google-plus-shutdown/" class="article-date">
+  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">2019-03-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/oauth-update-re-google-plus-shutdown/">OAuth login upgrade while Google+ shutdown</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>To test Google OAuth 2, try OAuth 2.0 Playground: <a href="https://developers.google.com/oauthplayground/" target="_blank" rel="noopener">https://developers.google.com/oauthplayground/</a></p>
+<p>The following URLs seem working: </p>
+<p><strong><a href="https://www.googleapis.com/oauth2/v2/userinfo" target="_blank" rel="noopener">https://www.googleapis.com/oauth2/v2/userinfo</a></strong><br><a href="https://openidconnect.googleapis.com/v1/userinfo" target="_blank" rel="noopener">https://openidconnect.googleapis.com/v1/userinfo</a></p>
+<p>OLD Plus+ API returns:</p>
+<h2 id="https-www-googleapis-com-plus-v1-people-me"><a href="#https-www-googleapis-com-plus-v1-people-me" class="headerlink" title="https://www.googleapis.com/plus/v1/people/me"></a><a href="https://www.googleapis.com/plus/v1/people/me" target="_blank" rel="noopener">https://www.googleapis.com/plus/v1/people/me</a></h2><p>{<br>  “kind”: “plus#person”,<br>  “displayName”: “XXXXXX”,<br>  “name”: {<br>    “givenName”: “XXXXXX”,<br>    “familyName”: “XXXXXX”<br>  },<br>  “language”: “en_GB”,<br>  “isPlusUser”: true,<br>  “url”: “<a href="https://plus.google.com/+XXXXXX&quot;" target="_blank" rel="noopener">https://plus.google.com/+XXXXXX&quot;</a>,<br>  “gender”: “male”,<br>  “image”: {<br>    “url”: “<a href="https://lh6.googleusercontent.com/XXXXXX.jpg&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX.jpg&quot;</a>,<br>    “isDefault”: false<br>  },<br>  “etag”: “\”XXXXXX\””,<br>  “verified”: false,<br>  “circledByCount”: 0,<br>  “id”: “XXXXXX”,<br>  “objectType”: “person”<br>}</p>
+<p>In OAuth 2.0 Playground, the following call returns:</p>
+<h2 id="https-www-googleapis-com-oauth2-v2-userinfo"><a href="#https-www-googleapis-com-oauth2-v2-userinfo" class="headerlink" title="https://www.googleapis.com/oauth2/v2/userinfo"></a><a href="https://www.googleapis.com/oauth2/v2/userinfo" target="_blank" rel="noopener">https://www.googleapis.com/oauth2/v2/userinfo</a></h2><p>{<br>  “picture”: “<a href="https://lh6.googleusercontent.com/XXXXXX.jpg&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX.jpg&quot;</a>,<br>  “name”: “XXXXXX”,<br>  “family_name”: “XXXXXX”,<br>  “locale”: “XXXXXX”,<br>  “gender”: “male”,<br>  “link”: “<a href="https://plus.google.com/+XXXXXX&quot;" target="_blank" rel="noopener">https://plus.google.com/+XXXXXX&quot;</a>,<br>  “given_name”: “XXXXXX”,<br>  “id”: “XXXXXX”<br>}</p>
+<p>But in the Java code, it returns:<br>{<br>  “id”: “XXXXXX”,<br>  “email”: “XXXXXX”,<br>  “verified_email”: true,<br>  “name”: “XXXXXX”,<br>  “given_name”: “XXXXXX”,<br>  “family_name”: “XXXXXX”,<br>  “picture”: “<a href="https://lh6.googleusercontent.com/XXXXXX&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX&quot;</a><br>}</p>
+<p>Since the returned JSON format has been changed, so the processing code is slightly different, e.g.:</p>
+<p>// The OLD code working with Google+ has been commented out </p>
+<p>if (obj.getString(“email”)!=null)<br>   oauthUser.setEmail(obj.getString(“email”));<br>oauthUser.setId(OAuth2Manager.getOAuth2Url(OAuth2Manager.OAUTH2_PROVIDER_GOOGLE, obj.getString(“id”)));  // oauth2_google_GOOGLE_USER_ID<br>// oauthUser.setFirstName(obj.getJSONObject(“name”).getString(“givenName”));<br>oauthUser.setFirstName(obj.getString(“given_name”));<br>//oauthUser.setSurName(obj.getJSONObject(“name”).getString(“familyName”));<br>oauthUser.setSurName(obj.getString(“family_name”));</p>
+<p>REF:</p>
+<p><a href="https://stackoverflow.com/questions/53923541/how-to-migrate-from-deprecated-google-sign-in-api-to-the-new-google-identity-pl" target="_blank" rel="noopener">https://stackoverflow.com/questions/53923541/how-to-migrate-from-deprecated-google-sign-in-api-to-the-new-google-identity-pl</a><br><a href="https://github.com/aspnet/AspNetCore/issues/6069#issuecomment-449461197" target="_blank" rel="noopener">https://github.com/aspnet/AspNetCore/issues/6069#issuecomment-449461197</a><br><a href="https://github.com/aspnet/Identity/blob/fcc02103aa10dcdd8759e0463cac2717114f3c1e/src/Identity/SignInManager.cs#L611" target="_blank" rel="noopener">https://github.com/aspnet/Identity/blob/fcc02103aa10dcdd8759e0463cac2717114f3c1e/src/Identity/SignInManager.cs#L611</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/oauth-update-re-google-plus-shutdown/" data-id="cjsq5vxkm00004h05h3rsufrj" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/google/">google+</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oauth/">oauth</a></li></ul>
 
     </footer>
   </div>
@@ -910,207 +988,6 @@ config.facet_display = {
 
 
   
-    <article id="post-how-to-add-a-survey-window-before-download" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/how-to-add-a-survey-window-before-download/" class="article-date">
-  <time datetime="2018-10-18T12:40:12.000Z" itemprop="datePublished">2018-10-18</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/rails/">rails</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/how-to-add-a-survey-window-before-download/">How to add a survey window before download file</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="First-generate-a-new-model"><a href="#First-generate-a-new-model" class="headerlink" title="First, generate a new model"></a>First, generate a new model</h2><p>Run this command to generate a new Downloader:</p>
-<pre><code>rails g hyrax:work Downloader
-</code></pre><h2 id="Add-additional-downloader-metadata"><a href="#Add-additional-downloader-metadata" class="headerlink" title="Add additional downloader metadata"></a>Add additional downloader metadata</h2><p>Add app/models/concerns/oasis/downloader_metadata.rb:</p>
-<pre><code>module Oasis
-  module DownloaderMetadata extend ActiveSupport::Concern
-    included do
-      property :time, predicate: ::RDF::URI.new(&apos;https://oasis-database.org/ontologies/oasis#downloader_time&apos;), multiple: false do |index|
-        index.as :stored_searchable
-      end
-
-      # ......
-  end
-end
-</code></pre><p>Also, edit app/models/downloader.rb to add:</p>
-<pre><code>include ::Oasis::DownloaderMetadata
-</code></pre><h2 id="Setup-relationships"><a href="#Setup-relationships" class="headerlink" title="Setup relationships"></a>Setup relationships</h2><p>Define the relationship between Summary and Downloader:</p>
-<p>In Summary,</p>
-<pre><code>class Summary &lt; ActiveFedora::Base
-  # ......
-  has_many :downloaders, dependent: :destroy, class_name: &apos;Downloader&apos;, :autosave =&gt; true
-
-  # ......
-end  
-</code></pre><p>In Downloader,</p>
-<pre><code>class Downloader &lt; ActiveFedora::Base
-  belongs_to :summary, :autosave =&gt; true, predicate: ActiveFedora::RDF::Fcrepo::RelsExt.isPartOf
-
-  # ......
-end
-</code></pre><h2 id="The-standard-RoR-form-not-Hyrax-form"><a href="#The-standard-RoR-form-not-Hyrax-form" class="headerlink" title="The standard RoR form (not Hyrax form)"></a>The standard RoR form (not Hyrax form)</h2><p>Since the downloader survey form does not require authentication, the Hyrax work based form (e.g. the default downloader form is not appropirate). </p>
-<p>In here, we use a standard RoR form to get users’ input and create Downloader object.</p>
-<h3 id="generate-a-standard-RoR-form-controller"><a href="#generate-a-standard-RoR-form-controller" class="headerlink" title="generate a standard RoR form/controller"></a>generate a standard RoR form/controller</h3><pre><code>rails g controller Survey new
-</code></pre><p>In Survey Controller, can do sth. like:</p>
-<pre><code>def submit
-  begin
-    summary_id         = params[&quot;summary_id&quot;]
-    summary_fileset_id = params[&quot;summary_fileset_id&quot;]
-
-    d = Summary.find(summary_id).downloaders.new
-    d.downloader_status      = params[&quot;survey&quot;][&quot;status&quot;] unless params[&quot;survey&quot;][&quot;status&quot;].nil?
-    d.downloader_email       = params[&quot;email&quot;]            unless params[&quot;email&quot;].nil?
-    d.downloader_affiliation = params[&quot;institution&quot;]      unless params[&quot;institution&quot;].nil?
-    d.downloader_contable    = params[&quot;contable&quot;]         unless params[&quot;contable&quot;].nil?
-    d.downloader_cty         = params[&quot;country&quot;]          unless params[&quot;country&quot;].nil?
-    d.save!
-
-    redirect_to &apos;/survey/saved?survey_done=yes&amp;summary_id=&apos; + summary_id.to_s + &apos;&amp;downloader_id=&apos; + d.id.to_s + &apos;&amp;fileset_id=&apos; + summary_fileset_id.to_s
-    rescue
-    redirect_to &apos;/survey/error&apos;
-  end
-end
-</code></pre><p>Create app/views/layouts/hyrax/survey.html.erb:</p>
-<pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
-</code></pre><p>To remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;&lt;%= t(&quot;hyrax.document_language&quot;, default: &apos;&apos;) %&gt;&quot; prefix=&quot;og:http://ogp.me/ns#&quot;&gt;
-  &lt;head&gt;
-    &lt;%= render partial: &apos;layouts/head_tag_content&apos; %&gt;
-    &lt;%= content_for(:head) %&gt;
-  &lt;/head&gt;
-
-  &lt;body&gt;
-    &lt;a href=&quot;#skip_to_content&quot; class=&quot;sr-only&quot;&gt;Skip to Content&lt;/a&gt;
-
-    &lt;%= content_for(:precontainer_content) %&gt;
-    &lt;div id=&quot;content-wrapper&quot; class=&quot;container&quot; role=&quot;main&quot;&gt;
-      &lt;a name=&quot;skip_to_content&quot;&gt;&lt;/a&gt;
-      &lt;div class=&quot;col-xs-12&quot;&gt;
-        &lt;% if content_for?(:page_header) %&gt;
-          &lt;div class=&quot;row&quot;&gt;
-            &lt;div class=&quot;col-xs-12 main-header&quot;&gt;
-              &lt;%= yield(:page_header) %&gt;
-            &lt;/div&gt;
-          &lt;/div&gt;
-        &lt;% end %&gt;
-
-        &lt;%= content_for?(:content) ? yield(:content) : yield %&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;&lt;!-- /#content-wrapper --&gt;
-    &lt;%= render &apos;shared/ajax_modal&apos; %&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>Remember to register this blank layout in Survey Controller:</p>
-<pre><code>with_themed_layout &apos;survey&apos;
-</code></pre><p>Create app/views/survey/new.html.erb, just use standard Bootstrap form, but submitting to Survey controller:</p>
-<pre><code>&lt;form action=&quot;/survey/submit&quot; method=&quot;post&quot;&gt;
-</code></pre><p>In config/routes.rb, add:</p>
-<pre><code>get &apos;survey/new&apos;
-get &apos;survey/saved&apos;
-post &apos;survey/submit&apos;
-</code></pre><h2 id="Add-popup-window"><a href="#Add-popup-window" class="headerlink" title="Add popup window"></a>Add popup window</h2><p>I use fancybox, so declare CSS and JS:</p>
-<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.css&quot; /&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.js&quot;&gt;&lt;/script&gt;
-</code></pre><p>And make a popup window to show the Downloader form:</p>
-<pre><code>&lt;a data-fancybox
-            data-type=&quot;iframe&quot;
-            data-captain=&quot;Downloader Survey&quot;
-            data-src=&quot;/survey/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&amp;summary_fileset_id=&lt;%= file_set.id%&gt;&quot;
-            data-options=&apos;{
-              &quot;buttons&quot; : [&quot;close&quot;],
-              &quot;animationEffect&quot;: &quot;fade&quot;,
-              &quot;animationDuration&quot;: &quot;500&quot;,
-              &quot;autoFocus&quot;: &quot;true&quot;,
-              &quot;modal&quot;: &quot;true&quot;
-            }&apos;
-            class=&quot;btn btn-default&quot;
-            href=&quot;javascript:;&quot; &gt;
-          &lt;%= t(&apos;hyrax.file_set.show.downloadable_content.pdf_link&apos;) %&gt;
-        &lt;/a&gt;
-</code></pre><h2 id="Exclude-Survey-data-from-search-results"><a href="#Exclude-Survey-data-from-search-results" class="headerlink" title="Exclude Survey data from search results"></a>Exclude Survey data from search results</h2><p>In the customized search builder:</p>
-<pre><code># Only query Summaries
-def only_search_summary(solr_parameters)
-    solr_parameters[:q] += &apos; has_model_ssim:Summary&apos;
-end    
-</code></pre><p>In the homepage_controller.rb, add additional parameter to exclude downloaders from recent documents:</p>
-<pre><code>def recent
-  # grab any recent documents
-  (_, @recent_documents) = search_results(q: &apos;has_model_ssim:Summary&apos;, sort: sort_field, rows: 4)
-rescue Blacklight::Exceptions::ECONNREFUSED, Blacklight::Exceptions::InvalidRequest
-  @recent_documents = []
-end    
-</code></pre><h2 id="NOT-USED-unless-authentication-needed-Tweaks-in-views-for-Hyrax-based-work-form-Downloader-form"><a href="#NOT-USED-unless-authentication-needed-Tweaks-in-views-for-Hyrax-based-work-form-Downloader-form" class="headerlink" title="(NOT USED, unless authentication needed) Tweaks in views for Hyrax based work form (Downloader form)"></a>(NOT USED, unless authentication needed) Tweaks in views for Hyrax based work form (Downloader form)</h2><p>Copy (from Hyrax) and modify app/views/hyrax/base/_form.html.erb</p>
-<pre><code>&lt;% if @form.model_name==&apos;Downloader&apos; %&gt;
-  &lt;%= render &apos;hyrax/base/guts4form4downloader&apos;, f: f %&gt;
-&lt;% else %&gt;
-  &lt;%= render &apos;hyrax/base/guts4form&apos;, f: f %&gt;
-&lt;% end %&gt;
-</code></pre><p>To remove file upload and relationship tab, add app/views/hyrax/base/_guts4form.html.erb    </p>
-<pre><code>&lt;% tabs ||= %w[metadata] # default tab order %&gt;
-...
-&lt;%= render &apos;form_progress_downloader&apos;, f: f %&gt;
-</code></pre><p>Also, change the savewidget on the right, e.g.</p>
-<pre><code>&lt;div class=&quot;col-xs-12 col-sm-12&quot;&gt;
-</code></pre><p>and</p>
-<pre><code>&lt;div id=&quot;savewidget&quot; class=&quot;col-xs-12 col-sm-12 fixedsticky&quot; role=&quot;complementary&quot;&gt;
-</code></pre><p>To remove visiblity/licence, add file: app/views/hyrax/base/_form_progress_downloader.html.erb and remove unnecessary UI components.</p>
-<h2 id="NOT-USED-for-my-own-record-How-to-store-parent-child-relationship-without-nested-form"><a href="#NOT-USED-for-my-own-record-How-to-store-parent-child-relationship-without-nested-form" class="headerlink" title="NOT USED (for my own record) How to store parent-child relationship without nested form"></a>NOT USED (for my own record) How to store parent-child relationship without nested form</h2><p>It’s quite straightforward to relfect parent children relationship in the nested form.<br>However, I’m not sure what’s the best way to implement it in a separate forms. Here is my tweaks:</p>
-<p>First, pass the summary id to the Downloader form, e.g. (in _pdf.html.erb):</p>
-<pre><code>data-src=&quot;/concern/parent/&lt;%= @presenter.solr_document.id %&gt;/downloaders/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&quot; 
-</code></pre><p>Make sure add parent_summary_id in the Downloader model:</p>
-<pre><code>property :parent_summary_id, predicate: XXXXXXXXXXXXXXXXX
-</code></pre><p>Define parent_summary_id as a hidden field and use the passed parameter as its value.</p>
-<pre><code>&lt;%= f.input :parent_summary_id, as: :hidden,
-            input_html: { :value =&gt; params[&quot;summary_id&quot;] }
-%&gt;
-</code></pre><p>Define a post processing job e.g. in app/jobs/downloader_post_deposit_job.rb:</p>
-<pre><code>class DownloaderPostDepositJob &lt; ContentEventJob
-    def action
-        # update Downloader&apos;s id
-        if repo_object.class.to_s==&apos;Downloader&apos;
-            repo_object.summary_id = repo_object.parent_summary_id unless repo_object.parent_summary_id.nil?
-            repo_object.save
-        end
-    end
-end
-</code></pre><p>Register the DownloaderPostDepositJob in config/initializers/hyrax_callback.rb:</p>
-<pre><code>Hyrax.config.callback.set(:after_create_concern) do |curation_concern, user|
-    DownloaderPostDepositJob.perform_later(curation_concern, user)
-end          
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-add-a-survey-window-before-download/" data-id="cjo7eatsd0005s105x84uwnmb" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1146,7 +1023,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1155,7 +1032,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1166,6 +1043,10 @@ end
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/solr-tips/">Solr tips</a>
+          </li>
         
           <li>
             <a href="/arch1_edit_notes/">archbishopsregisters edit application notes</a>
@@ -1181,10 +1062,6 @@ end
         
           <li>
             <a href="/how-to-setup-archbishopsregisters/">How to setup archbishopsregisters</a>
-          </li>
-        
-          <li>
-            <a href="/ngrok/">Amazing dev tool - ngrok</a>
           </li>
         
       </ul>

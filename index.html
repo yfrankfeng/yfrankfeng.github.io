@@ -83,6 +83,52 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-solr-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/solr-tips/" class="article-date">
+  <time datetime="2019-08-19T12:40:12.000Z" itemprop="datePublished">2019-08-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/solr/">solr</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/solr-tips/">Solr tips</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Delete-a-solr-document-in-Solr-Admin"><a href="#Delete-a-solr-document-in-Solr-Admin" class="headerlink" title="Delete a solr document in Solr Admin"></a>Delete a solr document in Solr Admin</h2><p>Click ‘Documents’</p>
+<p>In ‘Document Type’ dropdown, select ‘Solr Command (raw XML or JSON)’</p>
+<p>In Documents textbox, enter:</p>
+<pre><code>&lt;delete&gt;&lt;query&gt;id:6969z076v&lt;/query&gt;&lt;/delete&gt;
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/solr-tips/" data-id="cjzid96gq0000uw05kexfcyv0" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-arch1_edit_notes" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/arch1_edit_notes/" class="article-date">
@@ -980,84 +1026,6 @@ fw.save
 
 
   
-    <article id="post-how-to-make-all-resources-public" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/how-to-make-all-resources-public/" class="article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/how-to-make-all-resources-public/">How to make all resources public in Hyrax</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>In most projects I’m working on, all objects are available to public - therefore the visibility feature in Hyrax is not needed. Here is how to remove it from an application:</p>
-<h2 id="form-visibility-component-html-erb"><a href="#form-visibility-component-html-erb" class="headerlink" title="_form_visibility_component.html.erb"></a>_form_visibility_component.html.erb</h2><p>Copy this file from Hyrax codebase, and make changes:</p>
-<pre><code>&lt;fieldset&gt;
-  &lt;legend class=&quot;legend-save-work&quot;&gt;Visibility&lt;/legend&gt;
-  &lt;%
-    is_public = true
-  %&gt;
-  &lt;ul class=&quot;visibility&quot;&gt;
-    &lt;li class=&quot;radio&quot;&gt;
-      &lt;label&gt;
-        &lt;%= f.radio_button :visibility, Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC, data: { &apos;target&apos;: &apos;#collapsePublic&apos; }, :checked=&gt;is_public %&gt;
-        &lt;%= visibility_badge(Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC) %&gt;
-        &lt;br /&gt;
-        &lt;%= t(&apos;hyrax.visibility.open.note_html&apos;, type: f.object.human_readable_type) %&gt;
-        &lt;div class=&quot;collapse&quot; id=&quot;collapsePublic&quot;&gt;
-          &lt;%= t(&apos;hyrax.visibility.open.warning_html&apos;, label: visibility_badge(Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC)) %&gt;
-        &lt;/div&gt;
-      &lt;/label&gt;
-    &lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/fieldset&gt;
-</code></pre><h2 id="Hide-visibility-DIV-in-the-form"><a href="#Hide-visibility-DIV-in-the-form" class="headerlink" title="Hide visibility DIV in the form"></a>Hide visibility DIV in the form</h2><p>Since ‘public’ is the only option now, so no need to display it in the form. To hide it: </p>
-<p>Copy ‘_form_progress.html.erb’ from Hyrax and update this following code:</p>
-<pre><code>&lt;div class=&quot;set-access-controls list-group-item visibility-widget&quot;&gt;
-  &lt;%= render &apos;form_visibility_component&apos;, f: f %&gt;
-&lt;/div&gt;
-</code></pre><p>The CSS class ‘visibility-widget’ just hide the whole block:</p>
-<pre><code>.visibility-widget {
-  display: none;
-}
-</code></pre><h2 id="xxxx-form-rb"><a href="#xxxx-form-rb" class="headerlink" title="xxxx_form.rb"></a>xxxx_form.rb</h2><p>In the form file, e.g. xxxx_form.rb , add the following code:</p>
-<pre><code>def self.build_permitted_params
-    super + [
-        :visibility
-    ]
-end
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-make-all-resources-public/" data-id="cjty7jr3200005o05dkw0n4yh" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/access-control/">access control</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1093,7 +1061,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1102,7 +1070,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1113,6 +1081,10 @@ end
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/solr-tips/">Solr tips</a>
+          </li>
         
           <li>
             <a href="/arch1_edit_notes/">archbishopsregisters edit application notes</a>
@@ -1128,10 +1100,6 @@ end
         
           <li>
             <a href="/how-to-setup-archbishopsregisters/">How to setup archbishopsregisters</a>
-          </li>
-        
-          <li>
-            <a href="/ngrok/">Amazing dev tool - ngrok</a>
           </li>
         
       </ul>

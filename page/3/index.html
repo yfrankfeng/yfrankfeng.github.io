@@ -83,6 +83,207 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-how-to-add-a-survey-window-before-download" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-add-a-survey-window-before-download/" class="article-date">
+  <time datetime="2018-10-18T12:40:12.000Z" itemprop="datePublished">2018-10-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/rails/">rails</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/how-to-add-a-survey-window-before-download/">How to add a survey window before download file</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="First-generate-a-new-model"><a href="#First-generate-a-new-model" class="headerlink" title="First, generate a new model"></a>First, generate a new model</h2><p>Run this command to generate a new Downloader:</p>
+<pre><code>rails g hyrax:work Downloader
+</code></pre><h2 id="Add-additional-downloader-metadata"><a href="#Add-additional-downloader-metadata" class="headerlink" title="Add additional downloader metadata"></a>Add additional downloader metadata</h2><p>Add app/models/concerns/oasis/downloader_metadata.rb:</p>
+<pre><code>module Oasis
+  module DownloaderMetadata extend ActiveSupport::Concern
+    included do
+      property :time, predicate: ::RDF::URI.new(&apos;https://oasis-database.org/ontologies/oasis#downloader_time&apos;), multiple: false do |index|
+        index.as :stored_searchable
+      end
+
+      # ......
+  end
+end
+</code></pre><p>Also, edit app/models/downloader.rb to add:</p>
+<pre><code>include ::Oasis::DownloaderMetadata
+</code></pre><h2 id="Setup-relationships"><a href="#Setup-relationships" class="headerlink" title="Setup relationships"></a>Setup relationships</h2><p>Define the relationship between Summary and Downloader:</p>
+<p>In Summary,</p>
+<pre><code>class Summary &lt; ActiveFedora::Base
+  # ......
+  has_many :downloaders, dependent: :destroy, class_name: &apos;Downloader&apos;, :autosave =&gt; true
+
+  # ......
+end  
+</code></pre><p>In Downloader,</p>
+<pre><code>class Downloader &lt; ActiveFedora::Base
+  belongs_to :summary, :autosave =&gt; true, predicate: ActiveFedora::RDF::Fcrepo::RelsExt.isPartOf
+
+  # ......
+end
+</code></pre><h2 id="The-standard-RoR-form-not-Hyrax-form"><a href="#The-standard-RoR-form-not-Hyrax-form" class="headerlink" title="The standard RoR form (not Hyrax form)"></a>The standard RoR form (not Hyrax form)</h2><p>Since the downloader survey form does not require authentication, the Hyrax work based form (e.g. the default downloader form is not appropirate). </p>
+<p>In here, we use a standard RoR form to get users’ input and create Downloader object.</p>
+<h3 id="generate-a-standard-RoR-form-controller"><a href="#generate-a-standard-RoR-form-controller" class="headerlink" title="generate a standard RoR form/controller"></a>generate a standard RoR form/controller</h3><pre><code>rails g controller Survey new
+</code></pre><p>In Survey Controller, can do sth. like:</p>
+<pre><code>def submit
+  begin
+    summary_id         = params[&quot;summary_id&quot;]
+    summary_fileset_id = params[&quot;summary_fileset_id&quot;]
+
+    d = Summary.find(summary_id).downloaders.new
+    d.downloader_status      = params[&quot;survey&quot;][&quot;status&quot;] unless params[&quot;survey&quot;][&quot;status&quot;].nil?
+    d.downloader_email       = params[&quot;email&quot;]            unless params[&quot;email&quot;].nil?
+    d.downloader_affiliation = params[&quot;institution&quot;]      unless params[&quot;institution&quot;].nil?
+    d.downloader_contable    = params[&quot;contable&quot;]         unless params[&quot;contable&quot;].nil?
+    d.downloader_cty         = params[&quot;country&quot;]          unless params[&quot;country&quot;].nil?
+    d.save!
+
+    redirect_to &apos;/survey/saved?survey_done=yes&amp;summary_id=&apos; + summary_id.to_s + &apos;&amp;downloader_id=&apos; + d.id.to_s + &apos;&amp;fileset_id=&apos; + summary_fileset_id.to_s
+    rescue
+    redirect_to &apos;/survey/error&apos;
+  end
+end
+</code></pre><p>Create app/views/layouts/hyrax/survey.html.erb:</p>
+<pre><code>&lt;%= render template: &apos;layouts/empty&apos; %&gt;
+</code></pre><p>To remove header and footer, add app/views/layouts/empty.html.erb (compared to app/views/layouts/hyrax.html.erb):</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;&lt;%= t(&quot;hyrax.document_language&quot;, default: &apos;&apos;) %&gt;&quot; prefix=&quot;og:http://ogp.me/ns#&quot;&gt;
+  &lt;head&gt;
+    &lt;%= render partial: &apos;layouts/head_tag_content&apos; %&gt;
+    &lt;%= content_for(:head) %&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;a href=&quot;#skip_to_content&quot; class=&quot;sr-only&quot;&gt;Skip to Content&lt;/a&gt;
+
+    &lt;%= content_for(:precontainer_content) %&gt;
+    &lt;div id=&quot;content-wrapper&quot; class=&quot;container&quot; role=&quot;main&quot;&gt;
+      &lt;a name=&quot;skip_to_content&quot;&gt;&lt;/a&gt;
+      &lt;div class=&quot;col-xs-12&quot;&gt;
+        &lt;% if content_for?(:page_header) %&gt;
+          &lt;div class=&quot;row&quot;&gt;
+            &lt;div class=&quot;col-xs-12 main-header&quot;&gt;
+              &lt;%= yield(:page_header) %&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;% end %&gt;
+
+        &lt;%= content_for?(:content) ? yield(:content) : yield %&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;&lt;!-- /#content-wrapper --&gt;
+    &lt;%= render &apos;shared/ajax_modal&apos; %&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>Remember to register this blank layout in Survey Controller:</p>
+<pre><code>with_themed_layout &apos;survey&apos;
+</code></pre><p>Create app/views/survey/new.html.erb, just use standard Bootstrap form, but submitting to Survey controller:</p>
+<pre><code>&lt;form action=&quot;/survey/submit&quot; method=&quot;post&quot;&gt;
+</code></pre><p>In config/routes.rb, add:</p>
+<pre><code>get &apos;survey/new&apos;
+get &apos;survey/saved&apos;
+post &apos;survey/submit&apos;
+</code></pre><h2 id="Add-popup-window"><a href="#Add-popup-window" class="headerlink" title="Add popup window"></a>Add popup window</h2><p>I use fancybox, so declare CSS and JS:</p>
+<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.css&quot; /&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.js&quot;&gt;&lt;/script&gt;
+</code></pre><p>And make a popup window to show the Downloader form:</p>
+<pre><code>&lt;a data-fancybox
+            data-type=&quot;iframe&quot;
+            data-captain=&quot;Downloader Survey&quot;
+            data-src=&quot;/survey/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&amp;summary_fileset_id=&lt;%= file_set.id%&gt;&quot;
+            data-options=&apos;{
+              &quot;buttons&quot; : [&quot;close&quot;],
+              &quot;animationEffect&quot;: &quot;fade&quot;,
+              &quot;animationDuration&quot;: &quot;500&quot;,
+              &quot;autoFocus&quot;: &quot;true&quot;,
+              &quot;modal&quot;: &quot;true&quot;
+            }&apos;
+            class=&quot;btn btn-default&quot;
+            href=&quot;javascript:;&quot; &gt;
+          &lt;%= t(&apos;hyrax.file_set.show.downloadable_content.pdf_link&apos;) %&gt;
+        &lt;/a&gt;
+</code></pre><h2 id="Exclude-Survey-data-from-search-results"><a href="#Exclude-Survey-data-from-search-results" class="headerlink" title="Exclude Survey data from search results"></a>Exclude Survey data from search results</h2><p>In the customized search builder:</p>
+<pre><code># Only query Summaries
+def only_search_summary(solr_parameters)
+    solr_parameters[:q] += &apos; has_model_ssim:Summary&apos;
+end    
+</code></pre><p>In the homepage_controller.rb, add additional parameter to exclude downloaders from recent documents:</p>
+<pre><code>def recent
+  # grab any recent documents
+  (_, @recent_documents) = search_results(q: &apos;has_model_ssim:Summary&apos;, sort: sort_field, rows: 4)
+rescue Blacklight::Exceptions::ECONNREFUSED, Blacklight::Exceptions::InvalidRequest
+  @recent_documents = []
+end    
+</code></pre><h2 id="NOT-USED-unless-authentication-needed-Tweaks-in-views-for-Hyrax-based-work-form-Downloader-form"><a href="#NOT-USED-unless-authentication-needed-Tweaks-in-views-for-Hyrax-based-work-form-Downloader-form" class="headerlink" title="(NOT USED, unless authentication needed) Tweaks in views for Hyrax based work form (Downloader form)"></a>(NOT USED, unless authentication needed) Tweaks in views for Hyrax based work form (Downloader form)</h2><p>Copy (from Hyrax) and modify app/views/hyrax/base/_form.html.erb</p>
+<pre><code>&lt;% if @form.model_name==&apos;Downloader&apos; %&gt;
+  &lt;%= render &apos;hyrax/base/guts4form4downloader&apos;, f: f %&gt;
+&lt;% else %&gt;
+  &lt;%= render &apos;hyrax/base/guts4form&apos;, f: f %&gt;
+&lt;% end %&gt;
+</code></pre><p>To remove file upload and relationship tab, add app/views/hyrax/base/_guts4form.html.erb    </p>
+<pre><code>&lt;% tabs ||= %w[metadata] # default tab order %&gt;
+...
+&lt;%= render &apos;form_progress_downloader&apos;, f: f %&gt;
+</code></pre><p>Also, change the savewidget on the right, e.g.</p>
+<pre><code>&lt;div class=&quot;col-xs-12 col-sm-12&quot;&gt;
+</code></pre><p>and</p>
+<pre><code>&lt;div id=&quot;savewidget&quot; class=&quot;col-xs-12 col-sm-12 fixedsticky&quot; role=&quot;complementary&quot;&gt;
+</code></pre><p>To remove visiblity/licence, add file: app/views/hyrax/base/_form_progress_downloader.html.erb and remove unnecessary UI components.</p>
+<h2 id="NOT-USED-for-my-own-record-How-to-store-parent-child-relationship-without-nested-form"><a href="#NOT-USED-for-my-own-record-How-to-store-parent-child-relationship-without-nested-form" class="headerlink" title="NOT USED (for my own record) How to store parent-child relationship without nested form"></a>NOT USED (for my own record) How to store parent-child relationship without nested form</h2><p>It’s quite straightforward to relfect parent children relationship in the nested form.<br>However, I’m not sure what’s the best way to implement it in a separate forms. Here is my tweaks:</p>
+<p>First, pass the summary id to the Downloader form, e.g. (in _pdf.html.erb):</p>
+<pre><code>data-src=&quot;/concern/parent/&lt;%= @presenter.solr_document.id %&gt;/downloaders/new?summary_id=&lt;%= @presenter.solr_document.id %&gt;&quot; 
+</code></pre><p>Make sure add parent_summary_id in the Downloader model:</p>
+<pre><code>property :parent_summary_id, predicate: XXXXXXXXXXXXXXXXX
+</code></pre><p>Define parent_summary_id as a hidden field and use the passed parameter as its value.</p>
+<pre><code>&lt;%= f.input :parent_summary_id, as: :hidden,
+            input_html: { :value =&gt; params[&quot;summary_id&quot;] }
+%&gt;
+</code></pre><p>Define a post processing job e.g. in app/jobs/downloader_post_deposit_job.rb:</p>
+<pre><code>class DownloaderPostDepositJob &lt; ContentEventJob
+    def action
+        # update Downloader&apos;s id
+        if repo_object.class.to_s==&apos;Downloader&apos;
+            repo_object.summary_id = repo_object.parent_summary_id unless repo_object.parent_summary_id.nil?
+            repo_object.save
+        end
+    end
+end
+</code></pre><p>Register the DownloaderPostDepositJob in config/initializers/hyrax_callback.rb:</p>
+<pre><code>Hyrax.config.callback.set(:after_create_concern) do |curation_concern, user|
+    DownloaderPostDepositJob.perform_later(curation_concern, user)
+end          
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-add-a-survey-window-before-download/" data-id="cjo7eatsd0005s105x84uwnmb" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-adding-new-static-page-in-hyrax" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/adding-new-static-page-in-hyrax/" class="article-date">
@@ -412,7 +613,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -421,7 +622,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -432,6 +633,10 @@ end
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/solr-tips/">Solr tips</a>
+          </li>
         
           <li>
             <a href="/arch1_edit_notes/">archbishopsregisters edit application notes</a>
@@ -447,10 +652,6 @@ end
         
           <li>
             <a href="/how-to-setup-archbishopsregisters/">How to setup archbishopsregisters</a>
-          </li>
-        
-          <li>
-            <a href="/ngrok/">Amazing dev tool - ngrok</a>
           </li>
         
       </ul>
