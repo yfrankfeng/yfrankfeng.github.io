@@ -83,6 +83,60 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-work-on-git-branches" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/work-on-git-branches/" class="article-date">
+  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/git/">git</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/work-on-git-branches/">Work on git branches</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="Pull-maybe-fetch-master-branch"><a href="#Pull-maybe-fetch-master-branch" class="headerlink" title="Pull (maybe fetch?) master branch:"></a>Pull (maybe fetch?) master branch:</h4><pre><code>git pull origin master
+</code></pre><h4 id="Create-feature-branch"><a href="#Create-feature-branch" class="headerlink" title="Create feature branch"></a>Create feature branch</h4><pre><code>git checkout -b mybranch
+</code></pre><h4 id="Work-on-feature-branch"><a href="#Work-on-feature-branch" class="headerlink" title="Work on feature branch"></a>Work on feature branch</h4><p>Make sure the final commit is buildable and passes all tests.</p>
+<h4 id="Find-the-last-commit-your-branch-branches-from"><a href="#Find-the-last-commit-your-branch-branches-from" class="headerlink" title="Find the last commit your branch branches from"></a>Find the last commit your branch branches from</h4><pre><code>git log --graph --decorate --pretty=oneline --abbrev-commit
+</code></pre><h4 id="Squash-to-1-commit"><a href="#Squash-to-1-commit" class="headerlink" title="Squash to 1 commit"></a>Squash to 1 commit</h4><pre><code>git rebase -i [SHA]
+</code></pre><p>Edit commits in the interactive mode.</p>
+<h4 id="Push-featured-branch-to-remote"><a href="#Push-featured-branch-to-remote" class="headerlink" title="Push featured branch to remote"></a>Push featured branch to remote</h4><pre><code>git push origin mybranch 
+</code></pre><p>OR</p>
+<pre><code>git push origin mybranch --force-with-lease
+</code></pre><h4 id="Merge-into-master"><a href="#Merge-into-master" class="headerlink" title="Merge into master"></a>Merge into master</h4><pre><code>git checkout master
+git merge mybranch
+git push origin master
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/work-on-git-branches/" data-id="cju1efk9l0000r205yjzo1egj" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/branch/">branch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-how-to-make-all-resources-public" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/how-to-make-all-resources-public/" class="article-date">
@@ -153,6 +207,59 @@ end
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/access-control/">access control</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-how-to-make-featured-work-working" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-make-featured-work-working/" class="article-date">
+  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Tests-in-Rails-console"><a href="#Tests-in-Rails-console" class="headerlink" title="Tests in Rails console"></a>Tests in Rails console</h2><p>The following code will make a work showing the featured works list on homgepage.</p>
+<pre><code>fw = FeaturedWork.new(&apos;work_id&apos;: &apos;ng451h485&apos;)
+fw.save
+</code></pre><h2 id="How-to-make-it-working-in-Hyrax"><a href="#How-to-make-it-working-in-Hyrax" class="headerlink" title="How to make it working in Hyrax"></a>How to make it working in Hyrax</h2><p>As shown in <a href="https://github.com/samvera/hyrax/blob/master/app/presenters/hyrax/work_show_presenter.rb#L157" target="_blank" rel="noopener">here</a>, only when</p>
+<ul>
+<li>user can feature works</li>
+<li>solr_document.public is true</li>
+</ul>
+<p>The work is featurable.</p>
+<p>For example: login as admin and the work is public then the work is featurable.</p>
+<p>There is also a bug with featured work, and here is my pull request: <a href="https://github.com/samvera/hyrax/pull/3776" target="_blank" rel="noopener">https://github.com/samvera/hyrax/pull/3776</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-make-featured-work-working/" data-id="cjtybi8v60000py0505y6brkk" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UI/">UI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
 
     </footer>
   </div>
@@ -806,188 +913,6 @@ pass init &quot; the id from above command&quot;
 
 
   
-    <article id="post-build-rails-development-environments-with-docker" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/build-rails-development-environments-with-docker/" class="article-date">
-  <time datetime="2018-11-10T12:40:12.000Z" itemprop="datePublished">2018-11-10</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/docker/">docker</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/build-rails-development-environments-with-docker/">Build Rails development environment with Docker</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Generate-a-Rails-application"><a href="#Generate-a-Rails-application" class="headerlink" title="Generate a Rails application"></a>Generate a Rails application</h2><pre><code>rails new dockerdemo --skip-test --skip-bundle
-</code></pre><h2 id="Create-Dockerfile"><a href="#Create-Dockerfile" class="headerlink" title="Create Dockerfile"></a>Create Dockerfile</h2><pre><code>cd dockerdemo
-nano Dockerfile
-</code></pre><p>With content:</p>
-<pre><code>FROM ruby:2.5
-RUN apt-get update -yqq
-RUN apt-get install -yqq --no-install-recommends nodejs
-COPY . /usr/src/railsdemo/
-COPY Gemfile* /usr/src/railsdemo/
-WORKDIR /usr/src/railsdemo
-RUN bundle install    
-</code></pre><h2 id="Create-dockerignore"><a href="#Create-dockerignore" class="headerlink" title="Create .dockerignore"></a>Create .dockerignore</h2><p>With content:</p>
-<pre><code>.git
-.gitignore
-log/*
-tmp/*
-</code></pre><h2 id="Create-docker-compose-yml"><a href="#Create-docker-compose-yml" class="headerlink" title="Create docker-compose.yml"></a>Create docker-compose.yml</h2><pre><code>version: &apos;3&apos;
-services:
-  web:
-    build: .
-    ports:
-      - &quot;3000:3000&quot;
-    volumes:
-      - .:/usr/src/railsdemo
-    command: bash -c &quot;rm -f tmp/pids/server.pid &amp;&amp; bundle exec rails s -p 3000 -b &apos;0.0.0.0&apos;&quot;
-</code></pre><p>Then run:</p>
-<pre><code>docker-compose up --build
-</code></pre><h2 id="Useful-commands"><a href="#Useful-commands" class="headerlink" title="Useful commands"></a>Useful commands</h2><h3 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h3><p>List of images</p>
-<pre><code>docker images
-</code></pre><p>Remove an image</p>
-<pre><code>docker rmi xxxx    
-</code></pre><p>Delete all images and their dependent images</p>
-<pre><code>docker rmi -f $(docker images -q) 
-</code></pre><h3 id="Container"><a href="#Container" class="headerlink" title="Container"></a>Container</h3><p>Start a container</p>
-<pre><code>docker-compose up
-</code></pre><p>List of containers</p>
-<pre><code>docker ps (ONLY running containers)
-docker ps -a (all containers)
-docker-compose ps
-</code></pre><p>Stop all running containers</p>
-<pre><code>docker stop $(docker ps -aq)
-</code></pre><p>Remove all containers</p>
-<pre><code>docker rm $(docker ps -aq)    
-</code></pre><p>A script to remove all containers and images:</p>
-<pre><code>#!/bin/bash
-# Stop all running containers
-docker stop $(docker ps -aq)
-
-# Delete all containers
-docker rm $(docker ps -a -q)
-
-# Delete all images and their dependent images
-docker rmi -f $(docker images -q)            
-</code></pre><h3 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h3><p>Show logs of a service</p>
-<pre><code>docker-compose logs web
-</code></pre><p>Manage a service</p>
-<pre><code>docker-compose [start|stop|kill|restart|pause|unpause|rm] SERVICE    
-</code></pre><p>SSH to a container</p>
-<pre><code>docker-compose run web bash
-</code></pre><h2 id="Add-solr-service"><a href="#Add-solr-service" class="headerlink" title="Add solr service"></a>Add solr service</h2><p>Under services, add:</p>
-<pre><code>solr:
-  image: solr
-  ports:
-  - &quot;8983:8983&quot;
-  volumes:
-  - data:/opt/solr/server/solr/oasis
-  entrypoint:
-  - docker-entrypoint.sh
-  - solr-precreate
-  - oasis
-</code></pre><p>Also, add:</p>
-<pre><code>volumes:
-  data:
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/build-rails-development-environments-with-docker/" data-id="cjoa3ls0p0000lt05kgtc61hz" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-how-to-use-blacklight-hierarchy-gem" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/how-to-use-blacklight-hierarchy-gem/" class="article-date">
-  <time datetime="2018-10-18T12:40:12.000Z" itemprop="datePublished">2018-10-18</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/blacklight/">blacklight</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/how-to-use-blacklight-hierarchy-gem/">How to use blacklight hierarchy gem to implement hierarchical facets</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://github.com/sul-dlss/blacklight-hierarchy" target="_blank" rel="noopener">Blacklight hierarchy</a> provides a light way to support hierarchical facets,<br>but the documentation is a bit hard to understand, I just write down what I have done to get a working prototype.  </p>
-<h2 id="Update-Gemfile"><a href="#Update-Gemfile" class="headerlink" title="Update Gemfile"></a>Update Gemfile</h2><p>Add this line to Gemfile:</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem <span class="string">'blacklight-hierarchy'</span></span><br></pre></td></tr></table></figure>
-<p>and run:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bundle install</span><br></pre></td></tr></table></figure>
-<h2 id="Define-facets-in-catalog-controller"><a href="#Define-facets-in-catalog-controller" class="headerlink" title="Define facets in catalog_controller"></a>Define facets in catalog_controller</h2><p>Edit app/controllers/catalog_controller.rb:</p>
-<pre><code>config.add_facet_field solr_name(&apos;summary_general_research_area&apos;, :facetable),
-                       label: &quot;Topic&quot;,
-                       :partial =&gt; &apos;blacklight/hierarchy/facet_hierarchy&apos;
-
-config.facet_display = {
-    :hierarchy =&gt; {
-        &apos;summary_general_research_area&apos; =&gt; [[&apos;sim&apos;],&apos;:&apos;]
-    }
-}
-</code></pre><p>NB: the facet field name in solr is concatenated from above ‘summary_general_research_area’ and ‘sim’,<br>e.g. the solr facet field name is: ‘facet-summary_general_research_area_sim’  </p>
-<h2 id="Update-your-Indexer-to-satisfy-the-blacklight-hierarchy"><a href="#Update-your-Indexer-to-satisfy-the-blacklight-hierarchy" class="headerlink" title="Update your Indexer to satisfy the blacklight hierarchy"></a>Update your Indexer to satisfy the blacklight hierarchy</h2><p>To make the blacklight hierarchy gem working, it’s your responsibility (not this gem’s) to index your data in the following format:</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">doc</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">field</span> <span class="attr">name</span>=<span class="string">"fruit_facet"</span>&gt;</span>apple<span class="tag">&lt;/<span class="name">field</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">field</span> <span class="attr">name</span>=<span class="string">"fruit_facet"</span>&gt;</span>apple:red<span class="tag">&lt;/<span class="name">field</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">field</span> <span class="attr">name</span>=<span class="string">"fruit_facet"</span>&gt;</span>apple:yellow<span class="tag">&lt;/<span class="name">field</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">doc</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>In your customized Indexer, add something like:</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SummaryIndexer</span> &lt; Hyrax::WorkIndexer</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">generate_solr_document</span></span></span><br><span class="line">    <span class="keyword">super</span>.tap <span class="keyword">do</span> <span class="params">|solr_doc|</span></span><br><span class="line">      <span class="comment"># Check all fileds to be indexed</span></span><br><span class="line">      <span class="comment"># Add parent items if they are nested term</span></span><br><span class="line">      <span class="comment"># e.g. when you index 'red' in the above example, index both 'apple' and 'apple:red'</span></span><br><span class="line">      <span class="comment"># apple_facet = solr_doc["apple_facet"]</span></span><br><span class="line">      <span class="comment"># if XYZ </span></span><br><span class="line">      <span class="comment">#   apple_facet &lt;&lt; "apple"</span></span><br><span class="line">      <span class="comment">#   apple_facet &lt;&lt; "apple:red"</span></span><br><span class="line">      <span class="comment"># end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span>  </span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>As mentioned in blacklight hierarchy gem, <a href="https://lucene.apache.org/core/7_0_1/analyzers-common/org/apache/lucene/analysis/path/PathHierarchyTokenizerFactory.html" target="_blank" rel="noopener">PathHierarchyTokenizerFactory</a> can be used to simplify the index process.</p>
-<p>Test test a specific facet values:</p>
-<p><a href="http://localhost:8983/solr/oasis/select?q=id:4q77fr33m&amp;facet.limit=-1&amp;facet=on&amp;&amp;facet.field=summary_general_research_area_sim" target="_blank" rel="noopener">http://localhost:8983/solr/oasis/select?q=id:4q77fr33m&amp;facet.limit=-1&amp;facet=on&amp;&amp;facet.field=summary_general_research_area_sim</a> </p>
-<h2 id="Where-to-define-the-hierarchcal-terms"><a href="#Where-to-define-the-hierarchcal-terms" class="headerlink" title="Where to define the hierarchcal terms?"></a>Where to define the hierarchcal terms?</h2><p>These terms can be saved in different formats, e.g. XML, json, yml etc. We use <a href="https://github.com/samvera/questioning_authority" target="_blank" rel="noopener">Questioning Authority gem</a>.</p>
-<h2 id="How-hierarchcal-terms-are-displayed"><a href="#How-hierarchcal-terms-are-displayed" class="headerlink" title="How hierarchcal terms are displayed?"></a>How hierarchcal terms are displayed?</h2><p>The facet display is implemented in app/helpers/blacklight/hierarchy_helper.rb. To do some extra work, e.g. doing additonal lookups (we look authority lable from id), you need to override this file, especially render_qfacet_value method.</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-use-blacklight-hierarchy-gem/" data-id="cjo7eatsg0006s105q5bhqr01" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/facets/">facets</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1003,7 +928,7 @@ config.facet_display = {
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -1013,7 +938,7 @@ config.facet_display = {
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -1023,7 +948,7 @@ config.facet_display = {
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 10px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1045,6 +970,14 @@ config.facet_display = {
       <ul>
         
           <li>
+            <a href="/ruby-tips/">Ruby tips</a>
+          </li>
+        
+          <li>
+            <a href="/java-tips/">Java tips</a>
+          </li>
+        
+          <li>
             <a href="/solr-tips/">Solr tips</a>
           </li>
         
@@ -1054,14 +987,6 @@ config.facet_display = {
         
           <li>
             <a href="/arch1_search_notes/">archbishopsregisters search application notes</a>
-          </li>
-        
-          <li>
-            <a href="/solr-or-query/">Solr OR query problem and fix</a>
-          </li>
-        
-          <li>
-            <a href="/how-to-setup-archbishopsregisters/">How to setup archbishopsregisters</a>
           </li>
         
       </ul>
