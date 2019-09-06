@@ -118,7 +118,9 @@ end
 <pre><code>def latest
     names.last
 end
-</code></pre><h2 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a>Collections</h2><p>Lots of internal methods can be used in collections, e.g.</p>
+</code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><h3 id="Swap-array-rows-with-columns"><a href="#Swap-array-rows-with-columns" class="headerlink" title="Swap array rows with columns"></a>Swap array rows with columns</h3><pre><code>Array.transpose()
+</code></pre><p>e.g.<br>    matrix_string = “1 2 3\n4 5 6\n7 8 9”<br>    @rows = matrix_string.split(“\n”).collect{|x| x.split(‘ ‘).collect{|y| y.to_i}}<br>    @columns = @rows.transpose()    </p>
+<h2 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a>Collections</h2><p>Lots of internal methods can be used in collections, e.g.</p>
 <pre><code>scores.last
 scores.max
 scores.min
