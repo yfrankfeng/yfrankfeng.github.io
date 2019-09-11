@@ -83,6 +83,53 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-aws-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/aws-tips/" class="article-date">
+  <time datetime="2019-09-10T21:40:12.000Z" itemprop="datePublished">2019-09-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AWS/">AWS</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/aws-tips/">AWS tips</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="EC2"><a href="#EC2" class="headerlink" title="EC2"></a>EC2</h2><h3 id="SSH-command"><a href="#SSH-command" class="headerlink" title="SSH command"></a>SSH command</h3><p>After EC2 being created, the way to access EC2 instance is:</p>
+<pre><code>ssh -i /home/frank/.ssh/aws.pem ubuntu@YOUR_IP
+</code></pre><p>NB: the default user for Ubuntu is <strong>ubuntu</strong>.    </p>
+<h3 id="Elastic-IP"><a href="#Elastic-IP" class="headerlink" title="Elastic IP"></a>Elastic IP</h3><p>To have a static IP to access your EC2, follow the following steps:</p>
+<p>1) Create an elastic IP<br>2) Open elastic IP page and click “Associate address” from “Actions” dropdown.    </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/aws-tips/" data-id="ck0fcsfjz0000ew05a492ppet" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AWS/">AWS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/EC2/">EC2</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-ruby-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/ruby-tips/" class="article-date">
@@ -852,186 +899,6 @@ etc...
 
 
   
-    <article id="post-build-samvera-stack-step-by-step" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/build-samvera-stack-step-by-step/" class="article-date">
-  <time datetime="2019-04-03T12:40:12.000Z" itemprop="datePublished">2019-04-03</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/samvera/">samvera</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/build-samvera-stack-step-by-step/">Build Samvera stack step by step</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Environments"><a href="#Environments" class="headerlink" title="Environments"></a>Environments</h2><p>Ubuntu: 18.04.1 LTS<br>Java: OpenJDK version 11<br>Tomcat: 9.0.12<br>Solr: 7.5.0<br>Fedora: 4.5.1<br>Ruby: 2.5.3<br>Rails: 5.2.1</p>
-<h2 id="Install-OpenJDK-version-11"><a href="#Install-OpenJDK-version-11" class="headerlink" title="Install OpenJDK version 11"></a>Install OpenJDK version 11</h2><pre><code>sudo apt install default-jdk
-
-sudo nano /etc/environment
-</code></pre><p>Add: </p>
-<pre><code>JAVA_HOME=&quot;/usr/lib/jvm/java-11-openjdk-amd64&quot;
-</code></pre><h2 id="Install-Tomcat-9-0-12-as-a-service"><a href="#Install-Tomcat-9-0-12-as-a-service" class="headerlink" title="Install Tomcat 9.0.12 as a service"></a>Install Tomcat 9.0.12 as a service</h2><p>This part is mainly following this <a href="https://www.digitalocean.com/community/tutorials/install-tomcat-9-ubuntu-1804" target="_blank" rel="noopener">post</a></p>
-<pre><code>sudo groupadd tomcat
-sudo useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat
-cd /tmp
-curl -O http://mirror.ox.ac.uk/sites/rsync.apache.org/tomcat/tomcat-9/v9.0.12/bin/apache-tomcat-9.0.12-deployer.tar.gz
-sudo mkdir /opt/tomcat
-sudo tar xzvf apache-tomcat-9*tar.gz -C /opt/tomcat --strip-components=1
-cd /opt/tomcat
-sudo chgrp -R tomcat /opt/tomcat
-sudo chmod -R g+r conf
-sudo chmod g+x conf
-sudo chown -R tomcat webapps/ work/ temp/ logs/
-</code></pre><p>Then create a Tomcat service:</p>
-<pre><code>sudo nano /etc/systemd/system/tomcat.service
-</code></pre><p>With following content:</p>
-<pre><code>[Unit]
-Description=Apache Tomcat Web Application Container
-After=network.target
-
-[Service]
-Type=forking
-
-Environment=JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
-Environment=CATALINA_HOME=/opt/tomcat
-Environment=CATALINA_BASE=/opt/tomcat
-Environment=&apos;CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC&apos;
-Environment=&apos;JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom&apos;
-
-ExecStart=/opt/tomcat/bin/startup.sh
-ExecStop=/opt/tomcat/bin/shutdown.sh
-
-User=tomcat
-Group=tomcat
-UMask=0007
-RestartSec=10
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-</code></pre><p>Reload system daemon:</p>
-<pre><code>sudo systemctl daemon-reload
-</code></pre><p>Start Tomcat:</p>
-<pre><code>sudo systemctl start tomcat
-</code></pre><p>Test if you can access Tomcat via port 8080, then enable this service:</p>
-<pre><code>sudo systemctl enable tomcat
-</code></pre><p>Configure Tomcat web admin UI:</p>
-<pre><code>sudo nano /opt/tomcat/conf/tomcat-users.xml
-</code></pre><p>With the content:</p>
-<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;tomcat-users xmlns=&quot;http://tomcat.apache.org/xml&quot;
-              xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-              xsi:schemaLocation=&quot;http://tomcat.apache.org/xml tomcat-users.xsd&quot;
-              version=&quot;1.0&quot;&gt;
-  &lt;role rolename=&quot;manager-gui&quot;/&gt;
-  &lt;user username=&quot;tomcat&quot; password=&quot;PASSWORD&quot; roles=&quot;manager-gui&quot;/&gt;
-
-  &lt;role rolename=&quot;admin-gui&quot;/&gt;
-  &lt;user username=&quot;admin&quot; password=&quot;PASSWORD&quot; roles=&quot;admin-gui&quot;/&gt;
-&lt;/tomcat-users&gt;              
-</code></pre><p>By default, Tomcat adds IP restrictions for Manager UI, either comment it out or add your IP into the list.</p>
-<pre><code>sudo nano /opt/tomcat/webapps/manager/META-INF/context.xml
-</code></pre><p>And restart Tomcat</p>
-<h2 id="Install-Solr-7-5-0-as-a-service"><a href="#Install-Solr-7-5-0-as-a-service" class="headerlink" title="Install Solr 7.5.0 as a service"></a>Install Solr 7.5.0 as a service</h2><pre><code>cd /tmp
-wget http://www.apache.org/dyn/closer.lua/lucene/solr/7.5.0/solr-7.5.0.tgz
-tar xvf solr-7.5.0.tgz
-cd solr-7.5.0/bin
-./install_solr_service.sh  ../../solr-7.5.0.tgz
-sudo su - solr -c &quot;/opt/solr/bin/solr create -c oasis -n data_driven_schema_configs&quot;
-</code></pre><p>Test: </p>
-<pre><code>sudo service solr status
-</code></pre><p><strong>Optional</strong>: if using Hyrax, you need to tweak solr configuration files, e.g. Copy solrconfig.xml, schema.xml from <a href="https://github.com/digital-york/arch1/tree/master/solr_conf/conf" target="_blank" rel="noopener">https://github.com/digital-york/arch1/tree/master/solr_conf/conf</a> to /var/solr/data/oasis/conf</p>
-<h2 id="Install-Fedora-4-5-1"><a href="#Install-Fedora-4-5-1" class="headerlink" title="Install Fedora 4.5.1"></a>Install Fedora 4.5.1</h2><p>Create folder and change permissions:</p>
-<pre><code>mkdir /home/frank/fcrepo-data
-mkdir /home/frank/fcrepo-data/fedora-node-types
-sudo chmod -R 755 /home/frank/fcrepo-data
-sudo chown -R tomcat:tomcat /home/frank/fcrepo-data
-</code></pre><p>And</p>
-<pre><code>sudo nano /home/frank/fcrepo-data/fedora-node-types/fedora-node-types.cnd
-</code></pre><p>content is available in: <a href="https://github.com/digital-york/fedora-config/blob/master/fedora-node-types.cnd" target="_blank" rel="noopener">https://github.com/digital-york/fedora-config/blob/master/fedora-node-types.cnd</a></p>
-<pre><code>cd /opt/tomcat/webapps
-wget https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-4.5.1/fcrepo-webapp-4.5.1.war -O fedora.war
-</code></pre><p>Edit file /opt/tomcat/bin/setclasspath.sh</p>
-<pre><code>JAVA_OPTS=&quot;${JAVA_OPTS} -Dfcrepo.home=/home/frank/fcrepo-data&quot;
-JAVA_OPTS=&quot;${JAVA_OPTS} -Dfuseki.port=3131&quot;
-JAVA_OPTS=&quot;${JAVA_OPTS} -Dfile.serializer.dir=/home/frank/fcrepo-data/files -Dfcrepo.modeshape.configuration=classpath:/config/minimal/repository.json&quot;
-CATALINA_OPTS=&quot;$CATALINA_OPTS -server -Xms512m -Xmx1024m&quot;
-JAVA_HOME=&quot;/usr/lib/jvm/java-11-openjdk-amd64&quot;
-
-sudo nano /opt/tomcat/webapps/fedora/WEB-INF/classes/config/minimal/repository.json
-</code></pre><p>Update: “node-types” : [“/home/frank/fcrepo-data/fedora-node-types/fedora-node-types.cnd”]</p>
-<p>NB: <strong>fedora won’t work with jdk 11</strong> as the jaxb jar has been removed from JDK11.<br>Quick &amp; dirty fix is to download jaxb jar and copy it to fedora webapp/WEB-INF/lib</p>
-<p>Restart Tomcat</p>
-<h2 id="Install-Ruby-on-Rails"><a href="#Install-Ruby-on-Rails" class="headerlink" title="Install Ruby on Rails"></a>Install Ruby on Rails</h2><h3 id="rbenv"><a href="#rbenv" class="headerlink" title="rbenv"></a>rbenv</h3><pre><code>cd
-git clone git://github.com/sstephenson/rbenv.git .rbenv                       
-echo &apos;export PATH=&quot;$HOME/.rbenv/bin:$PATH&quot;&apos; &gt;&gt; ~/.bash_profile
-echo &apos;eval &quot;$(rbenv init -)&quot;&apos; &gt;&gt; ~/.bash_profile
-git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
-echo &apos;export PATH=&quot;$HOME/.rbenv/plugins/ruby-build/bin:$PATH&quot;&apos; &gt;&gt; ~/.bash_profile
-source ~/.bash_profile
-</code></pre><h3 id="Ruby"><a href="#Ruby" class="headerlink" title="Ruby"></a>Ruby</h3><pre><code>rbenv install -v 2.5.3
-rbenv global 2.5.3
-ruby -v
-</code></pre><h3 id="gems"><a href="#gems" class="headerlink" title="gems"></a>gems</h3><pre><code>echo &quot;gem: --no-document&quot; &gt; ~/.gemrc
-gem install bundler
-gem install rails
-</code></pre><h2 id="Install-other-components"><a href="#Install-other-components" class="headerlink" title="Install other components"></a>Install other components</h2><h3 id="Clamav"><a href="#Clamav" class="headerlink" title="Clamav"></a>Clamav</h3><pre><code>sudo apt-get install clamav
-sudo apt-get install libclamav-dev
-gem install clamav -v &apos;0.4.1&apos; --source &apos;https://rubygems.org/&apos;
-</code></pre><h3 id="Postgresql-gem"><a href="#Postgresql-gem" class="headerlink" title="Postgresql gem"></a>Postgresql gem</h3><pre><code>sudo apt-get install libpq-dev
-</code></pre><h3 id="Sqlite3"><a href="#Sqlite3" class="headerlink" title="Sqlite3"></a>Sqlite3</h3><pre><code>sudo apt-get install sqlite3 libsqlite3-dev
-</code></pre><h3 id="libreoffice"><a href="#libreoffice" class="headerlink" title="libreoffice"></a>libreoffice</h3><pre><code>sudo apt install software-properties-common
-sudo add-apt-repository ppa:libreoffice/ppa
-sudo apt-get update
-sudo apt-get install libreoffice
-</code></pre><h3 id="FITS"><a href="#FITS" class="headerlink" title="FITS"></a>FITS</h3><pre><code>sudo apt-get install imagemagick
-sudo apt-get install libmediainfo-dev
-sudo apt-get install libzen-dev 
-
-cd ~
-wget http://projects.iq.harvard.edu/files/fits/files/fits-0.10.2.zip
-sudo unzip ~/fits-0.10.2.zip -d /opt
-sudo chmod a+x /opt/fits-0.10.2/fits.sh
-</code></pre><p>Add /opt/fits-0.10.2/ into PATH, e.g. in .bash_profile</p>
-<pre><code>sudo ln -s /opt/fits-0.10.2 /opt/fits
-</code></pre><h3 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h3><pre><code>sudo apt-get install redis-server
-</code></pre><h2 id="Hyrax-2-4-0"><a href="#Hyrax-2-4-0" class="headerlink" title="Hyrax 2.4.0"></a>Hyrax 2.4.0</h2><p>Install rails 5.1.6, as required by Hyrax 2.4.0 (PS: it seems that rails 5.2.1 is not working with Hyrax 2.4.0)</p>
-<pre><code>gem install rails -v 5.1.6
-</code></pre><p>Create Hyrax demo project</p>
-<pre><code>rails _5.1.6_ new hyraxdemo -m https://raw.githubusercontent.com/samvera/hyrax/v2.4.0/template.rb
-</code></pre><p>Run Hyrax:</p>
-<pre><code>bin/rails hydra:server    
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/build-samvera-stack-step-by-step/" data-id="cjo7eats30001s105tt2cg35z" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1047,7 +914,7 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -1057,7 +924,7 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -1067,7 +934,7 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 10px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 10px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1076,7 +943,7 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1087,6 +954,10 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/aws-tips/">AWS tips</a>
+          </li>
         
           <li>
             <a href="/ruby-tips/">Ruby tips</a>
@@ -1102,10 +973,6 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
         
           <li>
             <a href="/arch1_edit_notes/">archbishopsregisters edit application notes</a>
-          </li>
-        
-          <li>
-            <a href="/arch1_search_notes/">archbishopsregisters search application notes</a>
           </li>
         
       </ul>
