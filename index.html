@@ -111,6 +111,8 @@ ga('send', 'pageview');
       
         <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><p>Use the new way to format string</p>
 <pre><code>&apos;One for {name}, one for me.&apos;.format(name=name)
+</code></pre><p>OR</p>
+<pre><code>&apos;One for {}, one for me.&apos;.format(name)
 </code></pre><p>NOT the old way:</p>
 <pre><code>&quot;One for %s, one for me.&quot; % name
 </code></pre>
@@ -238,6 +240,125 @@ end
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-configure-elk-stack-ubuntu" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/configure-elk-stack-ubuntu/" class="article-date">
+  <time datetime="2019-08-25T21:40:12.000Z" itemprop="datePublished">2019-08-25</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/system/">system</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/configure-elk-stack-ubuntu/">Configure ELK stack in Ubuntu 18</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Specs"><a href="#Specs" class="headerlink" title="Specs"></a>Specs</h2><p>Virtual Box VM: 6GB RAM<br>Ubuntu 18.04 LTS</p>
+<p>Make sure take a snapshot before starting</p>
+<h2 id="Install-OpenJDK"><a href="#Install-OpenJDK" class="headerlink" title="Install OpenJDK"></a>Install OpenJDK</h2><pre><code>sudo apt -y update &amp;&amp; sudo apt -y upgrade
+sudo apt-get install default-jre
+</code></pre><p>Check:</p>
+<pre><code>java -version
+</code></pre><h2 id="Elasticsearch"><a href="#Elasticsearch" class="headerlink" title="Elasticsearch"></a>Elasticsearch</h2><pre><code>wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo &quot;deb https://artifacts.elastic.co/packages/6.x/apt stable main&quot; | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+sudo apt-get update
+sudo apt-get install elasticsearch
+</code></pre><p>Then edit configuration file:</p>
+<pre><code>sudo nano /etc/elasticsearch/elasticsearch.yml
+</code></pre><p>Add:</p>
+<pre><code>network.host: &quot;localhost&quot;
+http.port: 9200
+</code></pre><p>Start elasticsearch:</p>
+<pre><code>sudo service elasticsearch start
+</code></pre><p>Test if it works:</p>
+<pre><code>curl http://localhost:9200    
+</code></pre><p>It should output a JSON:</p>
+<pre><code>{
+  &quot;name&quot; : &quot;8kGdx7L&quot;,
+  &quot;cluster_name&quot; : &quot;elasticsearch&quot;,
+  &quot;cluster_uuid&quot; : &quot;2O-282HlSSSptP9i2_L9Og&quot;,
+  &quot;version&quot; : {
+    &quot;number&quot; : &quot;6.8.3&quot;,
+    &quot;build_flavor&quot; : &quot;default&quot;,
+    &quot;build_type&quot; : &quot;deb&quot;,
+    &quot;build_hash&quot; : &quot;0c48c0e&quot;,
+    &quot;build_date&quot; : &quot;2019-08-29T19:05:24.312154Z&quot;,
+    &quot;build_snapshot&quot; : false,
+    &quot;lucene_version&quot; : &quot;7.7.0&quot;,
+    &quot;minimum_wire_compatibility_version&quot; : &quot;5.6.0&quot;,
+    &quot;minimum_index_compatibility_version&quot; : &quot;5.0.0&quot;
+  },
+  &quot;tagline&quot; : &quot;You Know, for Search&quot;
+}    
+</code></pre><p>The elasticsearch should NOT be accessiable externally. Especially in production, DO NOT open port 9200 to the world, as tons of bots are crawling for 9200. DO NOT bind elasticsearch to a public IP.</p>
+<p>To make the service start on boot run:</p>
+<pre><code>sudo update-rc.d elasticsearch defaults 95 10
+</code></pre><h2 id="Logstash"><a href="#Logstash" class="headerlink" title="Logstash"></a>Logstash</h2><pre><code>sudo apt-get install logstash
+sudo nano /etc/logstash/conf.d/10-syslog.conf
+</code></pre><p>With content</p>
+<p>input {<br>  file {<br>    type =&gt; “syslog”<br>    path =&gt; [ “/var/log/messages”, “/var/log/*.log” ]<br>  }<br>}<br>output {<br>  stdout {<br>    codec =&gt; rubydebug<br>    }<br>    elasticsearch {<br>      hosts =&gt; “localhost” # Use the internal IP of your Elasticsearch server<br>    }<br>}</p>
+<p>Run</p>
+<pre><code>sudo service logstash restart
+sudo curl -XGET &apos;localhost:9200/_cat/indices?v&amp;pretty&apos;
+</code></pre><p>You should see:</p>
+<pre><code>health status index uuid pri rep docs.count docs.deleted store.size pri.store.size
+</code></pre><h2 id="Kibana"><a href="#Kibana" class="headerlink" title="Kibana"></a>Kibana</h2><pre><code>sudo apt-get install kibana
+sudo nano /etc/kibana/kibana.yml
+</code></pre><p>Add:</p>
+<pre><code>server.port: 5601
+server.host: &quot;localhost&quot;
+elasticsearch.url: &quot;http://localhost:9200&quot;
+</code></pre><p>Run:<br>    sudo service kibana start</p>
+<p>You will <strong>NOT</strong> be able to access Kibana right now, to fix this problem:</p>
+<pre><code>sudo apt-get install nginx apache2-utils
+sudo htpasswd -c /etc/nginx/htpasswd.users kibanaadmin
+</code></pre><p>Enter a password</p>
+<p>Then </p>
+<pre><code>sudo nano /etc/nginx/sites-available/default
+</code></pre><p>With content:</p>
+<pre><code>auth_basic &quot;Restricted Access&quot;;
+auth_basic_user_file /etc/nginx/htpasswd.users;
+
+location / {
+   proxy_pass http://localhost:5601;
+   proxy_http_version 1.1;
+   proxy_set_header Upgrade $http_upgrade;
+   proxy_set_header Connection &apos;upgrade&apos;;
+   proxy_set_header Host $host;
+   proxy_cache_bypass $http_upgrade;
+}
+</code></pre><p>Restart Nginx</p>
+<pre><code>sudo service nginx restart
+</code></pre><p>Try to access via <a href="http://localhost" target="_blank" rel="noopener">http://localhost</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/configure-elk-stack-ubuntu/" data-id="ck0s3fccl00008p05mnyq1vcp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elk/">elk</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kibana/">kibana</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/logstash/">logstash</a></li></ul>
 
     </footer>
   </div>
@@ -823,64 +944,6 @@ etc...
 
 
   
-    <article id="post-ngrok" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/ngrok/" class="article-date">
-  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/ngrok/">ngrok</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/ngrok/">Amazing dev tool - ngrok</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://ngrok.com/" target="_blank" rel="noopener">ngrok</a> is a tool to provide public URLs for:</p>
-<ul>
-<li>testing your application through any NAT or firewall.</li>
-<li>sending preview to your client.</li>
-<li>exposing your local server.</li>
-<li>building web hook integration.</li>
-<li>SSH access to your Rasberry PI.</li>
-</ul>
-<p>Installation is very easy:</p>
-<p>Just download from <a href="https://ngrok.com/download" target="_blank" rel="noopener">here</a>, unzip, and run:</p>
-<pre><code>./ngrok http 3000
-</code></pre><p>You will see something like below:</p>
-<p><img src="/images/ngrok.jpg" alt="ngrok"> </p>
-<p>Enjoy accessing to <a href="http://xxxxxx.ngrok.io" target="_blank" rel="noopener">http://xxxxxx.ngrok.io</a> from anywhere!</p>
-<p>An alternative is <a href="https://serveo.net/" target="_blank" rel="noopener">serveo</a>, even no need to install, just run:</p>
-<pre><code>ssh -R 80:localhost:3000 serveo.net
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ngrok/" data-id="cjudyfgav0000u9053lu15bo4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tool/">tool</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -896,7 +959,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -906,7 +969,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -916,7 +979,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 10px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 10px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -950,11 +1013,11 @@ etc...
           </li>
         
           <li>
-            <a href="/java-tips/">Java tips</a>
+            <a href="/configure-elk-stack-ubuntu/">Configure ELK stack in Ubuntu 18</a>
           </li>
         
           <li>
-            <a href="/solr-tips/">Solr tips</a>
+            <a href="/java-tips/">Java tips</a>
           </li>
         
       </ul>
