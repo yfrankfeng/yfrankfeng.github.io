@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="StringUse the new way to format string &amp;apos;One for {name}, one for me.&amp;apos;.format(name=name) OR &amp;apos;One for {}, one for me.&amp;apos;.format(name) NOT the old way: &amp;quot;One for %s, one for me.&amp;quot">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-09-18T08:41:21.809Z">
+<meta property="og:updated_time" content="2019-10-03T13:45:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python tips">
 <meta name="twitter:description" content="StringUse the new way to format string &amp;apos;One for {name}, one for me.&amp;apos;.format(name=name) OR &amp;apos;One for {}, one for me.&amp;apos;.format(name) NOT the old way: &amp;quot;One for %s, one for me.&amp;quot">
@@ -114,6 +114,22 @@ ga('send', 'pageview');
 <pre><code>&apos;One for {}, one for me.&apos;.format(name)
 </code></pre><p>NOT the old way:</p>
 <pre><code>&quot;One for %s, one for me.&quot; % name
+</code></pre><h2 id="Code-refactoring"><a href="#Code-refactoring" class="headerlink" title="Code refactoring"></a>Code refactoring</h2><p>The following code:</p>
+<pre><code>def convert(number):
+    the_string = &apos;&apos;
+    if number % 3 == 0:
+        the_string += &apos;Pling&apos;
+    if number % 5 == 0:
+        the_string += &apos;Plang&apos;
+    if number % 7 == 0:
+        the_string += &apos;Plong&apos;
+    return the_string or str(number)
+</code></pre><p>Can be shorter and nicer like:</p>
+<pre><code>def convert(number):
+    drops = ((3, &apos;Pling&apos;), (5, &apos;Plang&apos;), (7, &apos;Plong&apos;))
+
+    the_string = [s for n, s in drops if number % n==0]
+    return &quot;&quot;.join(the_string) or str(number)
 </code></pre>
       
     </div>

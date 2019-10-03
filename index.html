@@ -170,6 +170,22 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
 <pre><code>&apos;One for {}, one for me.&apos;.format(name)
 </code></pre><p>NOT the old way:</p>
 <pre><code>&quot;One for %s, one for me.&quot; % name
+</code></pre><h2 id="Code-refactoring"><a href="#Code-refactoring" class="headerlink" title="Code refactoring"></a>Code refactoring</h2><p>The following code:</p>
+<pre><code>def convert(number):
+    the_string = &apos;&apos;
+    if number % 3 == 0:
+        the_string += &apos;Pling&apos;
+    if number % 5 == 0:
+        the_string += &apos;Plang&apos;
+    if number % 7 == 0:
+        the_string += &apos;Plong&apos;
+    return the_string or str(number)
+</code></pre><p>Can be shorter and nicer like:</p>
+<pre><code>def convert(number):
+    drops = ((3, &apos;Pling&apos;), (5, &apos;Plang&apos;), (7, &apos;Plong&apos;))
+
+    the_string = [s for n, s in drops if number % n==0]
+    return &quot;&quot;.join(the_string) or str(number)
 </code></pre>
       
     </div>
