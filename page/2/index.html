@@ -83,6 +83,93 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-solr-or-query" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/solr-or-query/" class="article-date">
+  <time datetime="2019-06-28T12:40:12.000Z" itemprop="datePublished">2019-06-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/solr/">solr</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/solr-or-query/">Solr OR query problem and fix</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>In Solr admin page, e.g. <a href="http://localhost:8983/solr/#/arch1_solrsync/query" target="_blank" rel="noopener">http://localhost:8983/solr/#/arch1_solrsync/query</a></p>
+<p>query for individual object works but the ‘OR’ query is NOT working, e.g. queries: </p>
+<pre><code>id:h702q6403
+id:3b591b35w
+</code></pre><p>are both working, but </p>
+<pre><code>id:3b591b35w OR id:h702q6403
+</code></pre><p>is NOT.</p>
+<p>The quick solution is to put the following in q field:</p>
+<pre><code>id:*
+</code></pre><p>and in the fq field, enter:</p>
+<pre><code>id:3b591b35w OR id:h702q6403
+</code></pre><p>For arch1, a method can be added to app/helpers/solr_query.rb, e.g. (EXPERIMENTAL):</p>
+<pre><code>def solr_query_fq(q, fq, fl=&apos;id&apos;, rows=10, sort=&apos;&apos;, start=0 )
+  CONN.get &apos;select&apos;, :params =&gt; {
+    :q=&gt;q,
+    :fq=&gt;fq,
+    :fl=&gt;fl,
+    :rows=&gt;rows,
+    :sort=&gt;sort,
+    :start=&gt;start
+  }
+end  
+</code></pre><p>And changes to register_folio.rb:</p>
+<pre><code>q.solr_query(&apos;has_model_ssim:OrderedCollection&apos;, &apos;id&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |result|
+    collection = result[&apos;id&apos;]
+
+    q.solr_query(&apos;id:&quot;&apos; + collection + &apos;/list_source&quot;&apos;, &apos;ordered_targets_ssim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |res|
+        order = res[&apos;ordered_targets_ssim&apos;]
+        query = &apos;&apos;
+        order.each do |o|
+            # to parse object id from format like: &quot;production/dz/01/0r/92/dz010r92r&quot;
+            # this may be caused by the version changes of Fedora/Active Fedora
+            id = (o.include? &apos;/&apos;) ? o.rpartition(&apos;/&apos;).last : o
+            if query==&apos;&apos;
+              query = &apos;(id:&quot;&apos; + id + &apos;&quot;&apos;
+            else
+              query = query + &apos; OR id:&quot;&apos; + id + &apos;&quot;&apos;
+            end
+        end
+        query = query + &apos;)&apos;
+        q.solr_query_fq(&apos;*:*&apos;, query, &apos;id,preflabel_tesim,reg_id_tesim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |r|
+            registers[r[&apos;id&apos;]] = [r[&apos;reg_id_tesim&apos;][0], r[&apos;preflabel_tesim&apos;][0]]
+        end
+    end
+end    
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/solr-or-query/" data-id="cjxfyf6nn0000lr05om4yawyx" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-how-to-setup-archbishopsregisters" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/how-to-setup-archbishopsregisters/" class="article-date">
@@ -587,59 +674,6 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
 
 
   
-    <article id="post-how-to-make-featured-work-working" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/how-to-make-featured-work-working/" class="article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Tests-in-Rails-console"><a href="#Tests-in-Rails-console" class="headerlink" title="Tests in Rails console"></a>Tests in Rails console</h2><p>The following code will make a work showing the featured works list on homgepage.</p>
-<pre><code>fw = FeaturedWork.new(&apos;work_id&apos;: &apos;ng451h485&apos;)
-fw.save
-</code></pre><h2 id="How-to-make-it-working-in-Hyrax"><a href="#How-to-make-it-working-in-Hyrax" class="headerlink" title="How to make it working in Hyrax"></a>How to make it working in Hyrax</h2><p>As shown in <a href="https://github.com/samvera/hyrax/blob/master/app/presenters/hyrax/work_show_presenter.rb#L157" target="_blank" rel="noopener">here</a>, only when</p>
-<ul>
-<li>user can feature works</li>
-<li>solr_document.public is true</li>
-</ul>
-<p>The work is featurable.</p>
-<p>For example: login as admin and the work is public then the work is featurable.</p>
-<p>There is also a bug with featured work, and here is my pull request: <a href="https://github.com/samvera/hyrax/pull/3776" target="_blank" rel="noopener">https://github.com/samvera/hyrax/pull/3776</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-make-featured-work-working/" data-id="cjtybi8v60000py0505y6brkk" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UI/">UI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-work-on-git-branches" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/work-on-git-branches/" class="article-date">
@@ -772,6 +806,59 @@ end
 
 
   
+    <article id="post-how-to-make-featured-work-working" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-make-featured-work-working/" class="article-date">
+  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Tests-in-Rails-console"><a href="#Tests-in-Rails-console" class="headerlink" title="Tests in Rails console"></a>Tests in Rails console</h2><p>The following code will make a work showing the featured works list on homgepage.</p>
+<pre><code>fw = FeaturedWork.new(&apos;work_id&apos;: &apos;ng451h485&apos;)
+fw.save
+</code></pre><h2 id="How-to-make-it-working-in-Hyrax"><a href="#How-to-make-it-working-in-Hyrax" class="headerlink" title="How to make it working in Hyrax"></a>How to make it working in Hyrax</h2><p>As shown in <a href="https://github.com/samvera/hyrax/blob/master/app/presenters/hyrax/work_show_presenter.rb#L157" target="_blank" rel="noopener">here</a>, only when</p>
+<ul>
+<li>user can feature works</li>
+<li>solr_document.public is true</li>
+</ul>
+<p>The work is featurable.</p>
+<p>For example: login as admin and the work is public then the work is featurable.</p>
+<p>There is also a bug with featured work, and here is my pull request: <a href="https://github.com/samvera/hyrax/pull/3776" target="_blank" rel="noopener">https://github.com/samvera/hyrax/pull/3776</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-make-featured-work-working/" data-id="cjtybi8v60000py0505y6brkk" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UI/">UI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-oauth-update-re-google-plus-shutdown" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/oauth-update-re-google-plus-shutdown/" class="article-date">
@@ -886,159 +973,6 @@ source maven.sh
 
 
   
-    <article id="post-add-webpack-and-vue-to-rails-app" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/add-webpack-and-vue-to-rails-app/" class="article-date">
-  <time datetime="2019-02-10T22:40:12.000Z" itemprop="datePublished">2019-02-10</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/rails/">rails</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/add-webpack-and-vue-to-rails-app/">How to add webpacker and Vue.js to existing Rails application</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Environments"><a href="#Environments" class="headerlink" title="Environments"></a>Environments</h2><p>Ubuntu 18.04.1 LTS<br>ruby 2.5.3p105<br>Rails 5.2.2</p>
-<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>Add the following to Gemfile:</p>
-<pre><code>gem &apos;webpacker&apos;, &apos;~&gt; 3.5&apos;
-</code></pre><p>Run:</p>
-<pre><code>bundle install
-bundle exec rails webpacker:install    
-</code></pre><p>After the above command, lots files are created/updated:</p>
-<pre><code>git status
-</code></pre><p>It shows</p>
-<pre><code>modified:   .gitignore
-modified:   Gemfile
-modified:   Gemfile.lock
-modified:   config/environments/development.rb
-modified:   config/environments/production.rb
-modified:   package.json      
-
-.babelrc
-.postcssrc.yml
-app/javascript/
-bin/webpack
-bin/webpack-dev-server
-config/webpack/
-config/webpacker.yml
-yarn.lock              
-</code></pre><p>The app/javascript folder:</p>
-<pre><code>tree app/javascript
-</code></pre><p>The output is:</p>
-<pre><code>app/javascript
-└── packs
-    └── application.js        
-</code></pre><p>To support Vue.js, run:</p>
-<pre><code>bundle exec rails webpacker:install:vue
-</code></pre><p>To see the files being generated and updated, run:</p>
-<pre><code>git status --porcelain
-</code></pre><p>It shows:</p>
-<pre><code> M config/webpack/environment.js
- M config/webpacker.yml
- M package.json
- M yarn.lock
-?? app/javascript/app.vue
-?? app/javascript/packs/hello_vue.js
-?? config/webpack/loaders/
-</code></pre><h2 id="Add-your-own-Vue-files"><a href="#Add-your-own-Vue-files" class="headerlink" title="Add your own Vue files"></a>Add your own Vue files</h2><p>Run:</p>
-<pre><code>npm install --save bootstrap-vue
-</code></pre><p>Add your own files, the folder/files will be:</p>
-<p>Run</p>
-<pre><code>tree app/javascript
-</code></pre><p>It shows</p>
-<pre><code>app/javascript
-├── app.vue
-├── packs
-│   ├── application.js
-│   ├── hello_vue.js
-│   └── hyrax
-│       └── base
-│           └── show.js
-└── views
-    └── hyrax
-        └── base
-            └── show.vue       
-</code></pre><p>app/javascript/packs/hyrax/base/show.js:</p>
-<pre><code>import Vue from &apos;vue/dist/vue.js&apos;;
-import ResourceDetailsView from &apos;views/hyrax/base/show&apos;;
-import BootstrapVue from &apos;bootstrap-vue&apos;
-
-Vue.use(BootstrapVue);
-new Vue({
-    el: &apos;#resource-details&apos;,
-    components: {
-        &apos;resource-details-view&apos;: ResourceDetailsView
-    }
-});
-</code></pre><p>app/javascript/views/hyrax/base/show.vue</p>
-<pre><code>&lt;template&gt;
-    &lt;div class=&quot;row&quot;&gt;
-        &lt;div class=&quot;panel panel-default&quot;&gt;
-            &lt;div class=&quot;panel-heading&quot;&gt;
-                {{resource_show_title}}
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/template&gt;
-
-&lt;script&gt;
-    export default {
-        props: {
-            resource_show_title: String
-        }    
-    }
-&lt;/script&gt;
-
-&lt;style scoped&gt;
-
-&lt;/style&gt;
-</code></pre><p>app/views/hyrax/base/show.html.erb</p>
-<pre><code>&lt;% provide :page_title, @presenter.page_title %&gt;
-
-&lt;%= render &apos;shared/nceheader&apos; %&gt;
-
-&lt;%= render &apos;shared/citations&apos; %&gt;
-
-&lt;div id=&quot;resource-details&quot;&gt;
-    &lt;resource-details-view
-      resource_show_title=&quot;Resource details&quot;&gt;
-    &lt;/resource-details-view&gt;
-&lt;/div&gt;
-
-&lt;%= javascript_pack_tag &apos;hyrax/base/show&apos; %&gt;
-</code></pre><p>Run following command to get Vue files compiled in Dev environment. In production, Vue will add a hook before asset precompile automatically.</p>
-<pre><code>bin/webpack-dev-server
-</code></pre><p>Then you will be able to see the show page managed by Vue.js!</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/add-webpack-and-vue-to-rails-app/" data-id="cjs1u296500004l05owdfvvan" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webpacker/">webpacker</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1074,7 +1008,7 @@ new Vue({
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 11.43px;">python</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 10px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 12.86px;">python</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 10px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1083,7 +1017,7 @@ new Vue({
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1094,6 +1028,10 @@ new Vue({
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/python-aws-lambda/">Develop an AWS Lambda with Python</a>
+          </li>
         
           <li>
             <a href="/how-to-build-a-slack-bot-in-python/">How to build a Slack bot in Python</a>
@@ -1109,10 +1047,6 @@ new Vue({
         
           <li>
             <a href="/ruby-tips/">Ruby tips</a>
-          </li>
-        
-          <li>
-            <a href="/configure-elk-stack-ubuntu/">Configure ELK stack in Ubuntu 18</a>
           </li>
         
       </ul>
