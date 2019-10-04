@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="Install serverless frameworknpm install -g serverless Create the projectmkdir -p hello-world cd hello-world serverless create --template aws-python3 --name hello-world Create AWS userCreate a user, e.">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-10-04T10:53:39.000Z">
+<meta property="og:updated_time" content="2019-10-04T11:08:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Develop an AWS Lambda with Python">
 <meta name="twitter:description" content="Install serverless frameworknpm install -g serverless Create the projectmkdir -p hello-world cd hello-world serverless create --template aws-python3 --name hello-world Create AWS userCreate a user, e.">
@@ -129,6 +129,8 @@ serverless deploy  --region eu-west-1
 </code></pre><p>You will see the endpoint like: <a href="https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev" target="_blank" rel="noopener">https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev</a></p>
 <p>The service can be tested by this command:</p>
 <pre><code>sls invoke -f hello
+</code></pre><p>Make sure to remove AWS resources when they are not needed:</p>
+<pre><code>serverless remove
 </code></pre>
       
     </div>

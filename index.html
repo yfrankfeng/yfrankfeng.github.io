@@ -277,6 +277,8 @@ serverless deploy  --region eu-west-1
 </code></pre><p>You will see the endpoint like: <a href="https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev" target="_blank" rel="noopener">https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev</a></p>
 <p>The service can be tested by this command:</p>
 <pre><code>sls invoke -f hello
+</code></pre><p>Make sure to remove AWS resources when they are not needed:</p>
+<pre><code>serverless remove
 </code></pre>
       
     </div>
@@ -598,7 +600,22 @@ http.port: 9200
 </code></pre><p>The elasticsearch should NOT be accessiable externally. Especially in production, DO NOT open port 9200 to the world, as tons of bots are crawling for 9200. DO NOT bind elasticsearch to a public IP.</p>
 <p>To make the service start on boot run:</p>
 <pre><code>sudo update-rc.d elasticsearch defaults 95 10
-</code></pre><h2 id="Logstash"><a href="#Logstash" class="headerlink" title="Logstash"></a>Logstash</h2><pre><code>sudo apt-get install logstash
+</code></pre><p>Proxy Elasticsearch API via Nginx:</p>
+<pre><code>location ~ ^/es(.*) {
+   rewrite /es/(.*) /$1  break;
+   proxy_pass http://localhost:9200;
+}
+</code></pre><p>and</p>
+<pre><code>auth_basic &quot;Restricted Access&quot;;
+auth_basic_user_file /etc/nginx/htpasswd.users;
+</code></pre><h2 id="Elasticsearch-APIs"><a href="#Elasticsearch-APIs" class="headerlink" title="Elasticsearch APIs"></a>Elasticsearch APIs</h2><p>From Kibana: <a href="http://localhost/app/kibana#/dev_tools/console?_g=()" target="_blank" rel="noopener">http://localhost/app/kibana#/dev_tools/console?_g=()</a><br>Read this article: <a href="https://logz.io/blog/elasticsearch-api/" target="_blank" rel="noopener">https://logz.io/blog/elasticsearch-api/</a></p>
+<p>Find all indices:<br>curl -X GET “localhost:9200/_cat/indices?v&amp;pretty”</p>
+<p>Search for an IP from Nginx log (via filebeat):<br>curl -X GET “localhost:9200/filebeat-7.3.2-2019.09.24-000001/_search?q=10.0.2.2”</p>
+<p>Search for all error messages:<br>curl -X GET “localhost:9200/filebeat-7.3.2-2019.09.24-000001/_search?q=ERROR&amp;pretty”</p>
+<p>Search for adblocker.css<br>curl -X GET “localhost:9200/filebeat-7.3.2-2019.09.24-000001/_search?q=styles/ad-blocker.css&amp;pretty”</p>
+<p>During development I’ve found this API call – just clear everything inside the database.</p>
+<p>curl -X DELETE <a href="http://localhost:9200/_all" target="_blank" rel="noopener">http://localhost:9200/_all</a> {“acknowledged”:true}<br>I don’t want any user to run this command from anywhere. You can disable this by setting “action.destructive_requires_name” to “true” inside the configuration, but it is not the default.</p>
+<h2 id="Logstash"><a href="#Logstash" class="headerlink" title="Logstash"></a>Logstash</h2><pre><code>sudo apt-get install logstash
 sudo nano /etc/logstash/conf.d/10-syslog.conf
 </code></pre><p>With content</p>
 <p>input {<br>  file {<br>    type =&gt; “syslog”<br>    path =&gt; [ “/var/log/messages”, “/var/log/*.log” ]<br>  }<br>}<br>output {<br>  stdout {<br>    codec =&gt; rubydebug<br>    }<br>    elasticsearch {<br>      hosts =&gt; “localhost” # Use the internal IP of your Elasticsearch server<br>    }<br>}</p>
