@@ -18,20 +18,19 @@ ga('send', 'pageview');
 
 
   
-  <title>Ruby tips | Frank&#39;s development blog</title>
+  <title>Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)     @names = names end Then @names can be accessed via ‘names’ def latest     names.last end StringSt">
-<meta name="keywords" content="Ruby">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Ruby tips">
-<meta property="og:url" content="https://yfrankfeng.github.io/ruby-tips/index.html">
+  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Frank&#39;s development blog">
+<meta property="og:url" content="https://yfrankfeng.github.io/page/4/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)     @names = names end Then @names can be accessed via ‘names’ def latest     names.last end StringSt">
+<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-09-23T15:19:48.724Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ruby tips">
-<meta name="twitter:description" content="Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)     @names = names end Then @names can be accessed via ‘names’ def latest     names.last end StringSt">
+<meta name="twitter:title" content="Frank&#39;s development blog">
+<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -82,14 +81,16 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-ruby-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <section id="main">
+  
+    <article id="post-define-customized-samvera-models-step-by-step" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/ruby-tips/" class="article-date">
-  <time datetime="2019-08-29T21:40:12.000Z" itemprop="datePublished">2019-08-29</time>
+    <a href="/define-customized-samvera-models-step-by-step/" class="article-date">
+  <time datetime="2018-10-11T16:40:12.000Z" itemprop="datePublished">2018-10-11</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Ruby/">Ruby</a>
+    <a class="article-category-link" href="/categories/samvera/">samvera</a>
   </div>
 
   </div>
@@ -99,8 +100,8 @@ ga('send', 'pageview');
       <header class="article-header">
         
   
-    <h1 class="article-title" itemprop="name">
-      Ruby tips
+    <h1 itemprop="name">
+      <a class="article-title" href="/define-customized-samvera-models-step-by-step/">Define customized Samvera models in OASIS, step by step</a>
     </h1>
   
 
@@ -108,71 +109,154 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Class-attributes"><a href="#Class-attributes" class="headerlink" title="Class attributes"></a>Class attributes</h2><p>Use of attribute readers (public/private)</p>
-<pre><code>attr_reader :names
-def initialize(names)
-    @names = names
+        <p>I’ve been using <a href="https://github.com/samvera" target="_blank" rel="noopener">Samvera</a> stack since I’ve started working on <a href="https://oasis-database.org/" target="_blank" rel="noopener">OASIS</a>. Building a customized model is a complex job, so I’d write down what I’ve learned, in case it might be useful for others. </p>
+<p><img src="/images/oasis.png" alt=""></p>
+<h2 id="Create-model-in-Ruby"><a href="#Create-model-in-Ruby" class="headerlink" title="Create model in Ruby"></a>Create model in Ruby</h2><p>It’s a good idea to define model attributes in a seperate file, e.g. </p>
+<pre><code>module Oasis
+  module OasisMetadata extend ActiveSupport::Concern
+    included do
+      property :summary_writer, predicate: ::RDF::URI.new(&apos;XXXXXX&apos;), multiple: true do |index|
+        index.as :stored_searchable, :sortable, :facetable
+      end
+
+      # OTHER ATTRIBUTES ...
+    end
+  end    
 end
-</code></pre><p>Then @names can be accessed via ‘names’</p>
-<pre><code>def latest
-    names.last
+</code></pre><p>Source code is <a href="https://github.com/digital-york/oasis/blob/master/app/models/concerns/oasis/oasis_metadata.rb" target="_blank" rel="noopener">here</a></p>
+<p><strong>NB:</strong> It seems that some keywords have been reserved by simple_form gem, such as country, so avoid using ‘country’ as field name.</p>
+<p>And include it in the main model:</p>
+<pre><code>class Summary &lt; ActiveFedora::Base
+  include ::Hyrax::WorkBehavior
+  include ::Oasis::OasisMetadata
 end
-</code></pre><h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><pre><code>String.lines
-</code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><h3 id="Swap-array-rows-with-columns"><a href="#Swap-array-rows-with-columns" class="headerlink" title="Swap array rows with columns"></a>Swap array rows with columns</h3><pre><code>Array.transpose()
-</code></pre><p>e.g.<br>    matrix_string = “1 2 3\n4 5 6\n7 8 9”<br>    @rows = matrix_string.lines.collect{|x| x.split.collect{|y| y.to_i}}<br>    @columns = @rows.transpose()    </p>
-<h3 id="Remove-duplicate-elements-from-array"><a href="#Remove-duplicate-elements-from-array" class="headerlink" title="Remove duplicate elements from array"></a>Remove duplicate elements from array</h3><pre><code>array_name.uniq
-</code></pre><p>OR use the following to operate on the same array</p>
-<pre><code>array_name.uniq!
-</code></pre><h2 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a>Collections</h2><p>Lots of internal methods can be used in collections, e.g.</p>
-<pre><code>scores.last
-scores.max
-scores.min
-scores.sort
-soores.reverse
-</code></pre><h2 id="Regular-expressions"><a href="#Regular-expressions" class="headerlink" title="Regular expressions"></a>Regular expressions</h2><h3 id="acronyms"><a href="#acronyms" class="headerlink" title="acronyms"></a>acronyms</h3><p>Question: convert a sentence to its acronym, e.g.</p>
-<pre><code>Portable Network Graphics &gt; PNG
-Ruby on Rails &gt; ROR
-First In, First Out &gt; FIFO
-Something - I made up from thin air &gt; SIMUFTA        
-</code></pre><p>The easy solution is to use RE:</p>
-<pre><code>def self.abbreviate(phrase)
-    phrase.scan(/\b\w/).join.upcase
+</code></pre><p>Source code is <a href="https://github.com/digital-york/oasis/blob/master/app/models/summary.rb" target="_blank" rel="noopener">here</a></p>
+<h2 id="Define-SolrDocument"><a href="#Define-SolrDocument" class="headerlink" title="Define SolrDocument"></a>Define SolrDocument</h2><p>The attributes should be exposed in SolrDocument. By this way, these attributes are accessable directly from SolrDocument in the view later.</p>
+<pre><code>module Oasis
+  module SolrDocument extend ActiveSupport::Concern
+  module Solr
+    class Array
+      # @return [Array]
+      def self.coerce(input)
+        ::Array.wrap(input)
+      end
+    end
+
+    class String
+      # @return [String]
+      def self.coerce(input)
+        ::Array.wrap(input).first
+      end
+    end
+
+    class Date
+      # @return [Date]
+      def self.coerce(input)
+        field = String.coerce(input)
+        return if field.blank?
+        begin
+          ::Date.parse(field)
+        rescue ArgumentError
+          Rails.logger.info &quot;Unable to parse date: #{field.first.inspect}&quot;
+        end
+      end
+    end
+  end
+
+  included do
+    attribute :title_of_summary, Solr::String, solr_name(&apos;title_of_summary&apos;)
+    attribute :summary_writer, Solr::Array, solr_name(&apos;summary_writer&apos;)
+    attribute :summary_writer_all, Solr::String, solr_name(&apos;summary_writer_all&apos;)
+    # ......
+  end  
+  end
 end
-</code></pre><p>Scan with the regex /\b\w/ will catch ‘word boundaries’ (space, - and more) followed by a word character. This means that scan(/\b\w/) returns an array with the first letters only.    </p>
+</code></pre><p><a href="https://github.com/digital-york/oasis/tree/master/app/models/concerns/oasis/solr_document.rb" target="_blank" rel="noopener">Source code</a></p>
+<p>Make sure to register this model in app/models/solr_document.rb:</p>
+<pre><code>include Oasis::SolrDocument
+</code></pre><p>To access these attributes in the view:</p>
+<pre><code>&lt;h4&gt;&lt;%= link_to document.title_of_summary, document %&gt;&lt;/h4&gt;
+</code></pre><h2 id="Define-customized-Solr-Indexer"><a href="#Define-customized-Solr-Indexer" class="headerlink" title="Define customized Solr Indexer"></a>Define customized Solr Indexer</h2><p>Customized Solr Indexer can be defined to store extra information into solr, e.g. generate a new field in Solr, add a derived value into Solr etc.</p>
+<pre><code>class SummaryIndexer &lt; Hyrax::WorkIndexer
+  include Hyrax::IndexesBasicMetadata
+  include Hyrax::IndexesLinkedMetadata
+
+  # add custom indexing behavior for authority fields:
+  def generate_solr_document
+    super.tap do |solr_doc| 
+      #DO your stuff here.....
+    end
+  end    
+end
+</code></pre><p><a href="https://github.com/digital-york/oasis/blob/master/app/indexers/summary_indexer.rb" target="_blank" rel="noopener">Source</a></p>
+<p>The customized Indexer needs to be registered in your model, e.g.</p>
+<pre><code class="ruby"><span class="class"><span class="keyword">class</span> <span class="title">Summary</span> &lt; ActiveFedora::Base</span>
+  <span class="keyword">include</span> <span class="symbol">:</span><span class="symbol">:Hyrax</span><span class="symbol">:</span><span class="symbol">:WorkBehavior</span>
+
+  <span class="keyword">self</span>.indexer = SummaryIndexer
+  <span class="comment">#......</span>
+<span class="keyword">end</span>      
+</code></pre>
+<h2 id="Define-customized-search-builder"><a href="#Define-customized-search-builder" class="headerlink" title="Define customized search builder"></a>Define customized search builder</h2><p>To add additional search fields into Solr search queries, a customized search builder needs to be implemented, e.g.</p>
+<pre><code class="ruby"><span class="class"><span class="keyword">module</span> <span class="title">Oasis</span></span>
+  <span class="class"><span class="keyword">class</span> <span class="title">OasisSearchBuilder</span> &lt; Hyrax::CatalogSearchBuilder</span>
+    <span class="keyword">self</span>.default_processor_chain += [<span class="symbol">:add_authority_label_field_to_query</span>, <span class="symbol">:add_oasis_text_fields_to_query</span>, <span class="symbol">:add_other_fields_to_query</span>]
+
+    <span class="comment"># Add OASIS authority label fields to Solr query parameters</span>
+    <span class="function"><span class="keyword">def</span> <span class="title">add_authority_label_field_to_query</span><span class="params">(solr_parameters)</span></span>
+      <span class="comment">#......</span>
+    <span class="keyword">end</span>
+
+    <span class="comment"># Add OASIS text fields to Solr query parameters</span>
+    <span class="function"><span class="keyword">def</span> <span class="title">add_oasis_text_fields_to_query</span><span class="params">(solr_parameters)</span></span>
+      solr_parameters[<span class="symbol">:qf</span>] += <span class="string">' publication_author_tesim'</span>
+      solr_parameters[<span class="symbol">:qf</span>] += <span class="string">' publication_title_tesim'</span>
+      solr_parameters[<span class="symbol">:qf</span>] += <span class="string">' summary_writer_tesim'</span>
+      solr_parameters[<span class="symbol">:qf</span>] += <span class="string">' title_of_summary_tesim'</span>
+    <span class="keyword">end</span>
+
+    <span class="comment"># Add 'other' fields to Solr query parameters</span>
+    <span class="function"><span class="keyword">def</span> <span class="title">add_other_fields_to_query</span><span class="params">(solr_parameters)</span></span>
+      <span class="comment">#......</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</code></pre>
+<p><a href="https://github.com/digital-york/oasis/blob/master/app/search_builders/oasis/oasis_search_builder.rb" target="_blank" rel="noopener">Source</a></p>
+<p>Don’t forget to register your search builder here:</p>
+<pre><code class="ruby"><span class="class"><span class="keyword">class</span> <span class="title">CatalogController</span> &lt; ApplicationController</span>
+
+  <span class="comment"># ......</span>
+
+  configure_blacklight <span class="keyword">do</span> <span class="params">|config|</span>
+    <span class="comment"># ......</span>
+    config.search_builder_class = Oasis::OasisSearchBuilder
+  <span class="keyword">end</span>
+  <span class="comment"># ......</span>
+<span class="keyword">end</span>  
+</code></pre>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ruby-tips/" data-id="cjzxw1akv0001bh05yr23udlh" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/define-customized-samvera-models-step-by-step/" data-id="cjo7eats90004s1053cevvtt6" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
 
     </footer>
   </div>
   
-    
-<nav id="article-nav">
-  
-    <a href="/aws-tips/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          AWS tips
-        
-      </div>
-    </a>
-  
-  
-    <a href="/configure-elk-stack-ubuntu/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Configure ELK stack in Ubuntu 18</div>
-    </a>
-  
-</nav>
+</article>
+
 
   
-</article>
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+  </nav>
 
 </section>
         
