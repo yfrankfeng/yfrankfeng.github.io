@@ -83,6 +83,77 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-arch1_edit_notes" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/arch1_edit_notes/" class="article-date">
+  <time datetime="2019-07-07T12:40:12.000Z" itemprop="datePublished">2019-07-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/rails/">rails</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/arch1_edit_notes/">archbishopsregisters edit application notes</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="How-edit-application-works"><a href="#How-edit-application-works" class="headerlink" title="How edit application works?"></a>How edit application works?</h2><h3 id="place-and-person-facet-on-the-left"><a href="#place-and-person-facet-on-the-left" class="headerlink" title="place and person facet on the left"></a>place and person facet on the left</h3><p>For person facet, the data is generated via new_solr_fields_controller.rb, e.g.</p>
+<pre><code>entry_person_name_authority_new = get_entry_agent_array(sdoc[:id])
+sdoc[&apos;entry_person_same_as_facet_ssim&apos;] = entry_person_name_authority_new
+</code></pre><p>And within get_entry_agent_array method:</p>
+<pre><code>preflabel_array = []
+query = SolrQuery.new
+q = &apos;relatedAgentFor_ssim:&apos; + id
+
+unless id.nil?
+  num = query.solr_query(q, &apos;person_same_as_tesim&apos;, 0)[&apos;response&apos;][&apos;numFound&apos;].to_i
+  query.solr_query(q, &apos;person_same_as_tesim&apos;, num)[&apos;response&apos;][&apos;docs&apos;].map do |result|
+    unless result[&apos;person_same_as_tesim&apos;].nil?
+      result[&apos;person_same_as_tesim&apos;].each do |agent|
+        query.solr_query(&apos;id:&apos; + agent, &apos;preflabel_tesim&apos;, 1)[&apos;response&apos;][&apos;docs&apos;].map do |result2|
+          preflabel = result2[&apos;preflabel_tesim&apos;].join unless result2[&apos;preflabel_tesim&apos;].nil?
+          preflabel_array &lt;&lt; preflabel
+        end
+      end
+    end
+  end
+end
+
+preflabel_array
+</code></pre><p>Similarly for place:</p>
+<pre><code>get_entry_place_array    
+</code></pre><h3 id="customized-index-fields-in-NewSolrFieldsController"><a href="#customized-index-fields-in-NewSolrFieldsController" class="headerlink" title="customized index fields in NewSolrFieldsController"></a>customized index fields in NewSolrFieldsController</h3><p>The ‘modify_sdoc’ method has been used to customized which fields need to be index in solr and how to generate values for them. However, it seems that the method is a ‘God’ method, e.g. it works for all content models and makes lots of unnecessary calls for non-existing fields for some models. </p>
+<pre><code>def modify_sdoc(sdoc)
+......
+end    
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/arch1_edit_notes/" data-id="cjyzza0yc0000z3052tvpv2dy" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-arch1_search_notes" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/arch1_search_notes/" class="article-date">
@@ -298,64 +369,6 @@ end
 
 
   
-    <article id="post-ngrok" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/ngrok/" class="article-date">
-  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/ngrok/">ngrok</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/ngrok/">Amazing dev tool - ngrok</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://ngrok.com/" target="_blank" rel="noopener">ngrok</a> is a tool to provide public URLs for:</p>
-<ul>
-<li>testing your application through any NAT or firewall.</li>
-<li>sending preview to your client.</li>
-<li>exposing your local server.</li>
-<li>building web hook integration.</li>
-<li>SSH access to your Rasberry PI.</li>
-</ul>
-<p>Installation is very easy:</p>
-<p>Just download from <a href="https://ngrok.com/download" target="_blank" rel="noopener">here</a>, unzip, and run:</p>
-<pre><code>./ngrok http 3000
-</code></pre><p>You will see something like below:</p>
-<p><img src="/images/ngrok.jpg" alt="ngrok"> </p>
-<p>Enjoy accessing to <a href="http://xxxxxx.ngrok.io" target="_blank" rel="noopener">http://xxxxxx.ngrok.io</a> from anywhere!</p>
-<p>An alternative is <a href="https://serveo.net/" target="_blank" rel="noopener">serveo</a>, even no need to install, just run:</p>
-<pre><code>ssh -R 80:localhost:3000 serveo.net
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ngrok/" data-id="cjudyfgav0000u9053lu15bo4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tool/">tool</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-how-to-setup-archbishopsregisters" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/how-to-setup-archbishopsregisters/" class="article-date">
@@ -549,6 +562,64 @@ etc...
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-ngrok" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/ngrok/" class="article-date">
+  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/ngrok/">ngrok</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/ngrok/">Amazing dev tool - ngrok</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="https://ngrok.com/" target="_blank" rel="noopener">ngrok</a> is a tool to provide public URLs for:</p>
+<ul>
+<li>testing your application through any NAT or firewall.</li>
+<li>sending preview to your client.</li>
+<li>exposing your local server.</li>
+<li>building web hook integration.</li>
+<li>SSH access to your Rasberry PI.</li>
+</ul>
+<p>Installation is very easy:</p>
+<p>Just download from <a href="https://ngrok.com/download" target="_blank" rel="noopener">here</a>, unzip, and run:</p>
+<pre><code>./ngrok http 3000
+</code></pre><p>You will see something like below:</p>
+<p><img src="/images/ngrok.jpg" alt="ngrok"> </p>
+<p>Enjoy accessing to <a href="http://xxxxxx.ngrok.io" target="_blank" rel="noopener">http://xxxxxx.ngrok.io</a> from anywhere!</p>
+<p>An alternative is <a href="https://serveo.net/" target="_blank" rel="noopener">serveo</a>, even no need to install, just run:</p>
+<pre><code>ssh -R 80:localhost:3000 serveo.net
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/ngrok/" data-id="cjudyfgav0000u9053lu15bo4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tool/">tool</a></li></ul>
 
     </footer>
   </div>
@@ -802,6 +873,59 @@ sudo chmod a+x /opt/fits-0.10.2/fits.sh
 
 
   
+    <article id="post-how-to-make-featured-work-working" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-make-featured-work-working/" class="article-date">
+  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Tests-in-Rails-console"><a href="#Tests-in-Rails-console" class="headerlink" title="Tests in Rails console"></a>Tests in Rails console</h2><p>The following code will make a work showing the featured works list on homgepage.</p>
+<pre><code>fw = FeaturedWork.new(&apos;work_id&apos;: &apos;ng451h485&apos;)
+fw.save
+</code></pre><h2 id="How-to-make-it-working-in-Hyrax"><a href="#How-to-make-it-working-in-Hyrax" class="headerlink" title="How to make it working in Hyrax"></a>How to make it working in Hyrax</h2><p>As shown in <a href="https://github.com/samvera/hyrax/blob/master/app/presenters/hyrax/work_show_presenter.rb#L157" target="_blank" rel="noopener">here</a>, only when</p>
+<ul>
+<li>user can feature works</li>
+<li>solr_document.public is true</li>
+</ul>
+<p>The work is featurable.</p>
+<p>For example: login as admin and the work is public then the work is featurable.</p>
+<p>There is also a bug with featured work, and here is my pull request: <a href="https://github.com/samvera/hyrax/pull/3776" target="_blank" rel="noopener">https://github.com/samvera/hyrax/pull/3776</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-make-featured-work-working/" data-id="cjtybi8v60000py0505y6brkk" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UI/">UI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-how-to-make-all-resources-public" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/how-to-make-all-resources-public/" class="article-date">
@@ -880,59 +1004,6 @@ end
 
 
   
-    <article id="post-how-to-make-featured-work-working" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/how-to-make-featured-work-working/" class="article-date">
-  <time datetime="2019-04-01T12:40:12.000Z" itemprop="datePublished">2019-04-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/how-to-make-featured-work-working/">How to make featured work working in Hyrax</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Tests-in-Rails-console"><a href="#Tests-in-Rails-console" class="headerlink" title="Tests in Rails console"></a>Tests in Rails console</h2><p>The following code will make a work showing the featured works list on homgepage.</p>
-<pre><code>fw = FeaturedWork.new(&apos;work_id&apos;: &apos;ng451h485&apos;)
-fw.save
-</code></pre><h2 id="How-to-make-it-working-in-Hyrax"><a href="#How-to-make-it-working-in-Hyrax" class="headerlink" title="How to make it working in Hyrax"></a>How to make it working in Hyrax</h2><p>As shown in <a href="https://github.com/samvera/hyrax/blob/master/app/presenters/hyrax/work_show_presenter.rb#L157" target="_blank" rel="noopener">here</a>, only when</p>
-<ul>
-<li>user can feature works</li>
-<li>solr_document.public is true</li>
-</ul>
-<p>The work is featurable.</p>
-<p>For example: login as admin and the work is public then the work is featurable.</p>
-<p>There is also a bug with featured work, and here is my pull request: <a href="https://github.com/samvera/hyrax/pull/3776" target="_blank" rel="noopener">https://github.com/samvera/hyrax/pull/3776</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-make-featured-work-working/" data-id="cjtybi8v60000py0505y6brkk" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UI/">UI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-work-on-git-branches" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/work-on-git-branches/" class="article-date">
@@ -987,61 +1058,6 @@ git push origin master
 
 
   
-    <article id="post-oauth-update-re-google-plus-shutdown" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/oauth-update-re-google-plus-shutdown/" class="article-date">
-  <time datetime="2019-03-01T22:40:12.000Z" itemprop="datePublished">2019-03-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Java/">Java</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/oauth-update-re-google-plus-shutdown/">OAuth login upgrade while Google+ shutdown</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>To test Google OAuth 2, try OAuth 2.0 Playground: <a href="https://developers.google.com/oauthplayground/" target="_blank" rel="noopener">https://developers.google.com/oauthplayground/</a></p>
-<p>The following URLs seem working: </p>
-<p><strong><a href="https://www.googleapis.com/oauth2/v2/userinfo" target="_blank" rel="noopener">https://www.googleapis.com/oauth2/v2/userinfo</a></strong><br><a href="https://openidconnect.googleapis.com/v1/userinfo" target="_blank" rel="noopener">https://openidconnect.googleapis.com/v1/userinfo</a></p>
-<p>OLD Plus+ API returns:</p>
-<h2 id="https-www-googleapis-com-plus-v1-people-me"><a href="#https-www-googleapis-com-plus-v1-people-me" class="headerlink" title="https://www.googleapis.com/plus/v1/people/me"></a><a href="https://www.googleapis.com/plus/v1/people/me" target="_blank" rel="noopener">https://www.googleapis.com/plus/v1/people/me</a></h2><p>{<br>  “kind”: “plus#person”,<br>  “displayName”: “XXXXXX”,<br>  “name”: {<br>    “givenName”: “XXXXXX”,<br>    “familyName”: “XXXXXX”<br>  },<br>  “language”: “en_GB”,<br>  “isPlusUser”: true,<br>  “url”: “<a href="https://plus.google.com/+XXXXXX&quot;" target="_blank" rel="noopener">https://plus.google.com/+XXXXXX&quot;</a>,<br>  “gender”: “male”,<br>  “image”: {<br>    “url”: “<a href="https://lh6.googleusercontent.com/XXXXXX.jpg&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX.jpg&quot;</a>,<br>    “isDefault”: false<br>  },<br>  “etag”: “\”XXXXXX\””,<br>  “verified”: false,<br>  “circledByCount”: 0,<br>  “id”: “XXXXXX”,<br>  “objectType”: “person”<br>}</p>
-<p>In OAuth 2.0 Playground, the following call returns:</p>
-<h2 id="https-www-googleapis-com-oauth2-v2-userinfo"><a href="#https-www-googleapis-com-oauth2-v2-userinfo" class="headerlink" title="https://www.googleapis.com/oauth2/v2/userinfo"></a><a href="https://www.googleapis.com/oauth2/v2/userinfo" target="_blank" rel="noopener">https://www.googleapis.com/oauth2/v2/userinfo</a></h2><p>{<br>  “picture”: “<a href="https://lh6.googleusercontent.com/XXXXXX.jpg&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX.jpg&quot;</a>,<br>  “name”: “XXXXXX”,<br>  “family_name”: “XXXXXX”,<br>  “locale”: “XXXXXX”,<br>  “gender”: “male”,<br>  “link”: “<a href="https://plus.google.com/+XXXXXX&quot;" target="_blank" rel="noopener">https://plus.google.com/+XXXXXX&quot;</a>,<br>  “given_name”: “XXXXXX”,<br>  “id”: “XXXXXX”<br>}</p>
-<p>But in the Java code, it returns:<br>{<br>  “id”: “XXXXXX”,<br>  “email”: “XXXXXX”,<br>  “verified_email”: true,<br>  “name”: “XXXXXX”,<br>  “given_name”: “XXXXXX”,<br>  “family_name”: “XXXXXX”,<br>  “picture”: “<a href="https://lh6.googleusercontent.com/XXXXXX&quot;" target="_blank" rel="noopener">https://lh6.googleusercontent.com/XXXXXX&quot;</a><br>}</p>
-<p>Since the returned JSON format has been changed, so the processing code is slightly different, e.g.:</p>
-<p>// The OLD code working with Google+ has been commented out </p>
-<p>if (obj.getString(“email”)!=null)<br>   oauthUser.setEmail(obj.getString(“email”));<br>oauthUser.setId(OAuth2Manager.getOAuth2Url(OAuth2Manager.OAUTH2_PROVIDER_GOOGLE, obj.getString(“id”)));  // oauth2_google_GOOGLE_USER_ID<br>// oauthUser.setFirstName(obj.getJSONObject(“name”).getString(“givenName”));<br>oauthUser.setFirstName(obj.getString(“given_name”));<br>//oauthUser.setSurName(obj.getJSONObject(“name”).getString(“familyName”));<br>oauthUser.setSurName(obj.getString(“family_name”));</p>
-<p>REF:</p>
-<p><a href="https://stackoverflow.com/questions/53923541/how-to-migrate-from-deprecated-google-sign-in-api-to-the-new-google-identity-pl" target="_blank" rel="noopener">https://stackoverflow.com/questions/53923541/how-to-migrate-from-deprecated-google-sign-in-api-to-the-new-google-identity-pl</a><br><a href="https://github.com/aspnet/AspNetCore/issues/6069#issuecomment-449461197" target="_blank" rel="noopener">https://github.com/aspnet/AspNetCore/issues/6069#issuecomment-449461197</a><br><a href="https://github.com/aspnet/Identity/blob/fcc02103aa10dcdd8759e0463cac2717114f3c1e/src/Identity/SignInManager.cs#L611" target="_blank" rel="noopener">https://github.com/aspnet/Identity/blob/fcc02103aa10dcdd8759e0463cac2717114f3c1e/src/Identity/SignInManager.cs#L611</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/oauth-update-re-google-plus-shutdown/" data-id="cjsq5vxkm00004h05h3rsufrj" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/google/">google+</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oauth/">oauth</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1057,7 +1073,7 @@ git push origin master
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -1067,7 +1083,7 @@ git push origin master
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -1077,7 +1093,7 @@ git push origin master
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 11.43px;">aws</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 12.86px;">python</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 11.43px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 11.43px;">aws</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 12.86px;">python</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 11.43px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1099,11 +1115,15 @@ git push origin master
       <ul>
         
           <li>
-            <a href="/ruby-aws-lambda/">Develop an AWS Lambda with Ruby</a>
+            <a href="/how-to-disable-download-notification-for-a-user/">How to disable download notifications to authors in IRIS</a>
           </li>
         
           <li>
             <a href="/python-aws-lambda/">Develop an AWS Lambda with Python</a>
+          </li>
+        
+          <li>
+            <a href="/ruby-aws-lambda/">Develop an AWS Lambda with Ruby</a>
           </li>
         
           <li>
@@ -1112,10 +1132,6 @@ git push origin master
         
           <li>
             <a href="/python-tips/">Python tips</a>
-          </li>
-        
-          <li>
-            <a href="/aws-tips/">AWS tips</a>
           </li>
         
       </ul>

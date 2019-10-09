@@ -18,19 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>Tag: vue.js | Frank&#39;s development blog</title>
+  <title>How to disable download notifications to authors in IRIS | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta name="keywords" content="Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Frank&#39;s development blog">
-<meta property="og:url" content="https://yfrankfeng.github.io/tags/vue-js/index.html">
+  <meta name="description" content="The following steps mainly for IRIS admins who left IRIS team, but the email notifications are still triggered. Tons of undelivered email may result in the suspension of the IRIS admin email account.">
+<meta name="keywords" content="IRIS email notification">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to disable download notifications to authors in IRIS">
+<meta property="og:url" content="https://yfrankfeng.github.io/how-to-disable-download-notification-for-a-user/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta property="og:description" content="The following steps mainly for IRIS admins who left IRIS team, but the email notifications are still triggered. Tons of undelivered email may result in the suspension of the IRIS admin email account.">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-10-09T09:42:02.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Frank&#39;s development blog">
-<meta name="twitter:description" content="Frank&apos;s development blog - Java, Rails, Python, Solr, Samvera, Hyrax, Blacklights">
+<meta name="twitter:title" content="How to disable download notifications to authors in IRIS">
+<meta name="twitter:description" content="The following steps mainly for IRIS admins who left IRIS team, but the email notifications are still triggered. Tons of undelivered email may result in the suspension of the IRIS admin email account.">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -81,40 +82,70 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/add-webpack-and-vue-to-rails-app/" class="archive-article-date">
-  <time datetime="2019-02-10T22:40:12.000Z" itemprop="datePublished">Feb 10</time>
+        <section id="main"><article id="post-how-to-disable-download-notification-for-a-user" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-disable-download-notification-for-a-user/" class="article-date">
+  <time datetime="2019-10-08T21:40:12.000Z" itemprop="datePublished">2019-10-08</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/System/">System</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/add-webpack-and-vue-to-rails-app/">How to add webpacker and Vue.js to existing Rails application</a>
+    <h1 class="article-title" itemprop="name">
+      How to disable download notifications to authors in IRIS
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>The following steps mainly for IRIS admins who left IRIS team, but the email notifications are still triggered. Tons of undelivered email may result in the suspension of the IRIS admin email account.</p>
+<p>1) Open yodl.properties file, and find object PID, e.g. with key iris.userMappings.</p>
+<p>2) Open the fedora object in Fedora admin web UI.</p>
+<p>3) Find matched ownerid for a particular email from UserMapping datastream.</p>
+<p>4) Run the following RI query to find user’s profile object id:</p>
+<pre><code>select $object
+from &lt;#ri&gt;
+where $object &lt;fedora-model:hasModel&gt; &lt;fedora:york:CModel-User&gt;
+and $object &lt;info:fedora/fedora-system:def/model#ownerId&gt; &apos;THE_ABOVE_OWNERID&apos;
+order by $object
+</code></pre><p>5) Open user profile object in Fedora Web UI and open User datastream.</p>
+<p>6) Change notifyDownloads to ‘false’</p>
+<pre><code>&lt;notifyDownloads&gt;false&lt;/notifyDownloads&gt;
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-disable-download-notification-for-a-user/" data-id="ck1j33wqw00004405jczltdl2" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/notification/">notification</a></li></ul>
 
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/python-aws-lambda/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Develop an AWS Lambda with Python</div>
+    </a>
+  
+</nav>
+
+  
+</article>
 
 </section>
         
