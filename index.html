@@ -83,6 +83,51 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-hyrax-content-blocks" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/hyrax-content-blocks/" class="article-date">
+  <time datetime="2019-10-29T12:40:12.000Z" itemprop="datePublished">2019-10-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/hyrax-content-blocks/">How does Hyrax content blocks work?</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Add-a-new-content-block-tab-in-Admin-page"><a href="#Add-a-new-content-block-tab-in-Admin-page" class="headerlink" title="Add a new content block tab in Admin page"></a>Add a new content block tab in Admin page</h2><p>app/views/hyrax/pages/_form.html.erb</p>
+<h2 id="Register-a-new-content-block-in-models"><a href="#Register-a-new-content-block-in-models" class="headerlink" title="Register a new content block in models"></a>Register a new content block in models</h2><p>app/models/content_block.rb</p>
+<h2 id="Template-file"><a href="#Template-file" class="headerlink" title="Template file"></a>Template file</h2><p>app/views/hyrax/content_blocks/templates</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/hyrax-content-blocks/" data-id="ck2byutc60000vz05lqcmuka4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-how-to-disable-download-notification-for-a-user" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/how-to-disable-download-notification-for-a-user/" class="article-date">
@@ -130,71 +175,6 @@ order by $object
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/notification/">notification</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-python-aws-lambda" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/python-aws-lambda/" class="article-date">
-  <time datetime="2019-10-03T21:40:12.000Z" itemprop="datePublished">2019-10-03</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/AWS/">AWS</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/python-aws-lambda/">Develop an AWS Lambda with Python</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Install-serverless-framework"><a href="#Install-serverless-framework" class="headerlink" title="Install serverless framework"></a>Install serverless framework</h2><pre><code>npm install -g serverless
-</code></pre><h2 id="Create-the-project"><a href="#Create-the-project" class="headerlink" title="Create the project"></a>Create the project</h2><pre><code>mkdir -p hello-world
-cd hello-world
-serverless create --template aws-python3 --name hello-world
-</code></pre><h2 id="Create-AWS-user"><a href="#Create-AWS-user" class="headerlink" title="Create AWS user"></a>Create AWS user</h2><p>Create a user, e.g. serverless-user and add the access key and secret access key in the .aws/credentials:</p>
-<pre><code>[serverless]
-aws_access_key_id = XXXXXXXXXXXXXXXXXXXXXXX
-aws_secret_access_key = XXXXXXXXXXXXXXXXXXXXXXX
-</code></pre><h2 id="Deploy-first-attempt"><a href="#Deploy-first-attempt" class="headerlink" title="Deploy - first attempt"></a>Deploy - first attempt</h2><pre><code>export AWS_PROFILE=&quot;serverless&quot;
-serverless deploy  --region eu-west-1
-</code></pre><p>Till now, you won’t see the APIGateway endpoint as it hasn’t been defined yet.</p>
-<p>Edit serverless.yml:</p>
-<pre><code>events:
-    - http:
-        path: hello
-        method: get
-</code></pre><p>Then run:</p>
-<pre><code>serverless deploy -v
-</code></pre><p>You will see the endpoint like: <a href="https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev" target="_blank" rel="noopener">https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev</a></p>
-<p>The service can be tested by this command:</p>
-<pre><code>sls invoke -f hello
-</code></pre><p>Make sure to remove AWS resources when they are not needed:</p>
-<pre><code>serverless remove
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/python-aws-lambda/" data-id="ck1c0dgao0000xo05eyld631w" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
 
     </footer>
   </div>
@@ -350,6 +330,71 @@ API Gateway Endpoint: https://XXXXXXXX.execute-api.eu-west-2.amazonaws.com/dev/
 
 
   
+    <article id="post-python-aws-lambda" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/python-aws-lambda/" class="article-date">
+  <time datetime="2019-10-03T21:40:12.000Z" itemprop="datePublished">2019-10-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AWS/">AWS</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/python-aws-lambda/">Develop an AWS Lambda with Python</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Install-serverless-framework"><a href="#Install-serverless-framework" class="headerlink" title="Install serverless framework"></a>Install serverless framework</h2><pre><code>npm install -g serverless
+</code></pre><h2 id="Create-the-project"><a href="#Create-the-project" class="headerlink" title="Create the project"></a>Create the project</h2><pre><code>mkdir -p hello-world
+cd hello-world
+serverless create --template aws-python3 --name hello-world
+</code></pre><h2 id="Create-AWS-user"><a href="#Create-AWS-user" class="headerlink" title="Create AWS user"></a>Create AWS user</h2><p>Create a user, e.g. serverless-user and add the access key and secret access key in the .aws/credentials:</p>
+<pre><code>[serverless]
+aws_access_key_id = XXXXXXXXXXXXXXXXXXXXXXX
+aws_secret_access_key = XXXXXXXXXXXXXXXXXXXXXXX
+</code></pre><h2 id="Deploy-first-attempt"><a href="#Deploy-first-attempt" class="headerlink" title="Deploy - first attempt"></a>Deploy - first attempt</h2><pre><code>export AWS_PROFILE=&quot;serverless&quot;
+serverless deploy  --region eu-west-1
+</code></pre><p>Till now, you won’t see the APIGateway endpoint as it hasn’t been defined yet.</p>
+<p>Edit serverless.yml:</p>
+<pre><code>events:
+    - http:
+        path: hello
+        method: get
+</code></pre><p>Then run:</p>
+<pre><code>serverless deploy -v
+</code></pre><p>You will see the endpoint like: <a href="https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev" target="_blank" rel="noopener">https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev</a></p>
+<p>The service can be tested by this command:</p>
+<pre><code>sls invoke -f hello
+</code></pre><p>Make sure to remove AWS resources when they are not needed:</p>
+<pre><code>serverless remove
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/python-aws-lambda/" data-id="ck1c0dgao0000xo05eyld631w" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-how-to-build-a-slack-bot-in-python" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/how-to-build-a-slack-bot-in-python/" class="article-date">
@@ -442,7 +487,9 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
 </code></pre><p>Also, Python automatically detect array boundaries, so no need to check like:</p>
 <pre><code>return sorted_array[0:3] if len(sorted_array)&gt;=3 else sorted_array
 </code></pre><p>Just </p>
-<pre><code>return sorted(scores,reverse=True)[0:3]            
+<pre><code>return sorted(scores,reverse=True)[0:3]     
+</code></pre><p>Or even simpler:</p>
+<pre><code>return sorted(scores,reverse=True)[:3]           
 </code></pre><h2 id="Code-refactoring"><a href="#Code-refactoring" class="headerlink" title="Code refactoring"></a>Code refactoring</h2><p>The following code:</p>
 <pre><code>def convert(number):
     the_string = &apos;&apos;
@@ -558,6 +605,12 @@ end
     names.last
 end
 </code></pre><h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><pre><code>String.lines
+</code></pre><p>Check if a string starts with any string from an array:</p>
+<pre><code>prefixes=[&apos;Dr&apos;,&apos;Mr&apos;,&apos;Miss&apos;,&apos;Mrs&apos;]
+&apos;Tom Smith&apos;.starts_with?(*prefixes)
+=&gt; false
+&apos;Mr Tom Smith&apos;.starts_with?(*prefixes)
+=&gt; true        
 </code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><h3 id="Swap-array-rows-with-columns"><a href="#Swap-array-rows-with-columns" class="headerlink" title="Swap array rows with columns"></a>Swap array rows with columns</h3><pre><code>Array.transpose()
 </code></pre><p>e.g.<br>    matrix_string = “1 2 3\n4 5 6\n7 8 9”<br>    @rows = matrix_string.lines.collect{|x| x.split.collect{|y| y.to_i}}<br>    @columns = @rows.transpose()    </p>
 <h3 id="Remove-duplicate-elements-from-array"><a href="#Remove-duplicate-elements-from-array" class="headerlink" title="Remove duplicate elements from array"></a>Remove duplicate elements from array</h3><pre><code>array_name.uniq
@@ -773,52 +826,6 @@ location / {
 
 
   
-    <article id="post-solr-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/solr-tips/" class="article-date">
-  <time datetime="2019-08-19T12:40:12.000Z" itemprop="datePublished">2019-08-19</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/solr/">solr</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/solr-tips/">Solr tips</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Delete-a-solr-document-in-Solr-Admin"><a href="#Delete-a-solr-document-in-Solr-Admin" class="headerlink" title="Delete a solr document in Solr Admin"></a>Delete a solr document in Solr Admin</h2><p>Click ‘Documents’</p>
-<p>In ‘Document Type’ dropdown, select ‘Solr Command (raw XML or JSON)’</p>
-<p>In Documents textbox, enter:</p>
-<pre><code>&lt;delete&gt;&lt;query&gt;id:6969z076v&lt;/query&gt;&lt;/delete&gt;
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/solr-tips/" data-id="cjzid96gq0000uw05kexfcyv0" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -844,7 +851,7 @@ location / {
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -854,7 +861,7 @@ location / {
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 11.43px;">aws</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 15.71px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.43px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 12.86px;">python</a> <a href="/tags/rails/" style="font-size: 18.57px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 11.43px;">ruby</a> <a href="/tags/samvera/" style="font-size: 17.14px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 11.67px;">aws</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/rails/" style="font-size: 18.33px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 11.67px;">ruby</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -876,11 +883,11 @@ location / {
       <ul>
         
           <li>
-            <a href="/how-to-disable-download-notification-for-a-user/">How to disable download notifications to authors in IRIS</a>
+            <a href="/hyrax-content-blocks/">How does Hyrax content blocks work?</a>
           </li>
         
           <li>
-            <a href="/python-aws-lambda/">Develop an AWS Lambda with Python</a>
+            <a href="/how-to-disable-download-notification-for-a-user/">How to disable download notifications to authors in IRIS</a>
           </li>
         
           <li>
@@ -888,11 +895,11 @@ location / {
           </li>
         
           <li>
-            <a href="/how-to-build-a-slack-bot-in-python/">How to build a Slack bot in Python</a>
+            <a href="/python-aws-lambda/">Develop an AWS Lambda with Python</a>
           </li>
         
           <li>
-            <a href="/python-tips/">Python tips</a>
+            <a href="/how-to-build-a-slack-bot-in-python/">How to build a Slack bot in Python</a>
           </li>
         
       </ul>
