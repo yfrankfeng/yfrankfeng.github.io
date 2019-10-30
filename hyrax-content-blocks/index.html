@@ -20,18 +20,18 @@ ga('send', 'pageview');
   
   <title>How does Hyrax content blocks work? | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Add a new content block tab in Admin pageapp/views/hyrax/pages/_form.html.erb Register a new content block in modelsapp/models/content_block.rb Template fileapp/views/hyrax/content_blocks/templates">
+  <meta name="description" content="To add a new content block page, you need to follow steps below: Register a new content block in modelsapp/models/content_block.rb def help_page   find_by(name: &amp;apos;help_page&amp;apos;) ||     create(na">
 <meta name="keywords" content="Samvera hyrax content blocks">
 <meta property="og:type" content="article">
 <meta property="og:title" content="How does Hyrax content blocks work?">
 <meta property="og:url" content="https://yfrankfeng.github.io/hyrax-content-blocks/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Add a new content block tab in Admin pageapp/views/hyrax/pages/_form.html.erb Register a new content block in modelsapp/models/content_block.rb Template fileapp/views/hyrax/content_blocks/templates">
+<meta property="og:description" content="To add a new content block page, you need to follow steps below: Register a new content block in modelsapp/models/content_block.rb def help_page   find_by(name: &amp;apos;help_page&amp;apos;) ||     create(na">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-10-29T14:48:17.000Z">
+<meta property="og:updated_time" content="2019-10-30T11:22:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="How does Hyrax content blocks work?">
-<meta name="twitter:description" content="Add a new content block tab in Admin pageapp/views/hyrax/pages/_form.html.erb Register a new content block in modelsapp/models/content_block.rb Template fileapp/views/hyrax/content_blocks/templates">
+<meta name="twitter:description" content="To add a new content block page, you need to follow steps below: Register a new content block in modelsapp/models/content_block.rb def help_page   find_by(name: &amp;apos;help_page&amp;apos;) ||     create(na">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -108,10 +108,59 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Add-a-new-content-block-tab-in-Admin-page"><a href="#Add-a-new-content-block-tab-in-Admin-page" class="headerlink" title="Add a new content block tab in Admin page"></a>Add a new content block tab in Admin page</h2><p>app/views/hyrax/pages/_form.html.erb</p>
+        <p>To add a new content block page, you need to follow steps below:</p>
 <h2 id="Register-a-new-content-block-in-models"><a href="#Register-a-new-content-block-in-models" class="headerlink" title="Register a new content block in models"></a>Register a new content block in models</h2><p>app/models/content_block.rb</p>
-<h2 id="Template-file"><a href="#Template-file" class="headerlink" title="Template file"></a>Template file</h2><p>app/views/hyrax/content_blocks/templates</p>
-
+<pre><code>def help_page
+  find_by(name: &apos;help_page&apos;) ||
+    create(name: &apos;help_page&apos;, value: default_help_text)
+end
+</code></pre><p>and</p>
+<pre><code>def default_help_text
+  ERB.new(
+    IO.read(
+        Rails.root.join(&apos;app&apos;, &apos;views&apos;, &apos;hyrax&apos;, &apos;content_blocks&apos;, &apos;templates&apos;, &apos;help.html.erb&apos;)
+    )
+  ).result
+end
+</code></pre><h2 id="Template-file"><a href="#Template-file" class="headerlink" title="Template file"></a>Template file</h2><p>app/views/hyrax/content_blocks/templates</p>
+<p>just add any HTML you like to the template file, e.g. help.html.erb</p>
+<p>Still Not showing the new page content?</p>
+<p>You need to delete the record in the database ‘content_blocks’ table</p>
+<h2 id="Add-a-new-content-block-tab-in-Admin-page"><a href="#Add-a-new-content-block-tab-in-Admin-page" class="headerlink" title="Add a new content block tab in Admin page"></a>Add a new content block tab in Admin page</h2><p>app/views/hyrax/content_blocks/_form.html.erb</p>
+<p>On the top, add:</p>
+<pre><code>&lt;li&gt;
+  &lt;a href=&quot;#help&quot; role=&quot;tab&quot; data-toggle=&quot;tab&quot; class=&quot;nav-safety-confirm&quot;&gt;&lt;%= t(:&apos;hyrax.content_blocks.tabs.help&apos;) %&gt;&lt;/a&gt;
+&lt;/li&gt;
+</code></pre><p>On the bottom, add:</p>
+<pre><code>&lt;div id=&quot;help&quot; class=&quot;tab-pane&quot;&gt;
+  &lt;div class=&quot;panel panel-default labels&quot;&gt;
+    &lt;%= simple_form_for ContentBlock.for(:help), url: hyrax.content_block_path(ContentBlock.for(:help)), html: {class: &apos;nav-safety&apos;} do |f| %&gt;
+      &lt;div class=&quot;panel-body&quot;&gt;
+        &lt;div class=&quot;field form-group&quot;&gt;
+          &lt;%= f.label :help %&gt;&lt;br /&gt;
+          &lt;%= f.text_area :help, value: f.object.value, class: &apos;form-control tinymce&apos;, rows: 20, cols: 120 %&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;panel-footer&quot;&gt;
+        &lt;%= link_to t(:&apos;hyrax.content_blocks.cancel&apos;), hyrax.admin_admin_sets_path, class: &apos;btn btn-default pull-right&apos; %&gt;
+        &lt;%= f.button :submit, class: &apos;btn btn-primary pull-right&apos; %&gt;
+      &lt;/div&gt;
+    &lt;% end %&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre><h2 id="Content-block-controller"><a href="#Content-block-controller" class="headerlink" title="Content block controller"></a>Content block controller</h2><p>Copy content_blocks_controller.rb from app/controllers/hyrax to NCELP and update the following:</p>
+<pre><code>params.require(:content_block).permit(:marketing,
+                                      :announcement,
+                                      :researcher,
+                                      :help)
+</code></pre><h2 id="Update-locale-file"><a href="#Update-locale-file" class="headerlink" title="Update locale file"></a>Update locale file</h2><p>Edit config/locales/hyrax.en.yml, and add:</p>
+<pre><code>hyrax:
+  content_blocks:
+    help: Help
+</code></pre><h2 id="Add-a-menu-in-the-menubar"><a href="#Add-a-menu-in-the-menubar" class="headerlink" title="Add a menu in the menubar"></a>Add a menu in the menubar</h2><p>Edit app/views/_controls.html.erb, and add:</p>
+<pre><code>&lt;li &lt;%= &apos;class=active&apos; if current_page?(hyrax.about_path) %&gt;&gt;
+    &lt;%= link_to t(:&apos;hyrax.controls.about&apos;), hyrax.about_path, aria: current_page?(hyrax.about_path) ? {current: &apos;page&apos;} : nil %&gt;&lt;/li&gt;   
+</code></pre>
       
     </div>
     <footer class="article-footer">
