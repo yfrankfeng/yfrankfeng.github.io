@@ -665,6 +665,20 @@ end
 <h3 id="Remove-duplicate-elements-from-array"><a href="#Remove-duplicate-elements-from-array" class="headerlink" title="Remove duplicate elements from array"></a>Remove duplicate elements from array</h3><pre><code>array_name.uniq
 </code></pre><p>OR use the following to operate on the same array</p>
 <pre><code>array_name.uniq!
+</code></pre><h3 id="each-cons"><a href="#each-cons" class="headerlink" title="each_cons"></a>each_cons</h3><pre><code>irb(main):001:0&gt; s = &quot;123456789&quot;
+=&gt; &quot;123456789&quot;
+
+irb(main):002:0&gt; s.chars
+=&gt; [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;]
+
+irb(main):003:0&gt; s.chars.each_cons(2).to_a
+=&gt; [[&quot;1&quot;, &quot;2&quot;], [&quot;2&quot;, &quot;3&quot;], [&quot;3&quot;, &quot;4&quot;], [&quot;4&quot;, &quot;5&quot;], [&quot;5&quot;, &quot;6&quot;], [&quot;6&quot;, &quot;7&quot;], [&quot;7&quot;, &quot;8&quot;], [&quot;8&quot;, &quot;9&quot;]]
+
+irb(main):004:0&gt; s.chars.each_cons(2).to_a.collect {|a| a.join}
+=&gt; [&quot;12&quot;, &quot;23&quot;, &quot;34&quot;, &quot;45&quot;, &quot;56&quot;, &quot;67&quot;, &quot;78&quot;, &quot;89&quot;]    
+</code></pre><p>The above expression can be simplified:</p>
+<pre><code>irb(main):004:0&gt; s.chars.each_cons(2).collect(&amp;:join)
+=&gt; [&quot;12&quot;, &quot;23&quot;, &quot;34&quot;, &quot;45&quot;, &quot;56&quot;, &quot;67&quot;, &quot;78&quot;, &quot;89&quot;]      
 </code></pre><h2 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a>Collections</h2><p>Lots of internal methods can be used in collections, e.g.</p>
 <pre><code>scores.last
 scores.max
