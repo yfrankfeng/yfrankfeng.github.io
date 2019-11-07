@@ -20,18 +20,20 @@ ga('send', 'pageview');
   
   <title>Java tips | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="String ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-which-">
+  <meta name="description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java tips">
 <meta property="og:url" content="https://yfrankfeng.github.io/java-tips/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="String ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-which-">
+<meta property="og:description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-08-30T09:01:12.000Z">
+<meta property="og:image" content="https://yfrankfeng.github.io/images/sums.png">
+<meta property="og:updated_time" content="2019-11-07T10:59:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java tips">
-<meta name="twitter:description" content="String ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-which-">
+<meta name="twitter:description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-">
+<meta name="twitter:image" content="https://yfrankfeng.github.io/images/sums.png">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -85,7 +87,7 @@ ga('send', 'pageview');
         <section id="main"><article id="post-java-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/java-tips/" class="article-date">
-  <time datetime="2019-08-20T22:40:12.000Z" itemprop="datePublished">2019-08-20</time>
+  <time datetime="2019-08-20T21:40:12.000Z" itemprop="datePublished">2019-08-20</time>
 </a>
     
   <div class="article-category">
@@ -108,8 +110,20 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="String-Concatenation"><a href="#String-Concatenation" class="headerlink" title="String Concatenation"></a>String Concatenation</h2><p>String.format is extremely slow for a problem that only requires simple String concatenation with the + operator. </p>
+        <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><h3 id="String-Concatenation"><a href="#String-Concatenation" class="headerlink" title="String Concatenation"></a>String Concatenation</h3><p>String.format is extremely slow for a problem that only requires simple String concatenation with the + operator. </p>
 <p>Read: <a href="https://redfin.engineering/java-string-concatenation-which-way-is-best-8f590a7d22a8" target="_blank" rel="noopener">https://redfin.engineering/java-string-concatenation-which-way-is-best-8f590a7d22a8</a></p>
+<h3 id="Iterate-each-character-in-a-String"><a href="#Iterate-each-character-in-a-String" class="headerlink" title="Iterate each character in a String"></a>Iterate each character in a String</h3><pre><code>Map&lt;Character, Integer&gt; dict = new HashMap&lt;Character, Integer&gt;();  
+&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;.chars().forEach(letter -&gt; dict.put((char) letter, 1));  
+</code></pre><h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p>To get a value from map if not null, can be something like this:</p>
+<pre><code>int v = 0;
+if(dict.get(c)!=null) {
+    v += dict.get(c);
+}   
+</code></pre><p>It can be simplified to:</p>
+<pre><code>v += dict.getOrDefault(c,0);
+</code></pre><h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><h3 id="Sum-of-n-nn-nn-n"><a href="#Sum-of-n-nn-nn-n" class="headerlink" title="Sum of n, nn, nn*n"></a>Sum of n, n<em>n, n</em>n*n</h3><p>Rather than using loops, some formulas can be used to make O(1) algorithms:</p>
+<p><img src="/images/sums.png" alt=""></p>
+<p>Ref: <a href="https://brilliant.org/wiki/sum-of-n-n2-or-n3/" target="_blank" rel="noopener">https://brilliant.org/wiki/sum-of-n-n2-or-n3/</a></p>
 
       
     </div>

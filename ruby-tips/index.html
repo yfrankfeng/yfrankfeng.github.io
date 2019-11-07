@@ -28,7 +28,7 @@ ga('send', 'pageview');
 <meta property="og:site_name" content="Frank&#39;s development blog">
 <meta property="og:description" content="Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)     @names = names end Then @names can be accessed via ‘names’ def latest     names.last end StringSt">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-10-31T11:44:48.000Z">
+<meta property="og:updated_time" content="2019-11-01T11:33:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ruby tips">
 <meta name="twitter:description" content="Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)     @names = names end Then @names can be accessed via ‘names’ def latest     names.last end StringSt">
@@ -159,6 +159,23 @@ Something - I made up from thin air &gt; SIMUFTA
     phrase.scan(/\b\w/).join.upcase
 end
 </code></pre><p>Scan with the regex /\b\w/ will catch ‘word boundaries’ (space, - and more) followed by a word character. This means that scan(/\b\w/) returns an array with the first letters only.    </p>
+<h3 id="Word-counts"><a href="#Word-counts" class="headerlink" title="Word counts"></a>Word counts</h3><pre><code>phrase.downcase.scan(/\w+(?:&apos;\w+)*/).each { |w| counts[w] += 1 }
+</code></pre><ul>
+<li>\w+ - 1 or more word chars</li>
+<li><p>(?:’\w+)<em> - zero or more sequences (as (?:…)</em> is a non-capturing group that groups a sequence of subpatterns quantified with * quantifier matching 0 or more occurrences) of:</p>
+<ul>
+<li>‘ - apostrophe</li>
+<li><p>\w+ - 1 or more word chars.</p>
+<p>phrase = “Joe can’t tell between ‘large’ and large.”<br>phrase.downcase.scan(/\w+(?:’\w+)*/).each { |w| counts[w] += 1 }</p>
+<blockquote>
+<blockquote>
+</blockquote>
+<p>{“joe”=&gt;1, “can’t”=&gt;1, “tell”=&gt;1, “between”=&gt;1, “large”=&gt;2, “and”=&gt;1}</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
 
       
     </div>

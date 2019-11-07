@@ -695,6 +695,23 @@ Something - I made up from thin air &gt; SIMUFTA
     phrase.scan(/\b\w/).join.upcase
 end
 </code></pre><p>Scan with the regex /\b\w/ will catch ‘word boundaries’ (space, - and more) followed by a word character. This means that scan(/\b\w/) returns an array with the first letters only.    </p>
+<h3 id="Word-counts"><a href="#Word-counts" class="headerlink" title="Word counts"></a>Word counts</h3><pre><code>phrase.downcase.scan(/\w+(?:&apos;\w+)*/).each { |w| counts[w] += 1 }
+</code></pre><ul>
+<li>\w+ - 1 or more word chars</li>
+<li><p>(?:’\w+)<em> - zero or more sequences (as (?:…)</em> is a non-capturing group that groups a sequence of subpatterns quantified with * quantifier matching 0 or more occurrences) of:</p>
+<ul>
+<li>‘ - apostrophe</li>
+<li><p>\w+ - 1 or more word chars.</p>
+<p>phrase = “Joe can’t tell between ‘large’ and large.”<br>phrase.downcase.scan(/\w+(?:’\w+)*/).each { |w| counts[w] += 1 }</p>
+<blockquote>
+<blockquote>
+</blockquote>
+<p>{“joe”=&gt;1, “can’t”=&gt;1, “tell”=&gt;1, “between”=&gt;1, “large”=&gt;2, “and”=&gt;1}</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
 
       
     </div>
@@ -848,7 +865,7 @@ location / {
     <article id="post-java-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/java-tips/" class="article-date">
-  <time datetime="2019-08-20T22:40:12.000Z" itemprop="datePublished">2019-08-20</time>
+  <time datetime="2019-08-20T21:40:12.000Z" itemprop="datePublished">2019-08-20</time>
 </a>
     
   <div class="article-category">
@@ -871,8 +888,20 @@ location / {
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="String-Concatenation"><a href="#String-Concatenation" class="headerlink" title="String Concatenation"></a>String Concatenation</h2><p>String.format is extremely slow for a problem that only requires simple String concatenation with the + operator. </p>
+        <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><h3 id="String-Concatenation"><a href="#String-Concatenation" class="headerlink" title="String Concatenation"></a>String Concatenation</h3><p>String.format is extremely slow for a problem that only requires simple String concatenation with the + operator. </p>
 <p>Read: <a href="https://redfin.engineering/java-string-concatenation-which-way-is-best-8f590a7d22a8" target="_blank" rel="noopener">https://redfin.engineering/java-string-concatenation-which-way-is-best-8f590a7d22a8</a></p>
+<h3 id="Iterate-each-character-in-a-String"><a href="#Iterate-each-character-in-a-String" class="headerlink" title="Iterate each character in a String"></a>Iterate each character in a String</h3><pre><code>Map&lt;Character, Integer&gt; dict = new HashMap&lt;Character, Integer&gt;();  
+&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;.chars().forEach(letter -&gt; dict.put((char) letter, 1));  
+</code></pre><h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p>To get a value from map if not null, can be something like this:</p>
+<pre><code>int v = 0;
+if(dict.get(c)!=null) {
+    v += dict.get(c);
+}   
+</code></pre><p>It can be simplified to:</p>
+<pre><code>v += dict.getOrDefault(c,0);
+</code></pre><h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><h3 id="Sum-of-n-nn-nn-n"><a href="#Sum-of-n-nn-nn-n" class="headerlink" title="Sum of n, nn, nn*n"></a>Sum of n, n<em>n, n</em>n*n</h3><p>Rather than using loops, some formulas can be used to make O(1) algorithms:</p>
+<p><img src="/images/sums.png" alt=""></p>
+<p>Ref: <a href="https://brilliant.org/wiki/sum-of-n-n2-or-n3/" target="_blank" rel="noopener">https://brilliant.org/wiki/sum-of-n-n2-or-n3/</a></p>
 
       
     </div>
