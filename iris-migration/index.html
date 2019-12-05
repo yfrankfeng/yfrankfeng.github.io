@@ -20,18 +20,20 @@ ga('send', 'pageview');
   
   <title>IRIS migration | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  hard-coded Solr URLIn">
+  <meta name="description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  In src/main/java/uk/ac">
 <meta name="keywords" content="Java Fedora Solr">
 <meta property="og:type" content="article">
 <meta property="og:title" content="IRIS migration">
 <meta property="og:url" content="https://yfrankfeng.github.io/iris-migration/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  hard-coded Solr URLIn">
+<meta property="og:description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  In src/main/java/uk/ac">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-11-25T15:18:05.000Z">
+<meta property="og:image" content="https://user-images.githubusercontent.com/437701/70224943-03601700-1746-11ea-8803-34824f3c3cf4.png">
+<meta property="og:updated_time" content="2019-12-05T14:49:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="IRIS migration">
-<meta name="twitter:description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  hard-coded Solr URLIn">
+<meta name="twitter:description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  In src/main/java/uk/ac">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/437701/70224943-03601700-1746-11ea-8803-34824f3c3cf4.png">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -85,7 +87,7 @@ ga('send', 'pageview');
         <section id="main"><article id="post-iris-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/iris-migration/" class="article-date">
-  <time datetime="2019-11-25T15:18:04.570Z" itemprop="datePublished">2019-11-25</time>
+  <time datetime="2019-12-05T14:49:32.568Z" itemprop="datePublished">2019-12-05</time>
 </a>
     
   <div class="article-category">
@@ -109,6 +111,7 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="Hard-coded-fedora-URL"><a href="#Hard-coded-fedora-URL" class="headerlink" title="Hard-coded fedora URL"></a>Hard-coded fedora URL</h2><p>In src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects) </p>
+<p>In src/main/java/uk/ac/york/dlib/yodling/web/workflow/WorkflowController.java, between about L1454-L1482, and other places within that file.</p>
 <h2 id="hard-coded-Solr-URL"><a href="#hard-coded-Solr-URL" class="headerlink" title="hard-coded Solr URL"></a>hard-coded Solr URL</h2><p>In src/main/java/uk/ac/york/dlib/yodling/service/search/SolrSearchService.java, solr is hard-coded:</p>
 <pre><code>private static String pathToSolr = &quot;http://localhost:8080/solr/&quot;;
 </code></pre><p>Now we need to turn this attribute to non-static, and use Spring to inject the Solr URL.</p>
@@ -153,7 +156,246 @@ src/main/webapp/Content/xslt/updatePreRequired_software.xsl
 src/main/webapp/Content/xslt/updatePreResearchAreas.xsl
 </code></pre><p>Change all absolute paths to DD to something like:</p>
 <pre><code>&lt;xsl:variable name=&quot;commonsDD&quot;  select=&quot;document(&apos;../xml/datadictionary/commons.xml&apos;, /)&quot;/&gt;
-</code></pre><h2 id="Orbeon-Engine"><a href="#Orbeon-Engine" class="headerlink" title="Orbeon Engine"></a>Orbeon Engine</h2>
+</code></pre><h2 id="Improvements"><a href="#Improvements" class="headerlink" title="Improvements"></a>Improvements</h2><h3 id="duplicated-web-xml-in-Tomcat-webapp-folders"><a href="#duplicated-web-xml-in-Tomcat-webapp-folders" class="headerlink" title="duplicated web.xml in Tomcat webapp folders"></a>duplicated web.xml in Tomcat webapp folders</h3><p>In pom.xml</p>
+<pre><code>&lt;build&gt;
+        &lt;sourceDirectory&gt;${basedir}/src/main/java&lt;/sourceDirectory&gt;
+        &lt;outputDirectory&gt;${project.build.directory}/WebRoot/WEB-INF/classes&lt;/outputDirectory&gt;
+        &lt;resources&gt;
+            ......
+            &lt;resource&gt;
+                &lt;directory&gt;src/main/resources&lt;/directory&gt;
+                &lt;excludes&gt;
+                    &lt;exclude&gt;**/*.properties&lt;/exclude&gt;
+                    &lt;exclude&gt;**/*web-application-config.xml&lt;/exclude&gt;
+                    &lt;exclude&gt;**/*web.xml&lt;/exclude&gt;
+                &lt;/excludes&gt;
+            &lt;/resource&gt;
+        &lt;/resources&gt;   
+......
+&lt;/build&gt;         
+</code></pre><h2 id="Orbeon-Engine"><a href="#Orbeon-Engine" class="headerlink" title="Orbeon Engine"></a>Orbeon Engine</h2><p>Download Orbeon 3.9 CE and extract the orbeon39.war. Stop Tomcat, Copy orbeon39.war to webapps, and Start Tomcat.</p>
+<p>Edit Tomcat server.xml</p>
+<pre><code>&lt;Host name=&quot;localhost&quot;  ...&gt;
+    &lt;Context path=&quot;/orbeon39&quot; docBase=&quot;orbeon39&quot; crossContext=&quot;true&quot;/&gt;
+    &lt;Context path=&quot;/iris&quot; docBase=&quot;iris&quot; crossContext=&quot;true&quot;/&gt;
+</code></pre><p>Tried Orbeon 2019 CE but couldn’t get it working. The error message is not very useful:</p>
+<p><img src="https://user-images.githubusercontent.com/437701/70224943-03601700-1746-11ea-8803-34824f3c3cf4.png" alt="image"></p>
+<pre><code>2019-12-05 09:58:40,993 ERROR PageFlowControllerProcessor  - error caught {controller: &quot;oxf:/ops/xforms/xforms-renderer-pa$
+2019-12-05 09:58:41,095 ERROR PageFlowControllerProcessor  -
++----------------------------------------------------------------------------------------------------------------------+
+|An Error has Occurred                                                                                                 |
+|----------------------------------------------------------------------------------------------------------------------|
+|specified pattern is invalid: &apos;-&apos; is an invalid character range. Write &apos;\-&apos;.                                          |
+|----------------------------------------------------------------------------------------------------------------------|
+|Application Call Stack                                                                                                |
+|----------------------------------------------------------------------------------------------------------------------|
+|oxf:/ops/xforms/xforms-renderer-page-flow.xml                                     |reading page model data output|  23|
+|····························································�$
+|element=&lt;page path=&quot;/xforms-renderer&quot; model=&quot;xforms-renderer.xpl&quot;/&gt;                                                   |
+|model  =xforms-renderer.xpl                                                                                           |
+|----------------------------------------------------------------------------------------------------------------------|
+|oxf:/ops/xforms/xforms-renderer.xpl                                               |executing processor           | 130|        
+</code></pre><h2 id="logging-dependency-problem"><a href="#logging-dependency-problem" class="headerlink" title="logging dependency problem"></a>logging dependency problem</h2><p>The web app, e.g. iris working on local VM (Tomcat 9) but cannot start on dlibjavatest0 (Tomcat 8), and the error message is:</p>
+<pre><code>17:08:12.571 SEVERE [http-nio-8080-exec-2] org.apache.catalina.core.StandardContext.listenerStart Exception sending context initialized event to listener instance of class [org.springframework.web.context.ContextLoaderListener]
+java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does not define or inherit an implementation of the resolved method &apos;abstract void log(org.slf4j.Marker, java.lang.String, int, java.lang.String, java.lang.Throwable)&apos; of interface org.slf4j.spi.LocationAwareLogger.
+       at org.apache.commons.logging.impl.SLF4JLocationAwareLog.info(SLF4JLocationAwareLog.java:159)
+       at org.springframework.web.context.ContextLoader.initWebApplicationContext(ContextLoader.java:187)
+       at org.springframework.web.context.ContextLoaderListener.contextInitialized(ContextLoaderListener.java:47)
+       at org.apache.catalina.core.StandardContext.listenerStart(StandardContext.java:4643)
+       at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:5109)
+       at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:183)
+       at org.apache.catalina.manager.ManagerServlet.start(ManagerServlet.java:1395)
+       at org.apache.catalina.manager.HTMLManagerServlet.start(HTMLManagerServlet.java:698)
+       at org.apache.catalina.manager.HTMLManagerServlet.doPost(HTMLManagerServlet.java:223)
+       at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+       at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+       at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+</code></pre><h3 id="Reason"><a href="#Reason" class="headerlink" title="Reason"></a>Reason</h3><p>If log4j-over-slf4j.jar and slf4j-log4j12.jar exist on the same classpath, the problem arise.      </p>
+<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p><strong>Manual test</strong><br>delete log4j-over-slf4j-1.7.5.jar on WEB-INF/lib folder and restart Tomcat 8.</p>
+<p><strong>Remove it from pom.xml</strong> </p>
+<p>Find transitive dependency in pom:</p>
+<pre><code>mvn dependency:tree
+</code></pre><p>The output looks like:</p>
+<pre><code>[INFO] +- javax.servlet:servlet-api:jar:2.4:compile
+[INFO] +- javax.faces:jsf-api:jar:1.2_04:provided
+[INFO] +- javax.faces:jsf-impl:jar:1.2_04:provided
+[INFO] +- commons-beanutils:commons-beanutils:jar:1.7.0:compile
+[INFO] +- commons-digester:commons-digester:jar:1.8:compile
+[INFO] +- commons-logging:commons-logging:jar:1.1.1:compile
+[INFO] +- commons-logging:commons-logging-api:jar:1.1:compile
+[INFO] +- junit:junit:jar:4.7:test
+[INFO] +- log4j:log4j:jar:1.2.15:compile
+[INFO] |  +- javax.jms:jms:jar:1.1:compile
+[INFO] |  \- com.sun.jmx:jmxri:jar:1.2.1:compile
+[INFO] +- taglibs:standard:jar:1.1.2:compile
+[INFO] +- org.apache.tiles:tiles-api:jar:2.1.4:compile
+[INFO] +- org.apache.tiles:tiles-core:jar:2.1.4:compile
+[INFO] +- org.apache.tiles:tiles-jsp:jar:2.1.4:compile
+[INFO] |  \- org.apache.tiles:tiles-servlet:jar:2.1.4:compile
+[INFO] +- com.sun.jdmk:jmxtools:jar:1.2.1:compile
+[INFO] +- org.apache.solr:solr-solrj:jar:3.6.2:compile
+[INFO] |  +- commons-httpclient:commons-httpclient:jar:3.1:compile
+[INFO] |  \- org.codehaus.woodstox:wstx-asl:jar:3.2.7:runtime
+[INFO] +- org.slf4j:slf4j-api:jar:1.5.11:compile
+[INFO] +- org.slf4j:slf4j-log4j12:jar:1.5.11:compile
+[INFO] +- org.slf4j:jcl-over-slf4j:jar:1.5.11:compile
+[INFO] +- javax.servlet:jstl:jar:1.2:compile
+[INFO] +- org.jvnet.ws.wadl:wadl-core:jar:1.0-SNAPSHOT-NT:compile
+[INFO] +- javax.xml.bind:jaxb-api:jar:2.3.1:compile
+[INFO] |  \- javax.activation:javax.activation-api:jar:1.2.0:compile
+[INFO] +- javax.activation:activation:jar:1.1:compile
+[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.1:compile
+[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.1:compile
+[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.7:compile
+[INFO] |  +- org.jvnet.staxex:stax-ex:jar:1.8:compile
+[INFO] |  \- com.sun.xml.fastinfoset:FastInfoset:jar:1.2.15:compile
+[INFO] +- javax.ws.rs:jsr311-api:jar:1.1.1:compile
+[INFO] +- com.sun.jersey:jersey-core:jar:1.3:compile
+[INFO] +- com.sun.jersey:jersey-client:jar:1.3:compile
+[INFO] +- com.sun.jersey.contribs:jersey-spring:jar:1.3:compile
+[INFO] +- xalan:xalan:jar:2.7.1:compile
+[INFO] |  \- xalan:serializer:jar:2.7.1:compile
+[INFO] +- com.sun.jersey:jersey-server:jar:1.3:compile
+[INFO] |  \- asm:asm:jar:3.1:compile
+[INFO] +- org.springframework:spring-mock:jar:2.0.8:test
+[INFO] +- org.springframework:spring-test:jar:3.0.5.RELEASE:test
+[INFO] +- org.springframework:spring-web:jar:3.0.5.RELEASE:compile
+[INFO] |  \- aopalliance:aopalliance:jar:1.0:compile
+[INFO] +- org.springframework:spring-webmvc:jar:3.0.5.RELEASE:compile
+[INFO] |  +- org.springframework:spring-asm:jar:3.0.5.RELEASE:compile
+[INFO] |  \- org.springframework:spring-context-support:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework:spring-beans:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework:spring-context:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework:spring-core:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework:spring-expression:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework.security:spring-security-web:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework.security:spring-security-config:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework.security:spring-security-taglibs:jar:3.0.5.RELEASE:compile
+[INFO] |  \- org.springframework.security:spring-security-acl:jar:3.0.5.RELEASE:compile
+[INFO] |     \- org.springframework:spring-jdbc:jar:3.0.3.RELEASE:compile
+[INFO] +- org.springframework:spring-aop:jar:3.0.5.RELEASE:compile
+[INFO] +- cglib:cglib:jar:2.2:compile
+[INFO] +- org.aspectj:aspectjweaver:jar:1.6.11:compile
+[INFO] +- com.yourmediashelf.fedora.client:fedora-client-core:jar:0.8s:compile
+[INFO] |  +- com.sun.jersey.contribs:jersey-multipart:jar:1.17.1:compile
+[INFO] |  |  \- org.jvnet:mimepull:jar:1.6:compile
+[INFO] |  +- com.hp.hpl.jena:jena:jar:2.6.4:compile
+[INFO] |  |  +- com.hp.hpl.jena:iri:jar:0.8:compile
+[INFO] |  |  \- com.ibm.icu:icu4j:jar:3.4.4:compile
+[INFO] |  +- org.apache.santuario:xmlsec:jar:1.5.4:compile
+[INFO] |  +- org.slf4j:log4j-over-slf4j:jar:1.7.5:runtime
+[INFO] |  \- xerces:xercesImpl:jar:2.11.0:compile
+[INFO] +- org.openrdf:openrdf-sesame:jar:onejar:2.3.2:compile
+[INFO] +- taglibs:string:jar:1.1.0:compile
+[INFO] +- org.apache.commons:commons-lang3:jar:3.4:compile
+[INFO] +- rome:rome-fetcher:jar:1.0:compile
+[INFO] |  +- jdom:jdom:jar:1.0:compile
+[INFO] |  \- rome:rome:jar:1.0:compile
+[INFO] +- orbeon:xforms-filter:jar:3.9:compile
+[INFO] +- com.jspsmart:upload:jar:1.0:compile
+[INFO] +- commons-fileupload:commons-fileupload:jar:1.2.2:compile
+[INFO] +- commons-io:commons-io:jar:2.0.1:compile
+[INFO] +- dom4j:dom4j:jar:1.6.1:compile
+[INFO] |  \- xml-apis:xml-apis:jar:1.0.b2:compile
+[INFO] +- jaxen:jaxen:jar:1.1.1:compile
+[INFO] |  \- xom:xom:jar:1.0:compile
+[INFO] |     \- xerces:xmlParserAPIs:jar:2.6.2:compile
+[INFO] +- org.apache.commons:commons-compress:jar:1.0:compile
+[INFO] +- javax.mail:mail:jar:1.4.5:compile
+[INFO] +- org.apache.commons:commons-email:jar:1.2:compile
+[INFO] +- org.freemarker:freemarker:jar:2.3.19:compile
+[INFO] +- displaytag:displaytag:jar:1.2:compile
+[INFO] |  +- commons-collections:commons-collections:jar:3.1:compile
+[INFO] |  +- commons-lang:commons-lang:jar:2.3:compile
+[INFO] |  \- com.lowagie:itext:jar:1.3:compile
+[INFO] +- jcs:jcs:jar:1.3:compile
+[INFO] |  +- commons-configuration:commons-configuration:jar:1.4:compile
+[INFO] |  |  +- commons-beanutils:commons-beanutils-core:jar:1.7.0:compile
+[INFO] |  |  \- commons-jxpath:commons-jxpath:jar:1.2:compile
+[INFO] |  |     \- ant:ant-optional:jar:1.5.1:compile
+[INFO] |  +- commons-dbcp:commons-dbcp:jar:1.2.2:compile
+[INFO] |  +- commons-pool:commons-pool:jar:1.3:compile
+[INFO] |  +- concurrent:concurrent:jar:1.0:compile
+[INFO] |  +- mysql:mysql-connector-java:jar:3.0.10:compile
+[INFO] |  |  +- javax.sql:jdbc-stdext:jar:2.0:compile
+[INFO] |  |  \- javax.transaction:jta:jar:1.0.1B:compile
+[INFO] |  +- hsqldb:hsqldb:jar:1.7.3.3:compile
+[INFO] |  +- tomcat:tomcat-util:jar:3.2.1:compile
+[INFO] |  +- velocity:velocity:jar:1.5:compile
+[INFO] |  |  \- oro:oro:jar:2.0.8:compile
+[INFO] |  +- xmlrpc:xmlrpc:jar:2.0:compile
+[INFO] |  \- berkeleydb:berkeleydb:jar:1.5.1:compile
+[INFO] +- net.sf.ehcache:ehcache:jar:2.4.2:compile
+[INFO] |  +- net.sf.ehcache:ehcache-core:jar:2.4.2:compile
+[INFO] |  \- net.sf.ehcache:ehcache-terracotta:jar:2.4.2:compile
+[INFO] +- org.codehaus.jackson:jackson-mapper-lgpl:jar:1.5.6:compile
+[INFO] |  \- org.codehaus.jackson:jackson-core-lgpl:jar:1.5.6:compile
+[INFO] +- org.apache.httpcomponents:httpclient:jar:4.3.6:compile
+[INFO] |  \- commons-codec:commons-codec:jar:1.6:compile
+[INFO] +- org.apache.httpcomponents:httpcore:jar:4.3.3:compile
+[INFO] +- eu.medsea.mimeutil:mime-util:jar:2.1.3:compile
+[INFO] +- joda-time:joda-time:jar:1.6.1:compile
+[INFO] +- org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:jar:1.0.1-SNAPSHOT:compile
+[INFO] +- org.apache.oltu.oauth2:org.apache.oltu.oauth2.common:jar:1.0.1-SNAPSHOT:compile
+[INFO] +- org.json:json:jar:20140107:compile
+[INFO] +- org.springframework.security.oauth:spring-security-oauth2:jar:1.0.5.RELEASE:compile
+[INFO] |  \- org.codehaus.jackson:jackson-mapper-asl:jar:1.9.2:compile
+[INFO] |     \- org.codehaus.jackson:jackson-core-asl:jar:1.9.2:compile
+[INFO] \- org.springframework.security:spring-security-core:jar:3.0.5.RELEASE:compile
+[INFO]    +- org.springframework:spring-tx:jar:3.0.3.RELEASE:compile
+[INFO]    \- org.aspectj:aspectjrt:jar:1.6.8:compile        
+</code></pre><p>Do a text search of ‘log4j-over-slf4j’ on the above result, and it shows that the com.yourmediashelf.fedora.client:fedora-client-core:jar has a transitive dependency on log4j-over-slf4j. </p>
+<p>In the pom.xml, change:</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.yourmediashelf.fedora.client&lt;/groupId&gt;
+    &lt;artifactId&gt;fedora-client-core&lt;/artifactId&gt;
+    &lt;version&gt;0.8s&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>to:</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.yourmediashelf.fedora.client&lt;/groupId&gt;
+    &lt;artifactId&gt;fedora-client-core&lt;/artifactId&gt;
+    &lt;version&gt;0.8s&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;log4j-over-slf4j&lt;/artifactId&gt;
+            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+</code></pre><h2 id="JSTL-problem"><a href="#JSTL-problem" class="headerlink" title="JSTL problem"></a>JSTL problem</h2><p>While loading details page, an error message is showing in the Tomcat log:</p>
+<pre><code>[Fatal Error] jstl::1:1: Content is not allowed in prolog.
+</code></pre><h3 id="Reason-amp-fix"><a href="#Reason-amp-fix" class="headerlink" title="Reason &amp; fix"></a>Reason &amp; fix</h3><p>The feedbackXML has been’t generated properly if there is no FEEDBACK data stream. In AbstractResourceController.java, line 669:</p>
+<pre><code>try{
+    XXXXXXX
+}catch(Exception e) {
+    XXXXXXX
+}finally {
+&gt;&gt;&gt;&gt;    if(feedbackiris!=null)
+        XXXXXX
+    else
+        XXXXXX
+}
+</code></pre><p>It should be changed to:</p>
+<pre><code>if(feedbackiris!=null &amp;&amp; feedbackiris.startsWith(&quot;&lt;?xml version=&quot;))             
+</code></pre><h2 id="IP-restrictions"><a href="#IP-restrictions" class="headerlink" title="IP restrictions"></a>IP restrictions</h2><p>Edit /etc/apache2/sites-enabled/default-ssl.conf, add the following:</p>
+<pre><code>&lt;Location /solr&gt;
+  Allow from TEST_SERVER_IP                     
+  ...
+&lt;/Location&gt;  
+
+&lt;Location /fedora/risearch&gt;  
+  Allow from TEST_SERVER_IP                     
+  ...
+&lt;/Location&gt;
+
+&lt;Directory &quot;/usr/digilib-webdocs/digilibImages&quot;&gt;
+  Allow from dlibjavatest0.york.ac.uk
+  ...
+&lt;/Directory&gt;
+</code></pre><p>Restart Apache2</p>
+<pre><code>service apache2 restart
+</code></pre>
       
     </div>
     <footer class="article-footer">
@@ -169,9 +411,9 @@ src/main/webapp/Content/xslt/updatePreResearchAreas.xsl
 <nav id="article-nav">
   
   
-    <a href="/rails-page-only-working-after-refresh/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/ruby-tips/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Rails page only working after refresh?</div>
+      <div class="article-nav-title">Ruby tips</div>
     </a>
   
 </nav>
@@ -216,7 +458,7 @@ src/main/webapp/Content/xslt/updatePreResearchAreas.xsl
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -233,6 +475,10 @@ src/main/webapp/Content/xslt/updatePreResearchAreas.xsl
           </li>
         
           <li>
+            <a href="/ruby-tips/">Ruby tips</a>
+          </li>
+        
+          <li>
             <a href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
           </li>
         
@@ -242,10 +488,6 @@ src/main/webapp/Content/xslt/updatePreResearchAreas.xsl
         
           <li>
             <a href="/how-to-disable-download-notification-for-a-user/">How to disable download notifications to authors in IRIS</a>
-          </li>
-        
-          <li>
-            <a href="/ruby-aws-lambda/">Develop an AWS Lambda with Ruby</a>
           </li>
         
       </ul>

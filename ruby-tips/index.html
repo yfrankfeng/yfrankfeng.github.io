@@ -20,18 +20,18 @@ ga('send', 'pageview');
   
   <title>Ruby tips | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)     @names = names end Then @names can be accessed via ‘names’ def latest     names.last end StringSt">
+  <meta name="description" content="Language basics||=x ||= y  means  x || x = y  so if x is nil or false set x to be the value of y. Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)">
 <meta name="keywords" content="Ruby">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ruby tips">
 <meta property="og:url" content="https://yfrankfeng.github.io/ruby-tips/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)     @names = names end Then @names can be accessed via ‘names’ def latest     names.last end StringSt">
+<meta property="og:description" content="Language basics||=x ||= y  means  x || x = y  so if x is nil or false set x to be the value of y. Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-11-18T10:14:36.000Z">
+<meta property="og:updated_time" content="2019-12-05T11:12:51.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ruby tips">
-<meta name="twitter:description" content="Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)     @names = names end Then @names can be accessed via ‘names’ def latest     names.last end StringSt">
+<meta name="twitter:description" content="Language basics||=x ||= y  means  x || x = y  so if x is nil or false set x to be the value of y. Class attributesUse of attribute readers (public/private) attr_reader :names def initialize(names)">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -85,7 +85,7 @@ ga('send', 'pageview');
         <section id="main"><article id="post-ruby-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/ruby-tips/" class="article-date">
-  <time datetime="2019-08-29T21:40:12.000Z" itemprop="datePublished">2019-08-29</time>
+  <time datetime="2019-12-05T11:12:51.114Z" itemprop="datePublished">2019-12-05</time>
 </a>
     
   <div class="article-category">
@@ -108,7 +108,11 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Class-attributes"><a href="#Class-attributes" class="headerlink" title="Class attributes"></a>Class attributes</h2><p>Use of attribute readers (public/private)</p>
+        <h2 id="Language-basics"><a href="#Language-basics" class="headerlink" title="Language basics"></a>Language basics</h2><h3 id=""><a href="#" class="headerlink" title="||="></a>||=</h3><pre><code>x ||= y 
+</code></pre><p>means </p>
+<pre><code>x || x = y 
+</code></pre><p>so if x is nil or false set x to be the value of y.</p>
+<h2 id="Class-attributes"><a href="#Class-attributes" class="headerlink" title="Class attributes"></a>Class attributes</h2><p>Use of attribute readers (public/private)</p>
 <pre><code>attr_reader :names
 def initialize(names)
     @names = names
@@ -162,7 +166,8 @@ s.scan(/\w+(?:&apos;\w+)*/).group_by(&amp;:itself)
 
 s.scan(/\w+(?:&apos;\w+)*/).group_by(&amp;:itself).transform_values{|x| x.length}
 =&gt; {&quot;aa&quot;=&gt;2, &quot;bb&quot;=&gt;1, &quot;cc&quot;=&gt;1, &quot;dd&quot;=&gt;1, &quot;ee&quot;=&gt;1, &quot;ff&quot;=&gt;1, &quot;gg&quot;=&gt;1}
-</code></pre><h2 id="Regular-expressions"><a href="#Regular-expressions" class="headerlink" title="Regular expressions"></a>Regular expressions</h2><h3 id="acronyms"><a href="#acronyms" class="headerlink" title="acronyms"></a>acronyms</h3><p>Question: convert a sentence to its acronym, e.g.</p>
+</code></pre><p><strong>each_with_object</strong> method gives a way to iterate an Enumerable and doing some process within the loop.<br>    drop = 15<br>    drops = {<br>          3  =&gt; ‘Pling’,<br>          5  =&gt; ‘Plang’,<br>          7  =&gt; ‘Plong’<br>    }<br>    sounds = drops.each_with_object(‘’) { |(factor, note), sound| sound &lt;&lt; note if (drop % factor).zero? }</p>
+<h2 id="Regular-expressions"><a href="#Regular-expressions" class="headerlink" title="Regular expressions"></a>Regular expressions</h2><h3 id="acronyms"><a href="#acronyms" class="headerlink" title="acronyms"></a>acronyms</h3><p>Question: convert a sentence to its acronym, e.g.</p>
 <pre><code>Portable Network Graphics &gt; PNG
 Ruby on Rails &gt; ROR
 First In, First Out &gt; FIFO
@@ -235,6 +240,29 @@ end
 <li>Space around when communicating “division”</li>
 </ul>
 <p>No Space for ** method, as it mirrors how people write on paper, such as $x^y$.    </p>
+<h3 id="Ruby-class-structure"><a href="#Ruby-class-structure" class="headerlink" title="Ruby class structure"></a>Ruby class structure</h3><pre><code>class Class XX
+
+  # class methods
+
+  private
+
+  # constructors
+
+  # attribute readers
+
+  # private methods
+
+  public
+
+  # public methods
+
+end
+</code></pre><h3 id="defined-by-proximity"><a href="#defined-by-proximity" class="headerlink" title="defined by proximity"></a>defined by proximity</h3><pre><code>def distance
+  nucleotides.count { |n1, n2| n1 != n2 }
+end
+</code></pre><p>From above code, it’s very easy to understand what ‘n1’ and ‘n2’ mean.</p>
+<h3 id="Variable-names"><a href="#Variable-names" class="headerlink" title="Variable names"></a>Variable names</h3><p>If we are talking about programming languages and what each with object does, we<br> might use k and v since those are speaking to the key and value positions,<br> and are “commonly known” to the problem domain of programming languages.<br> But programming language <strong>isn’t the problem being solved in all situations</strong>,<br> so perhaps factor and note and sound makes sense for the argument list in that block in the raindrop program. </p>
+<h3 id="Line-length"><a href="#Line-length" class="headerlink" title="Line length"></a>Line length</h3><p>Rubocop suggests that a single line should not longer than 80 columns.</p>
 
       
     </div>
@@ -250,19 +278,19 @@ end
     
 <nav id="article-nav">
   
-    <a href="/aws-tips/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/iris-migration/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          AWS tips
+          IRIS migration
         
       </div>
     </a>
   
   
-    <a href="/configure-elk-stack-ubuntu/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/rails-page-only-working-after-refresh/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Configure ELK stack in Ubuntu 18</div>
+      <div class="article-nav-title">Rails page only working after refresh?</div>
     </a>
   
 </nav>
@@ -307,7 +335,7 @@ end
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -324,6 +352,10 @@ end
           </li>
         
           <li>
+            <a href="/ruby-tips/">Ruby tips</a>
+          </li>
+        
+          <li>
             <a href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
           </li>
         
@@ -333,10 +365,6 @@ end
         
           <li>
             <a href="/how-to-disable-download-notification-for-a-user/">How to disable download notifications to authors in IRIS</a>
-          </li>
-        
-          <li>
-            <a href="/ruby-aws-lambda/">Develop an AWS Lambda with Ruby</a>
           </li>
         
       </ul>
