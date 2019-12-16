@@ -83,6 +83,99 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-python-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/python-tips/" class="article-date">
+  <time datetime="2019-09-16T21:40:12.000Z" itemprop="datePublished">2019-09-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/python-tips/">Python tips</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><p>Use the new way to format string</p>
+<pre><code>&apos;One for {name}, one for me.&apos;.format(name=name)
+</code></pre><p>OR</p>
+<pre><code>&apos;One for {}, one for me.&apos;.format(name)
+</code></pre><p>NOT the old way:</p>
+<pre><code>&quot;One for %s, one for me.&quot; % name
+</code></pre><p>Split string by line breaks and convert it into array:</p>
+<pre><code>my_string.splitlines()      
+</code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><p>Using sorted over sort, will create a fresh copy of the list and avoids possible side effects.</p>
+<pre><code>sorted_array = sorted(scores,reverse=True)
+</code></pre><p>Also, Python automatically detect array boundaries, so no need to check like:</p>
+<pre><code>return sorted_array[0:3] if len(sorted_array)&gt;=3 else sorted_array
+</code></pre><p>Just </p>
+<pre><code>return sorted(scores,reverse=True)[0:3]     
+</code></pre><p>Or even simpler:</p>
+<pre><code>return sorted(scores,reverse=True)[:3]        
+</code></pre><h3 id="String-to-Array"><a href="#String-to-Array" class="headerlink" title="String to Array"></a>String to Array</h3><pre><code>s = &quot;1 2 3 4\n5 6 7 8\n9 8 7 6&quot;
+
+&gt;&gt;&gt; lines = s.splitlines()
+&gt;&gt;&gt; lines
+[&apos;1 2 3 4&apos;, &apos;5 6 7 8&apos;, &apos;9 8 7 6&apos;]
+
+&gt;&gt;&gt; rows = [[int(v) for v in row.split()] for row in lines]
+&gt;&gt;&gt; rows
+[[1, 2, 3, 4], [5, 6, 7, 8], [9, 8, 7, 6]]
+
+&gt;&gt;&gt; [list(column) for column in zip(*rows)]
+[[1, 5, 9], [2, 6, 8], [3, 7, 7], [4, 8, 6]]       
+</code></pre><h2 id="Iterables"><a href="#Iterables" class="headerlink" title="Iterables"></a>Iterables</h2><h3 id="zip"><a href="#zip" class="headerlink" title="zip"></a>zip</h3><pre><code>s1 = &quot;AABBC&quot;
+s2 = &quot;AABBD&quot;
+s = zip(s1, s2)
+&gt;&gt;&gt; list(zip(s1,s2))
+[(&apos;A&apos;, &apos;A&apos;), (&apos;A&apos;, &apos;A&apos;), (&apos;B&apos;, &apos;B&apos;), (&apos;B&apos;, &apos;B&apos;), (&apos;C&apos;, &apos;D&apos;)]
+&gt;&gt;&gt; sum(a!=b for a,b in zip(s1, s2))
+1
+</code></pre><h2 id="Code-refactoring"><a href="#Code-refactoring" class="headerlink" title="Code refactoring"></a>Code refactoring</h2><p>The following code:</p>
+<pre><code>def convert(number):
+    the_string = &apos;&apos;
+    if number % 3 == 0:
+        the_string += &apos;Pling&apos;
+    if number % 5 == 0:
+        the_string += &apos;Plang&apos;
+    if number % 7 == 0:
+        the_string += &apos;Plong&apos;
+    return the_string or str(number)
+</code></pre><p>Can be shorter and nicer like:</p>
+<pre><code>def convert(number):
+    drops = ((3, &apos;Pling&apos;), (5, &apos;Plang&apos;), (7, &apos;Plong&apos;))
+
+    the_string = [s for n, s in drops if number % n==0]
+    return &quot;&quot;.join(the_string) or str(number)
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/python-tips/" data-id="ck0nyb2w000008m05gm1nghi7" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-aws-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/aws-tips/" class="article-date">
@@ -652,64 +745,6 @@ end
 
 
   
-    <article id="post-ngrok" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/ngrok/" class="article-date">
-  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/ngrok/">ngrok</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/ngrok/">Amazing dev tool - ngrok</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://ngrok.com/" target="_blank" rel="noopener">ngrok</a> is a tool to provide public URLs for:</p>
-<ul>
-<li>testing your application through any NAT or firewall.</li>
-<li>sending preview to your client.</li>
-<li>exposing your local server.</li>
-<li>building web hook integration.</li>
-<li>SSH access to your Rasberry PI.</li>
-</ul>
-<p>Installation is very easy:</p>
-<p>Just download from <a href="https://ngrok.com/download" target="_blank" rel="noopener">here</a>, unzip, and run:</p>
-<pre><code>./ngrok http 3000
-</code></pre><p>You will see something like below:</p>
-<p><img src="/images/ngrok.jpg" alt="ngrok"> </p>
-<p>Enjoy accessing to <a href="http://xxxxxx.ngrok.io" target="_blank" rel="noopener">http://xxxxxx.ngrok.io</a> from anywhere!</p>
-<p>An alternative is <a href="https://serveo.net/" target="_blank" rel="noopener">serveo</a>, even no need to install, just run:</p>
-<pre><code>ssh -R 80:localhost:3000 serveo.net
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ngrok/" data-id="cjudyfgav0000u9053lu15bo4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tool/">tool</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-how-to-setup-archbishopsregisters" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/how-to-setup-archbishopsregisters/" class="article-date">
@@ -911,14 +946,14 @@ etc...
 
 
   
-    <article id="post-vuejs" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-ngrok" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/vuejs/" class="article-date">
-  <time datetime="2019-04-10T12:40:12.000Z" itemprop="datePublished">2019-04-10</time>
+    <a href="/ngrok/" class="article-date">
+  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/vuejs/">vuejs</a>
+    <a class="article-category-link" href="/categories/ngrok/">ngrok</a>
   </div>
 
   </div>
@@ -929,7 +964,7 @@ etc...
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/vuejs/">Vue.js pros &amp; cons</a>
+      <a class="article-title" href="/ngrok/">Amazing dev tool - ngrok</a>
     </h1>
   
 
@@ -937,37 +972,30 @@ etc...
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>I have been exploring Vue.js framework and here is what I’ve found:</p>
-<p>The following discussion is based on Vue.js but some points should apply to React.js &amp; AngularJS as well.</p>
-<h2 id="What-is-Vue-js"><a href="#What-is-Vue-js" class="headerlink" title="What is Vue.js?"></a>What is Vue.js?</h2><p>Vue.js is a progressive framework for building frontend applications. Vues is perfectly capable of building complex Single-Page Applications (SPA).</p>
-<p>The comparison among Vue.js, React.js, AngularJS, Ember and other frameworks:</p>
-<p><a href="https://vuejs.org/v2/guide/comparison.html" target="_blank" rel="noopener">https://vuejs.org/v2/guide/comparison.html</a></p>
-<h2 id="What-Vue-js-is-good-at"><a href="#What-Vue-js-is-good-at" class="headerlink" title="What Vue.js is good at?"></a>What Vue.js is good at?</h2><ul>
-<li>Build SPAs</li>
-<li>Can work well with existing projects, e.g. migrating existing JS code to Vue.js step by step.</li>
+        <p><a href="https://ngrok.com/" target="_blank" rel="noopener">ngrok</a> is a tool to provide public URLs for:</p>
+<ul>
+<li>testing your application through any NAT or firewall.</li>
+<li>sending preview to your client.</li>
+<li>exposing your local server.</li>
+<li>building web hook integration.</li>
+<li>SSH access to your Rasberry PI.</li>
 </ul>
-<h2 id="Benefits-of-using-Vue-js"><a href="#Benefits-of-using-Vue-js" class="headerlink" title="Benefits of using Vue.js?"></a>Benefits of using Vue.js?</h2><ul>
-<li>It’s very easy to use: for any developer familiar with JS, they can pick up Vue.js quickly.</li>
-<li>Smoother integration: while introducing Vue.js into an existing project, it’s possible to start form a smaller part without affecting to the whole application.</li>
-<li>Good performance: pages load faster when user navigates within application.</li>
-<li>Well-written documentation</li>
-</ul>
-<h2 id="Cons-of-Vue-js"><a href="#Cons-of-Vue-js" class="headerlink" title="Cons of Vue.js?"></a>Cons of Vue.js?</h2><ul>
-<li>SEO: SEO optimization can be less effective as search engine crawlers work better with distinct pages.</li>
-<li>SPAs require user to have JS turned on so it may not work in some browsers</li>
-<li>Long time running SPAs may have potential memory leaks which will slow down SPAs and event make it crash.</li>
-<li>While running in mobile devices, SPAs can drain battery power faster than MPAs.</li>
-<li>Vue.js currently has no stable way to develop mobile applications. The core team is working with Weex and NativeScript to make it happen.</li>
-</ul>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a href="https://vuejs.org/v2/guide/" target="_blank" rel="noopener">https://vuejs.org/v2/guide/</a><br><a href="https://dev.to/gentlemanoi/the-progressive-javascript-framework-4kc" target="_blank" rel="noopener">https://dev.to/gentlemanoi/the-progressive-javascript-framework-4kc</a><br><a href="https://www.quora.com/What-are-the-pros-and-cons-between-SPA-and-MPA" target="_blank" rel="noopener">https://www.quora.com/What-are-the-pros-and-cons-between-SPA-and-MPA</a></p>
-
+<p>Installation is very easy:</p>
+<p>Just download from <a href="https://ngrok.com/download" target="_blank" rel="noopener">here</a>, unzip, and run:</p>
+<pre><code>./ngrok http 3000
+</code></pre><p>You will see something like below:</p>
+<p><img src="/images/ngrok.jpg" alt="ngrok"> </p>
+<p>Enjoy accessing to <a href="http://xxxxxx.ngrok.io" target="_blank" rel="noopener">http://xxxxxx.ngrok.io</a> from anywhere!</p>
+<p>An alternative is <a href="https://serveo.net/" target="_blank" rel="noopener">serveo</a>, even no need to install, just run:</p>
+<pre><code>ssh -R 80:localhost:3000 serveo.net
+</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/vuejs/" data-id="cjub2wlv40000wn05e9td9h0r" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/ngrok/" data-id="cjudyfgav0000u9053lu15bo4" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue-js/">Vue.js</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tool/">tool</a></li></ul>
 
     </footer>
   </div>
@@ -991,7 +1019,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/aws/">aws</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -1011,7 +1039,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 10px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 11.67px;">Java</a> <a href="/tags/Solr/" style="font-size: 10px;">Solr</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 13.33px;">aws</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 13.33px;">ruby</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 11.67px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 13.33px;">Java</a> <a href="/tags/Solr/" style="font-size: 11.67px;">Solr</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 13.33px;">aws</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 13.33px;">ruby</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1033,6 +1061,10 @@ etc...
       <ul>
         
           <li>
+            <a href="/yodl-migration/">YODL migration</a>
+          </li>
+        
+          <li>
             <a href="/aws-s3-localstack/">AWS S3 localstack</a>
           </li>
         
@@ -1046,10 +1078,6 @@ etc...
         
           <li>
             <a href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
-          </li>
-        
-          <li>
-            <a href="/hyrax-content-blocks/">How does Hyrax content blocks work?</a>
           </li>
         
       </ul>

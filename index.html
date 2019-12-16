@@ -83,14 +83,405 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
-    <article id="post-aws-s3-localstack" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-yodl-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/aws-s3-localstack/" class="article-date">
-  <time datetime="2019-12-06T16:36:16.217Z" itemprop="datePublished">2019-12-06</time>
+    <a href="/yodl-migration/" class="article-date">
+  <time datetime="2019-12-16T17:27:42.783Z" itemprop="datePublished">2019-12-16</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/aws/">aws</a>
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/yodl-migration/">YODL migration</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Hard-coded-fedora-URL"><a href="#Hard-coded-fedora-URL" class="headerlink" title="Hard-coded fedora URL"></a>Hard-coded fedora URL</h2><p>In FedoraRepositoryService.java, </p>
+<pre><code>private HttpClient getHttpClient() {
+</code></pre><p>and</p>
+<pre><code>private HttpClient getHttpClientViaAdmin() {
+</code></pre><p>the following line is hard-coded to localhost:</p>
+<pre><code>new AuthScope(&quot;localhost&quot;, AuthScope.ANY_PORT),
+</code></pre><p>To fix:</p>
+<ol>
+<li><p>Modify yodl.properties, add property:</p>
+<p> fedora.server=XXXXXX</p>
+</li>
+<li><p>Modify web-application-config.xml:</p>
+ <bean id="respositoryServiceParameters" class="xxxxxxxxxx.FedoraRepositoryServiceParameters" scope="prototype"><br>     ……<br>     <constructor-arg value="${fedora.server}"><br> </constructor-arg></bean>
+</li>
+<li><p>Modify IRepositoryServiceParameters.java to add:</p>
+<p> public abstract String getServer();</p>
+</li>
+<li><p>Modify FedoraRepositoryServiceParameters.java:</p>
+</li>
+</ol>
+<p>Add attribute:</p>
+<pre><code>private String server;
+</code></pre><p>Modify constructor:</p>
+<pre><code>public FedoraRepositoryServiceParameters(..., String server) {
+    ...
+    this.server = server;
+}    
+</code></pre><p>Add getter:</p>
+<pre><code>public String getServer() { return server; }    
+</code></pre><ol start="5">
+<li>Modify FedoraRepositoryService:</li>
+</ol>
+<p>Change method getHttpClient and getHttpClientViaAdmin:</p>
+<pre><code>new AuthScope(this.getRespositoryServiceParameters().getServer(), AuthScope.ANY_PORT),
+</code></pre><h2 id="hard-coded-Solr-URL"><a href="#hard-coded-Solr-URL" class="headerlink" title="hard-coded Solr URL"></a>hard-coded Solr URL</h2><h3 id="hard-coded-Solr-URL-in-Java-classes-and-Spring-config"><a href="#hard-coded-Solr-URL-in-Java-classes-and-Spring-config" class="headerlink" title="hard-coded Solr URL in Java classes and Spring config"></a>hard-coded Solr URL in Java classes and Spring config</h3><p>In src/main/java/uk/ac/york/dlib/yodling/service/search/SolrSearchService.java, solr is hard-coded:</p>
+<pre><code>private static String pathToSolr = &quot;http://localhost:8080/solr/&quot;;
+</code></pre><p>Now we need to turn this attribute to non-static, and use Spring to inject the Solr URL.</p>
+<p>First, declare the attribute as:</p>
+<pre><code>private String pathToSolr = &quot;http://localhost:8080/solr/&quot;;
+</code></pre><p>Add constructors:</p>
+<pre><code>public SolrSearchService() {
+}
+
+public SolrSearchService(String pathToSolr) {
+    try {
+        if(pathToSolr != null)
+            this.pathToSolr   = pathToSolr;
+        solrSearchServer  = new CommonsHttpSolrServer(this.pathToSolr);
+    } catch (Exception e) {
+        log.error(&quot;Exception while connecting to Solr&quot;, e);
+    }
+}
+</code></pre><p>In Spring config file, e.g. web-application-config.xml, define:</p>
+<pre><code>&lt;bean id=&quot;homeSearchService&quot; class=&quot;uk.ac.york.dlib.yodling.service.search.SolrSearchService&quot;   scope=&quot;prototype&quot;&gt;
+    &lt;constructor-arg name=&quot;pathToSolr&quot; value=&quot;${solr.baseURL}&quot; /&gt;
+
+    XXXXXXXXXXXX
+&lt;/bean&gt;           
+</code></pre><p>Do the same for imageSearchService, audioSearchService         </p>
+<p>In yodl.properties, add:</p>
+<pre><code>solr.baseURL=https://XXXX/solr   
+</code></pre><h3 id="hard-coded-Solr-URL-in-JSP"><a href="#hard-coded-Solr-URL-in-JSP" class="headerlink" title="hard-coded Solr URL in JSP"></a>hard-coded Solr URL in JSP</h3><h4 id="Top-Nav-jsp"><a href="#Top-Nav-jsp" class="headerlink" title="Top-Nav.jsp"></a>Top-Nav.jsp</h4><p>A few places use hard-coded Solr URL:</p>
+<pre><code>&lt;c:import url=&apos;http://localhost:8080/solr/select?q=PID%3A%22${prefix}%3A${ancestorPid}%22&apos; var=&quot;ancestralRelsXML&quot;/&gt; 
+</code></pre><p>To fix:</p>
+<ol>
+<li><p>Add a new class uk.ac.york.dlib.yodling.web.util.PropertiesResolver: </p>
+<p> package uk.ac.york.dlib.yodling.web.util;</p>
+<p> import org.apache.log4j.Logger;</p>
+<p> import java.util.HashSet;<br> import java.util.Properties;<br> import java.util.Set;</p>
+<p> public class PropertiesResolver {</p>
+<pre><code>private static final Logger log = Logger.getLogger(PropertiesResolver.class);
+private static Properties properties = null;
+
+public static void load() {
+    properties = new Properties();
+    try {
+        properties.load(PropertiesResolver.class
+                .getResourceAsStream(&quot;/yodl.properties&quot;));
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        log.error(&quot;Couldn&apos;t load Properties file&quot;, ex);
+    }
+}
+
+public static String getProperty(String key) {
+    if (properties == null)
+        load();
+    String value = properties.getProperty(key).trim();
+    if (value == null)
+        value = &quot;&quot;;
+    return value;
+}
+
+// **************************
+public static String getSolrUrl() {
+    if (properties == null)
+        load();
+    return getProperty(&quot;solr.baseURL&quot;).trim();
+}
+</code></pre><p> }</p>
+</li>
+<li><p>Modify Top-Nav.jsp</p>
+</li>
+</ol>
+<p>Add</p>
+<pre><code>&lt;%@page import=&quot;uk.ac.york.dlib.yodling.web.util.PropertiesResolver&quot;%&gt;
+</code></pre><p>Add</p>
+<pre><code>&lt;c:set var=&quot;solrUrl&quot; value=&quot;${PropertiesResolver.getSolrUrl()}&quot;/&gt;    
+</code></pre><p>Then change to:</p>
+<pre><code>&lt;c:import url=&apos;${solrUrl}/select?q=PID%3A%22${prefix}%3A${ancestorPid}%22&apos; var=&quot;ancestralRelsXML&quot;/&gt;   
+</code></pre><h2 id="Tiles-problem"><a href="#Tiles-problem" class="headerlink" title="Tiles problem"></a>Tiles problem</h2><p><strong>Problem</strong></p>
+<pre><code>ERROR 38:18 Digester&gt; Parse Error at line 105 column 21: The content of element type &quot;tiles-definitions&quot; must match &quot;(definition)+&quot;.
+</code></pre><p><strong>Reason and solution</strong></p>
+<p>In src/main/webapp/WEB-INF/HOME, views.xml is NOT well-formed.    </p>
+<h2 id="Search-Browse-problem"><a href="#Search-Browse-problem" class="headerlink" title="Search / Browse problem"></a>Search / Browse problem</h2><p>The search/browse was breaking, because the following expression is not working:</p>
+<pre><code>${modelToViewMapping[result.class.name]}
+</code></pre><p>Instead, change it to:</p>
+<pre><code>${modelToViewMapping[result.getClass().getName()]}    
+</code></pre><h2 id="CORS-problem-with-Seadragon-image-viewer"><a href="#CORS-problem-with-Seadragon-image-viewer" class="headerlink" title="CORS problem with Seadragon image viewer"></a>CORS problem with Seadragon image viewer</h2><p>In image detail page, the error appears:</p>
+<pre><code>site-aggregate.js?version=1.0.201205021213:59 Cross-Origin Read Blocking (CORB) blocked cross-origin response https://yodlapp3.york.ac.uk/cgi-bin/iipsrv.fcgi?DeepZoom=/usr/digilib-webdocs/digilibImages/HOA/current/OTHERS/20120614/53a427ab-a968-4a73-be38-8a69dd945416_4_monk_bar_york_cropped.jp2.dzi with MIME type application/xml. See https://www.chromestatus.com/feature/5629709824032768 for more details.
+</code></pre><p>Reason &amp; steps: needs to config CORS in apache on the image server. Below are the steps:</p>
+<pre><code>nano /etc/apache2/sites-enabled/xxxx.conf
+</code></pre><p>with following content:</p>
+<pre><code>Alias /cgi-bin &quot;/usr/lib/cgi-bin&quot;
+&lt;Directory &quot;/usr/lib/cgi-bin&quot;&gt;
+  AllowOverride None
+  Options None
+  Order allow,deny
+  Header set Access-Control-Allow-Origin &quot;*&quot;
+  Header set Access-Control-Allow-Methods &quot;GET,POST,OPTIONS&quot;
+  Header set Access-Control-Allow-Headers &quot;x-requested-with&quot;
+  Allow from all
+&lt;/Directory&gt;    
+</code></pre><p>Restart Apache</p>
+<p><strong>Remember to clear your browser’s cache!!!!!!</strong></p>
+<p>Also, change hard-coded image server URL from image detail page.</p>
+<p>Edit src/main/java/uk/ac/york/dlib/yodling/web/util/PropertiesResolver.java to add method:</p>
+<pre><code>public static String getImageServer() {
+       if (properties == null)
+           load();
+      return getProperty(&quot;image.server&quot;).trim();
+  }
+</code></pre><p>In Views/Image/Detail.jsp, add:</p>
+<pre><code>&lt;%@page import=&quot;uk.ac.york.dlib.yodling.web.util.PropertiesResolver&quot;%&gt;
+......
+&lt;c:set var=&quot;imageServer&quot; value=&quot;${PropertiesResolver.getImageServer()}&quot;/&gt;
+......
+viewer.openDzi(&quot;${imageServer}&lt;c:out value=&apos;/cgi-bin/iipsrv.fcgi?DeepZoom=${image.JP2AbsoluteLocation}&apos;/&gt;.dzi&quot;);
+</code></pre><h2 id="Orbeon-Engine"><a href="#Orbeon-Engine" class="headerlink" title="Orbeon Engine"></a>Orbeon Engine</h2><p>Refer to <a href="/iris-migration/">IRIS migration</a></p>
+<h2 id="logging-dependency-problem"><a href="#logging-dependency-problem" class="headerlink" title="logging dependency problem"></a>logging dependency problem</h2><p>The web app, e.g. iris working on local VM (Tomcat 9) but cannot start on dlibjavatest0 (Tomcat 8), and the error message is:</p>
+<pre><code>17:08:12.571 SEVERE [http-nio-8080-exec-2] org.apache.catalina.core.StandardContext.listenerStart Exception sending context initialized event to listener instance of class [org.springframework.web.context.ContextLoaderListener]
+java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does not define or inherit an implementation of the resolved method &apos;abstract void log(org.slf4j.Marker, java.lang.String, int, java.lang.String, java.lang.Throwable)&apos; of interface org.slf4j.spi.LocationAwareLogger.
+       at org.apache.commons.logging.impl.SLF4JLocationAwareLog.info(SLF4JLocationAwareLog.java:159)
+       at org.springframework.web.context.ContextLoader.initWebApplicationContext(ContextLoader.java:187)
+       at org.springframework.web.context.ContextLoaderListener.contextInitialized(ContextLoaderListener.java:47)
+       at org.apache.catalina.core.StandardContext.listenerStart(StandardContext.java:4643)
+       at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:5109)
+       at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:183)
+       at org.apache.catalina.manager.ManagerServlet.start(ManagerServlet.java:1395)
+       at org.apache.catalina.manager.HTMLManagerServlet.start(HTMLManagerServlet.java:698)
+       at org.apache.catalina.manager.HTMLManagerServlet.doPost(HTMLManagerServlet.java:223)
+       at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+       at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+       at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+</code></pre><h3 id="Reason"><a href="#Reason" class="headerlink" title="Reason"></a>Reason</h3><p>If log4j-over-slf4j.jar and slf4j-log4j12.jar exist on the same classpath, the problem arise.      </p>
+<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p><strong>Manual test</strong><br>delete log4j-over-slf4j-1.7.5.jar on WEB-INF/lib folder and restart Tomcat 8.</p>
+<p><strong>Remove it from pom.xml</strong> </p>
+<p>Find transitive dependency in pom:</p>
+<pre><code>mvn dependency:tree
+</code></pre><p>The output looks like:</p>
+<pre><code>[INFO] +- javax.servlet:servlet-api:jar:2.4:compile
+[INFO] +- javax.faces:jsf-api:jar:1.2_04:provided
+[INFO] +- javax.faces:jsf-impl:jar:1.2_04:provided
+[INFO] +- commons-beanutils:commons-beanutils:jar:1.7.0:compile
+[INFO] +- commons-digester:commons-digester:jar:1.8:compile
+[INFO] +- commons-logging:commons-logging:jar:1.1.1:compile
+[INFO] +- commons-logging:commons-logging-api:jar:1.1:compile
+[INFO] +- junit:junit:jar:4.7:test
+[INFO] +- log4j:log4j:jar:1.2.15:compile
+[INFO] |  +- javax.jms:jms:jar:1.1:compile
+[INFO] |  \- com.sun.jmx:jmxri:jar:1.2.1:compile
+[INFO] +- taglibs:standard:jar:1.1.2:compile
+[INFO] +- org.apache.tiles:tiles-api:jar:2.1.4:compile
+[INFO] +- org.apache.tiles:tiles-core:jar:2.1.4:compile
+[INFO] +- org.apache.tiles:tiles-jsp:jar:2.1.4:compile
+[INFO] |  \- org.apache.tiles:tiles-servlet:jar:2.1.4:compile
+[INFO] +- com.sun.jdmk:jmxtools:jar:1.2.1:compile
+[INFO] +- org.apache.solr:solr-solrj:jar:3.6.2:compile
+[INFO] |  +- commons-httpclient:commons-httpclient:jar:3.1:compile
+[INFO] |  \- org.codehaus.woodstox:wstx-asl:jar:3.2.7:runtime
+[INFO] +- org.slf4j:slf4j-api:jar:1.5.11:compile
+[INFO] +- org.slf4j:slf4j-log4j12:jar:1.5.11:compile
+[INFO] +- org.slf4j:jcl-over-slf4j:jar:1.5.11:compile
+[INFO] +- javax.servlet:jstl:jar:1.2:compile
+[INFO] +- org.jvnet.ws.wadl:wadl-core:jar:1.0-SNAPSHOT-NT:compile
+[INFO] +- javax.xml.bind:jaxb-api:jar:2.3.1:compile
+[INFO] |  \- javax.activation:javax.activation-api:jar:1.2.0:compile
+[INFO] +- javax.activation:activation:jar:1.1:compile
+[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.1:compile
+[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.1:compile
+[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.7:compile
+[INFO] |  +- org.jvnet.staxex:stax-ex:jar:1.8:compile
+[INFO] |  \- com.sun.xml.fastinfoset:FastInfoset:jar:1.2.15:compile
+[INFO] +- javax.ws.rs:jsr311-api:jar:1.1.1:compile
+[INFO] +- com.sun.jersey:jersey-core:jar:1.3:compile
+[INFO] +- com.sun.jersey:jersey-client:jar:1.3:compile
+[INFO] +- com.sun.jersey.contribs:jersey-spring:jar:1.3:compile
+[INFO] +- xalan:xalan:jar:2.7.1:compile
+[INFO] |  \- xalan:serializer:jar:2.7.1:compile
+[INFO] +- com.sun.jersey:jersey-server:jar:1.3:compile
+[INFO] |  \- asm:asm:jar:3.1:compile
+[INFO] +- org.springframework:spring-mock:jar:2.0.8:test
+[INFO] +- org.springframework:spring-test:jar:3.0.5.RELEASE:test
+[INFO] +- org.springframework:spring-web:jar:3.0.5.RELEASE:compile
+[INFO] |  \- aopalliance:aopalliance:jar:1.0:compile
+[INFO] +- org.springframework:spring-webmvc:jar:3.0.5.RELEASE:compile
+[INFO] |  +- org.springframework:spring-asm:jar:3.0.5.RELEASE:compile
+[INFO] |  \- org.springframework:spring-context-support:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework:spring-beans:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework:spring-context:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework:spring-core:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework:spring-expression:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework.security:spring-security-web:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework.security:spring-security-config:jar:3.0.5.RELEASE:compile
+[INFO] +- org.springframework.security:spring-security-taglibs:jar:3.0.5.RELEASE:compile
+[INFO] |  \- org.springframework.security:spring-security-acl:jar:3.0.5.RELEASE:compile
+[INFO] |     \- org.springframework:spring-jdbc:jar:3.0.3.RELEASE:compile
+[INFO] +- org.springframework:spring-aop:jar:3.0.5.RELEASE:compile
+[INFO] +- cglib:cglib:jar:2.2:compile
+[INFO] +- org.aspectj:aspectjweaver:jar:1.6.11:compile
+[INFO] +- com.yourmediashelf.fedora.client:fedora-client-core:jar:0.8s:compile
+[INFO] |  +- com.sun.jersey.contribs:jersey-multipart:jar:1.17.1:compile
+[INFO] |  |  \- org.jvnet:mimepull:jar:1.6:compile
+[INFO] |  +- com.hp.hpl.jena:jena:jar:2.6.4:compile
+[INFO] |  |  +- com.hp.hpl.jena:iri:jar:0.8:compile
+[INFO] |  |  \- com.ibm.icu:icu4j:jar:3.4.4:compile
+[INFO] |  +- org.apache.santuario:xmlsec:jar:1.5.4:compile
+[INFO] |  +- org.slf4j:log4j-over-slf4j:jar:1.7.5:runtime
+[INFO] |  \- xerces:xercesImpl:jar:2.11.0:compile
+[INFO] +- org.openrdf:openrdf-sesame:jar:onejar:2.3.2:compile
+[INFO] +- taglibs:string:jar:1.1.0:compile
+[INFO] +- org.apache.commons:commons-lang3:jar:3.4:compile
+[INFO] +- rome:rome-fetcher:jar:1.0:compile
+[INFO] |  +- jdom:jdom:jar:1.0:compile
+[INFO] |  \- rome:rome:jar:1.0:compile
+[INFO] +- orbeon:xforms-filter:jar:3.9:compile
+[INFO] +- com.jspsmart:upload:jar:1.0:compile
+[INFO] +- commons-fileupload:commons-fileupload:jar:1.2.2:compile
+[INFO] +- commons-io:commons-io:jar:2.0.1:compile
+[INFO] +- dom4j:dom4j:jar:1.6.1:compile
+[INFO] |  \- xml-apis:xml-apis:jar:1.0.b2:compile
+[INFO] +- jaxen:jaxen:jar:1.1.1:compile
+[INFO] |  \- xom:xom:jar:1.0:compile
+[INFO] |     \- xerces:xmlParserAPIs:jar:2.6.2:compile
+[INFO] +- org.apache.commons:commons-compress:jar:1.0:compile
+[INFO] +- javax.mail:mail:jar:1.4.5:compile
+[INFO] +- org.apache.commons:commons-email:jar:1.2:compile
+[INFO] +- org.freemarker:freemarker:jar:2.3.19:compile
+[INFO] +- displaytag:displaytag:jar:1.2:compile
+[INFO] |  +- commons-collections:commons-collections:jar:3.1:compile
+[INFO] |  +- commons-lang:commons-lang:jar:2.3:compile
+[INFO] |  \- com.lowagie:itext:jar:1.3:compile
+[INFO] +- jcs:jcs:jar:1.3:compile
+[INFO] |  +- commons-configuration:commons-configuration:jar:1.4:compile
+[INFO] |  |  +- commons-beanutils:commons-beanutils-core:jar:1.7.0:compile
+[INFO] |  |  \- commons-jxpath:commons-jxpath:jar:1.2:compile
+[INFO] |  |     \- ant:ant-optional:jar:1.5.1:compile
+[INFO] |  +- commons-dbcp:commons-dbcp:jar:1.2.2:compile
+[INFO] |  +- commons-pool:commons-pool:jar:1.3:compile
+[INFO] |  +- concurrent:concurrent:jar:1.0:compile
+[INFO] |  +- mysql:mysql-connector-java:jar:3.0.10:compile
+[INFO] |  |  +- javax.sql:jdbc-stdext:jar:2.0:compile
+[INFO] |  |  \- javax.transaction:jta:jar:1.0.1B:compile
+[INFO] |  +- hsqldb:hsqldb:jar:1.7.3.3:compile
+[INFO] |  +- tomcat:tomcat-util:jar:3.2.1:compile
+[INFO] |  +- velocity:velocity:jar:1.5:compile
+[INFO] |  |  \- oro:oro:jar:2.0.8:compile
+[INFO] |  +- xmlrpc:xmlrpc:jar:2.0:compile
+[INFO] |  \- berkeleydb:berkeleydb:jar:1.5.1:compile
+[INFO] +- net.sf.ehcache:ehcache:jar:2.4.2:compile
+[INFO] |  +- net.sf.ehcache:ehcache-core:jar:2.4.2:compile
+[INFO] |  \- net.sf.ehcache:ehcache-terracotta:jar:2.4.2:compile
+[INFO] +- org.codehaus.jackson:jackson-mapper-lgpl:jar:1.5.6:compile
+[INFO] |  \- org.codehaus.jackson:jackson-core-lgpl:jar:1.5.6:compile
+[INFO] +- org.apache.httpcomponents:httpclient:jar:4.3.6:compile
+[INFO] |  \- commons-codec:commons-codec:jar:1.6:compile
+[INFO] +- org.apache.httpcomponents:httpcore:jar:4.3.3:compile
+[INFO] +- eu.medsea.mimeutil:mime-util:jar:2.1.3:compile
+[INFO] +- joda-time:joda-time:jar:1.6.1:compile
+[INFO] +- org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:jar:1.0.1-SNAPSHOT:compile
+[INFO] +- org.apache.oltu.oauth2:org.apache.oltu.oauth2.common:jar:1.0.1-SNAPSHOT:compile
+[INFO] +- org.json:json:jar:20140107:compile
+[INFO] +- org.springframework.security.oauth:spring-security-oauth2:jar:1.0.5.RELEASE:compile
+[INFO] |  \- org.codehaus.jackson:jackson-mapper-asl:jar:1.9.2:compile
+[INFO] |     \- org.codehaus.jackson:jackson-core-asl:jar:1.9.2:compile
+[INFO] \- org.springframework.security:spring-security-core:jar:3.0.5.RELEASE:compile
+[INFO]    +- org.springframework:spring-tx:jar:3.0.3.RELEASE:compile
+[INFO]    \- org.aspectj:aspectjrt:jar:1.6.8:compile        
+</code></pre><p>Do a text search of ‘log4j-over-slf4j’ on the above result, and it shows that the com.yourmediashelf.fedora.client:fedora-client-core:jar has a transitive dependency on log4j-over-slf4j. </p>
+<p>In the pom.xml, change:</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.yourmediashelf.fedora.client&lt;/groupId&gt;
+    &lt;artifactId&gt;fedora-client-core&lt;/artifactId&gt;
+    &lt;version&gt;0.8s&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>to:</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.yourmediashelf.fedora.client&lt;/groupId&gt;
+    &lt;artifactId&gt;fedora-client-core&lt;/artifactId&gt;
+    &lt;version&gt;0.8s&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;log4j-over-slf4j&lt;/artifactId&gt;
+            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+</code></pre><h2 id="JSTL-problem"><a href="#JSTL-problem" class="headerlink" title="JSTL problem"></a>JSTL problem</h2><p>While loading details page, an error message is showing in the Tomcat log:</p>
+<pre><code>[Fatal Error] jstl::1:1: Content is not allowed in prolog.
+</code></pre><h3 id="Reason-amp-fix"><a href="#Reason-amp-fix" class="headerlink" title="Reason &amp; fix"></a>Reason &amp; fix</h3><p>The feedbackXML has been’t generated properly if there is no FEEDBACK data stream. In AbstractResourceController.java, line 669:</p>
+<pre><code>try{
+    XXXXXXX
+}catch(Exception e) {
+    XXXXXXX
+}finally {
+&gt;&gt;&gt;&gt;    if(feedbackiris!=null)
+        XXXXXX
+    else
+        XXXXXX
+}
+</code></pre><p>It should be changed to:</p>
+<pre><code>if(feedbackiris!=null &amp;&amp; feedbackiris.startsWith(&quot;&lt;?xml version=&quot;))             
+</code></pre><h2 id="IP-restrictions"><a href="#IP-restrictions" class="headerlink" title="IP restrictions"></a>IP restrictions</h2><p>Edit /etc/apache2/sites-enabled/default-ssl.conf, add the following:</p>
+<pre><code>&lt;Location /solr&gt;
+  Allow from TEST_SERVER_IP                     
+  ...
+&lt;/Location&gt;  
+
+&lt;Location /fedora/risearch&gt;  
+  Allow from TEST_SERVER_IP                     
+  ...
+&lt;/Location&gt;
+
+&lt;Directory &quot;/usr/digilib-webdocs/digilibImages&quot;&gt;
+  Allow from dlibjavatest0.york.ac.uk
+  ...
+&lt;/Directory&gt;
+</code></pre><p>Restart Apache2</p>
+<pre><code>service apache2 restart
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/yodl-migration/" data-id="ck48pp4x40001j5058vjxad2a" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-aws-s3-localstack" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/aws-s3-localstack/" class="article-date">
+  <time datetime="2019-12-06T16:41:38.997Z" itemprop="datePublished">2019-12-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AWS/">AWS</a>
   </div>
 
   </div>
@@ -1258,99 +1649,6 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
 
 
   
-    <article id="post-python-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/python-tips/" class="article-date">
-  <time datetime="2019-09-16T21:40:12.000Z" itemprop="datePublished">2019-09-16</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Python/">Python</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/python-tips/">Python tips</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><p>Use the new way to format string</p>
-<pre><code>&apos;One for {name}, one for me.&apos;.format(name=name)
-</code></pre><p>OR</p>
-<pre><code>&apos;One for {}, one for me.&apos;.format(name)
-</code></pre><p>NOT the old way:</p>
-<pre><code>&quot;One for %s, one for me.&quot; % name
-</code></pre><p>Split string by line breaks and convert it into array:</p>
-<pre><code>my_string.splitlines()      
-</code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><p>Using sorted over sort, will create a fresh copy of the list and avoids possible side effects.</p>
-<pre><code>sorted_array = sorted(scores,reverse=True)
-</code></pre><p>Also, Python automatically detect array boundaries, so no need to check like:</p>
-<pre><code>return sorted_array[0:3] if len(sorted_array)&gt;=3 else sorted_array
-</code></pre><p>Just </p>
-<pre><code>return sorted(scores,reverse=True)[0:3]     
-</code></pre><p>Or even simpler:</p>
-<pre><code>return sorted(scores,reverse=True)[:3]        
-</code></pre><h3 id="String-to-Array"><a href="#String-to-Array" class="headerlink" title="String to Array"></a>String to Array</h3><pre><code>s = &quot;1 2 3 4\n5 6 7 8\n9 8 7 6&quot;
-
-&gt;&gt;&gt; lines = s.splitlines()
-&gt;&gt;&gt; lines
-[&apos;1 2 3 4&apos;, &apos;5 6 7 8&apos;, &apos;9 8 7 6&apos;]
-
-&gt;&gt;&gt; rows = [[int(v) for v in row.split()] for row in lines]
-&gt;&gt;&gt; rows
-[[1, 2, 3, 4], [5, 6, 7, 8], [9, 8, 7, 6]]
-
-&gt;&gt;&gt; [list(column) for column in zip(*rows)]
-[[1, 5, 9], [2, 6, 8], [3, 7, 7], [4, 8, 6]]       
-</code></pre><h2 id="Iterables"><a href="#Iterables" class="headerlink" title="Iterables"></a>Iterables</h2><h3 id="zip"><a href="#zip" class="headerlink" title="zip"></a>zip</h3><pre><code>s1 = &quot;AABBC&quot;
-s2 = &quot;AABBD&quot;
-s = zip(s1, s2)
-&gt;&gt;&gt; list(zip(s1,s2))
-[(&apos;A&apos;, &apos;A&apos;), (&apos;A&apos;, &apos;A&apos;), (&apos;B&apos;, &apos;B&apos;), (&apos;B&apos;, &apos;B&apos;), (&apos;C&apos;, &apos;D&apos;)]
-&gt;&gt;&gt; sum(a!=b for a,b in zip(s1, s2))
-1
-</code></pre><h2 id="Code-refactoring"><a href="#Code-refactoring" class="headerlink" title="Code refactoring"></a>Code refactoring</h2><p>The following code:</p>
-<pre><code>def convert(number):
-    the_string = &apos;&apos;
-    if number % 3 == 0:
-        the_string += &apos;Pling&apos;
-    if number % 5 == 0:
-        the_string += &apos;Plang&apos;
-    if number % 7 == 0:
-        the_string += &apos;Plong&apos;
-    return the_string or str(number)
-</code></pre><p>Can be shorter and nicer like:</p>
-<pre><code>def convert(number):
-    drops = ((3, &apos;Pling&apos;), (5, &apos;Plang&apos;), (7, &apos;Plong&apos;))
-
-    the_string = [s for n, s in drops if number % n==0]
-    return &quot;&quot;.join(the_string) or str(number)
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/python-tips/" data-id="ck0nyb2w000008m05gm1nghi7" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -1366,7 +1664,7 @@ s = zip(s1, s2)
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/aws/">aws</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -1386,7 +1684,7 @@ s = zip(s1, s2)
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 10px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 11.67px;">Java</a> <a href="/tags/Solr/" style="font-size: 10px;">Solr</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 13.33px;">aws</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 13.33px;">ruby</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 11.67px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 13.33px;">Java</a> <a href="/tags/Solr/" style="font-size: 11.67px;">Solr</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 13.33px;">aws</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 13.33px;">ruby</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1408,6 +1706,10 @@ s = zip(s1, s2)
       <ul>
         
           <li>
+            <a href="/yodl-migration/">YODL migration</a>
+          </li>
+        
+          <li>
             <a href="/aws-s3-localstack/">AWS S3 localstack</a>
           </li>
         
@@ -1421,10 +1723,6 @@ s = zip(s1, s2)
         
           <li>
             <a href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
-          </li>
-        
-          <li>
-            <a href="/hyrax-content-blocks/">How does Hyrax content blocks work?</a>
           </li>
         
       </ul>

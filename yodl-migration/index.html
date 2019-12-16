@@ -18,22 +18,20 @@ ga('send', 'pageview');
 
 
   
-  <title>IRIS migration | Frank&#39;s development blog</title>
+  <title>YODL migration | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  In src/main/java/uk/ac">
+  <meta name="description" content="Hard-coded fedora URLIn FedoraRepositoryService.java,  private HttpClient getHttpClient() { and private HttpClient getHttpClientViaAdmin() { the following line is hard-coded to localhost: new AuthScop">
 <meta name="keywords" content="Java Fedora Solr">
 <meta property="og:type" content="article">
-<meta property="og:title" content="IRIS migration">
-<meta property="og:url" content="https://yfrankfeng.github.io/iris-migration/index.html">
+<meta property="og:title" content="YODL migration">
+<meta property="og:url" content="https://yfrankfeng.github.io/yodl-migration/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  In src/main/java/uk/ac">
+<meta property="og:description" content="Hard-coded fedora URLIn FedoraRepositoryService.java,  private HttpClient getHttpClient() { and private HttpClient getHttpClientViaAdmin() { the following line is hard-coded to localhost: new AuthScop">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="https://user-images.githubusercontent.com/437701/70224943-03601700-1746-11ea-8803-34824f3c3cf4.png">
-<meta property="og:updated_time" content="2019-12-05T14:49:33.000Z">
+<meta property="og:updated_time" content="2019-12-16T17:27:43.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="IRIS migration">
-<meta name="twitter:description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  In src/main/java/uk/ac">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/437701/70224943-03601700-1746-11ea-8803-34824f3c3cf4.png">
+<meta name="twitter:title" content="YODL migration">
+<meta name="twitter:description" content="Hard-coded fedora URLIn FedoraRepositoryService.java,  private HttpClient getHttpClient() { and private HttpClient getHttpClientViaAdmin() { the following line is hard-coded to localhost: new AuthScop">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
   
@@ -84,10 +82,10 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-iris-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <section id="main"><article id="post-yodl-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/iris-migration/" class="article-date">
-  <time datetime="2019-12-05T14:49:32.568Z" itemprop="datePublished">2019-12-05</time>
+    <a href="/yodl-migration/" class="article-date">
+  <time datetime="2019-12-16T17:27:42.783Z" itemprop="datePublished">2019-12-16</time>
 </a>
     
   <div class="article-category">
@@ -102,7 +100,7 @@ ga('send', 'pageview');
         
   
     <h1 class="article-title" itemprop="name">
-      IRIS migration
+      YODL migration
     </h1>
   
 
@@ -110,9 +108,41 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Hard-coded-fedora-URL"><a href="#Hard-coded-fedora-URL" class="headerlink" title="Hard-coded fedora URL"></a>Hard-coded fedora URL</h2><p>In src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects) </p>
-<p>In src/main/java/uk/ac/york/dlib/yodling/web/workflow/WorkflowController.java, between about L1454-L1482, and other places within that file.</p>
-<h2 id="hard-coded-Solr-URL"><a href="#hard-coded-Solr-URL" class="headerlink" title="hard-coded Solr URL"></a>hard-coded Solr URL</h2><p>In src/main/java/uk/ac/york/dlib/yodling/service/search/SolrSearchService.java, solr is hard-coded:</p>
+        <h2 id="Hard-coded-fedora-URL"><a href="#Hard-coded-fedora-URL" class="headerlink" title="Hard-coded fedora URL"></a>Hard-coded fedora URL</h2><p>In FedoraRepositoryService.java, </p>
+<pre><code>private HttpClient getHttpClient() {
+</code></pre><p>and</p>
+<pre><code>private HttpClient getHttpClientViaAdmin() {
+</code></pre><p>the following line is hard-coded to localhost:</p>
+<pre><code>new AuthScope(&quot;localhost&quot;, AuthScope.ANY_PORT),
+</code></pre><p>To fix:</p>
+<ol>
+<li><p>Modify yodl.properties, add property:</p>
+<p> fedora.server=XXXXXX</p>
+</li>
+<li><p>Modify web-application-config.xml:</p>
+ <bean id="respositoryServiceParameters" class="xxxxxxxxxx.FedoraRepositoryServiceParameters" scope="prototype"><br>     ……<br>     <constructor-arg value="${fedora.server}"><br> </constructor-arg></bean>
+</li>
+<li><p>Modify IRepositoryServiceParameters.java to add:</p>
+<p> public abstract String getServer();</p>
+</li>
+<li><p>Modify FedoraRepositoryServiceParameters.java:</p>
+</li>
+</ol>
+<p>Add attribute:</p>
+<pre><code>private String server;
+</code></pre><p>Modify constructor:</p>
+<pre><code>public FedoraRepositoryServiceParameters(..., String server) {
+    ...
+    this.server = server;
+}    
+</code></pre><p>Add getter:</p>
+<pre><code>public String getServer() { return server; }    
+</code></pre><ol start="5">
+<li>Modify FedoraRepositoryService:</li>
+</ol>
+<p>Change method getHttpClient and getHttpClientViaAdmin:</p>
+<pre><code>new AuthScope(this.getRespositoryServiceParameters().getServer(), AuthScope.ANY_PORT),
+</code></pre><h2 id="hard-coded-Solr-URL"><a href="#hard-coded-Solr-URL" class="headerlink" title="hard-coded Solr URL"></a>hard-coded Solr URL</h2><h3 id="hard-coded-Solr-URL-in-Java-classes-and-Spring-config"><a href="#hard-coded-Solr-URL-in-Java-classes-and-Spring-config" class="headerlink" title="hard-coded Solr URL in Java classes and Spring config"></a>hard-coded Solr URL in Java classes and Spring config</h3><p>In src/main/java/uk/ac/york/dlib/yodling/service/search/SolrSearchService.java, solr is hard-coded:</p>
 <pre><code>private static String pathToSolr = &quot;http://localhost:8080/solr/&quot;;
 </code></pre><p>Now we need to turn this attribute to non-static, and use Spring to inject the Solr URL.</p>
 <p>First, declare the attribute as:</p>
@@ -135,67 +165,99 @@ public SolrSearchService(String pathToSolr) {
     &lt;constructor-arg name=&quot;pathToSolr&quot; value=&quot;${solr.baseURL}&quot; /&gt;
 
     XXXXXXXXXXXX
-&lt;/bean&gt;                
-</code></pre><p> In yodl.properties, add:</p>
-<pre><code>solr.baseURL=https://XXXX/solr
-</code></pre><h2 id="hard-coded-XSLT-path"><a href="#hard-coded-XSLT-path" class="headerlink" title="hard coded XSLT path"></a>hard coded XSLT path</h2><pre><code>src/main/webapp/Content/xslt/downloadersorter.xsl
-src/main/webapp/Content/xslt/iris2dc.xsl
-src/main/webapp/Content/xslt/irisData4EmailAlerts.xsl
-src/main/webapp/Content/xslt/updateDownloadCountPerInsType.xsl
-src/main/webapp/Content/xslt/updatePreDataTypes.xsl
-src/main/webapp/Content/xslt/updateDownloadCountPerRA.xsl
-src/main/webapp/Content/xslt/updatePreDomainOfUse.xsl
-src/main/webapp/Content/xslt/updatePreFunders.xsl
-src/main/webapp/Content/xslt/updatePreInsType.xsl
-src/main/webapp/Content/xslt/updatePreJournals.xsl
-src/main/webapp/Content/xslt/updatePreLinguisticTargets.xsl
-src/main/webapp/Content/xslt/updatePreParticipantTypes.xsl
-src/main/webapp/Content/xslt/updatePreProficiencies.xsl
-src/main/webapp/Content/xslt/updatePrePublishers.xsl
-src/main/webapp/Content/xslt/updatePreRequired_software.xsl
-src/main/webapp/Content/xslt/updatePreResearchAreas.xsl
-</code></pre><p>Change all absolute paths to DD to something like:</p>
-<pre><code>&lt;xsl:variable name=&quot;commonsDD&quot;  select=&quot;document(&apos;../xml/datadictionary/commons.xml&apos;, /)&quot;/&gt;
-</code></pre><h2 id="Improvements"><a href="#Improvements" class="headerlink" title="Improvements"></a>Improvements</h2><h3 id="duplicated-web-xml-in-Tomcat-webapp-folders"><a href="#duplicated-web-xml-in-Tomcat-webapp-folders" class="headerlink" title="duplicated web.xml in Tomcat webapp folders"></a>duplicated web.xml in Tomcat webapp folders</h3><p>In pom.xml</p>
-<pre><code>&lt;build&gt;
-        &lt;sourceDirectory&gt;${basedir}/src/main/java&lt;/sourceDirectory&gt;
-        &lt;outputDirectory&gt;${project.build.directory}/WebRoot/WEB-INF/classes&lt;/outputDirectory&gt;
-        &lt;resources&gt;
-            ......
-            &lt;resource&gt;
-                &lt;directory&gt;src/main/resources&lt;/directory&gt;
-                &lt;excludes&gt;
-                    &lt;exclude&gt;**/*.properties&lt;/exclude&gt;
-                    &lt;exclude&gt;**/*web-application-config.xml&lt;/exclude&gt;
-                    &lt;exclude&gt;**/*web.xml&lt;/exclude&gt;
-                &lt;/excludes&gt;
-            &lt;/resource&gt;
-        &lt;/resources&gt;   
+&lt;/bean&gt;           
+</code></pre><p>Do the same for imageSearchService, audioSearchService         </p>
+<p>In yodl.properties, add:</p>
+<pre><code>solr.baseURL=https://XXXX/solr   
+</code></pre><h3 id="hard-coded-Solr-URL-in-JSP"><a href="#hard-coded-Solr-URL-in-JSP" class="headerlink" title="hard-coded Solr URL in JSP"></a>hard-coded Solr URL in JSP</h3><h4 id="Top-Nav-jsp"><a href="#Top-Nav-jsp" class="headerlink" title="Top-Nav.jsp"></a>Top-Nav.jsp</h4><p>A few places use hard-coded Solr URL:</p>
+<pre><code>&lt;c:import url=&apos;http://localhost:8080/solr/select?q=PID%3A%22${prefix}%3A${ancestorPid}%22&apos; var=&quot;ancestralRelsXML&quot;/&gt; 
+</code></pre><p>To fix:</p>
+<ol>
+<li><p>Add a new class uk.ac.york.dlib.yodling.web.util.PropertiesResolver: </p>
+<p> package uk.ac.york.dlib.yodling.web.util;</p>
+<p> import org.apache.log4j.Logger;</p>
+<p> import java.util.HashSet;<br> import java.util.Properties;<br> import java.util.Set;</p>
+<p> public class PropertiesResolver {</p>
+<pre><code>private static final Logger log = Logger.getLogger(PropertiesResolver.class);
+private static Properties properties = null;
+
+public static void load() {
+    properties = new Properties();
+    try {
+        properties.load(PropertiesResolver.class
+                .getResourceAsStream(&quot;/yodl.properties&quot;));
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        log.error(&quot;Couldn&apos;t load Properties file&quot;, ex);
+    }
+}
+
+public static String getProperty(String key) {
+    if (properties == null)
+        load();
+    String value = properties.getProperty(key).trim();
+    if (value == null)
+        value = &quot;&quot;;
+    return value;
+}
+
+// **************************
+public static String getSolrUrl() {
+    if (properties == null)
+        load();
+    return getProperty(&quot;solr.baseURL&quot;).trim();
+}
+</code></pre><p> }</p>
+</li>
+<li><p>Modify Top-Nav.jsp</p>
+</li>
+</ol>
+<p>Add</p>
+<pre><code>&lt;%@page import=&quot;uk.ac.york.dlib.yodling.web.util.PropertiesResolver&quot;%&gt;
+</code></pre><p>Add</p>
+<pre><code>&lt;c:set var=&quot;solrUrl&quot; value=&quot;${PropertiesResolver.getSolrUrl()}&quot;/&gt;    
+</code></pre><p>Then change to:</p>
+<pre><code>&lt;c:import url=&apos;${solrUrl}/select?q=PID%3A%22${prefix}%3A${ancestorPid}%22&apos; var=&quot;ancestralRelsXML&quot;/&gt;   
+</code></pre><h2 id="Tiles-problem"><a href="#Tiles-problem" class="headerlink" title="Tiles problem"></a>Tiles problem</h2><p><strong>Problem</strong></p>
+<pre><code>ERROR 38:18 Digester&gt; Parse Error at line 105 column 21: The content of element type &quot;tiles-definitions&quot; must match &quot;(definition)+&quot;.
+</code></pre><p><strong>Reason and solution</strong></p>
+<p>In src/main/webapp/WEB-INF/HOME, views.xml is NOT well-formed.    </p>
+<h2 id="Search-Browse-problem"><a href="#Search-Browse-problem" class="headerlink" title="Search / Browse problem"></a>Search / Browse problem</h2><p>The search/browse was breaking, because the following expression is not working:</p>
+<pre><code>${modelToViewMapping[result.class.name]}
+</code></pre><p>Instead, change it to:</p>
+<pre><code>${modelToViewMapping[result.getClass().getName()]}    
+</code></pre><h2 id="CORS-problem-with-Seadragon-image-viewer"><a href="#CORS-problem-with-Seadragon-image-viewer" class="headerlink" title="CORS problem with Seadragon image viewer"></a>CORS problem with Seadragon image viewer</h2><p>In image detail page, the error appears:</p>
+<pre><code>site-aggregate.js?version=1.0.201205021213:59 Cross-Origin Read Blocking (CORB) blocked cross-origin response https://yodlapp3.york.ac.uk/cgi-bin/iipsrv.fcgi?DeepZoom=/usr/digilib-webdocs/digilibImages/HOA/current/OTHERS/20120614/53a427ab-a968-4a73-be38-8a69dd945416_4_monk_bar_york_cropped.jp2.dzi with MIME type application/xml. See https://www.chromestatus.com/feature/5629709824032768 for more details.
+</code></pre><p>Reason &amp; steps: needs to config CORS in apache on the image server. Below are the steps:</p>
+<pre><code>nano /etc/apache2/sites-enabled/xxxx.conf
+</code></pre><p>with following content:</p>
+<pre><code>Alias /cgi-bin &quot;/usr/lib/cgi-bin&quot;
+&lt;Directory &quot;/usr/lib/cgi-bin&quot;&gt;
+  AllowOverride None
+  Options None
+  Order allow,deny
+  Header set Access-Control-Allow-Origin &quot;*&quot;
+  Header set Access-Control-Allow-Methods &quot;GET,POST,OPTIONS&quot;
+  Header set Access-Control-Allow-Headers &quot;x-requested-with&quot;
+  Allow from all
+&lt;/Directory&gt;    
+</code></pre><p>Restart Apache</p>
+<p><strong>Remember to clear your browser’s cache!!!!!!</strong></p>
+<p>Also, change hard-coded image server URL from image detail page.</p>
+<p>Edit src/main/java/uk/ac/york/dlib/yodling/web/util/PropertiesResolver.java to add method:</p>
+<pre><code>public static String getImageServer() {
+       if (properties == null)
+           load();
+      return getProperty(&quot;image.server&quot;).trim();
+  }
+</code></pre><p>In Views/Image/Detail.jsp, add:</p>
+<pre><code>&lt;%@page import=&quot;uk.ac.york.dlib.yodling.web.util.PropertiesResolver&quot;%&gt;
 ......
-&lt;/build&gt;         
-</code></pre><h2 id="Orbeon-Engine"><a href="#Orbeon-Engine" class="headerlink" title="Orbeon Engine"></a>Orbeon Engine</h2><p>Download Orbeon 3.9 CE and extract the orbeon39.war. Stop Tomcat, Copy orbeon39.war to webapps, and Start Tomcat.</p>
-<p>Edit Tomcat server.xml</p>
-<pre><code>&lt;Host name=&quot;localhost&quot;  ...&gt;
-    &lt;Context path=&quot;/orbeon39&quot; docBase=&quot;orbeon39&quot; crossContext=&quot;true&quot;/&gt;
-    &lt;Context path=&quot;/iris&quot; docBase=&quot;iris&quot; crossContext=&quot;true&quot;/&gt;
-</code></pre><p>Tried Orbeon 2019 CE but couldn’t get it working. The error message is not very useful:</p>
-<p><img src="https://user-images.githubusercontent.com/437701/70224943-03601700-1746-11ea-8803-34824f3c3cf4.png" alt="image"></p>
-<pre><code>2019-12-05 09:58:40,993 ERROR PageFlowControllerProcessor  - error caught {controller: &quot;oxf:/ops/xforms/xforms-renderer-pa$
-2019-12-05 09:58:41,095 ERROR PageFlowControllerProcessor  -
-+----------------------------------------------------------------------------------------------------------------------+
-|An Error has Occurred                                                                                                 |
-|----------------------------------------------------------------------------------------------------------------------|
-|specified pattern is invalid: &apos;-&apos; is an invalid character range. Write &apos;\-&apos;.                                          |
-|----------------------------------------------------------------------------------------------------------------------|
-|Application Call Stack                                                                                                |
-|----------------------------------------------------------------------------------------------------------------------|
-|oxf:/ops/xforms/xforms-renderer-page-flow.xml                                     |reading page model data output|  23|
-|····························································�$
-|element=&lt;page path=&quot;/xforms-renderer&quot; model=&quot;xforms-renderer.xpl&quot;/&gt;                                                   |
-|model  =xforms-renderer.xpl                                                                                           |
-|----------------------------------------------------------------------------------------------------------------------|
-|oxf:/ops/xforms/xforms-renderer.xpl                                               |executing processor           | 130|        
-</code></pre><h2 id="logging-dependency-problem"><a href="#logging-dependency-problem" class="headerlink" title="logging dependency problem"></a>logging dependency problem</h2><p>The web app, e.g. iris working on local VM (Tomcat 9) but cannot start on dlibjavatest0 (Tomcat 8), and the error message is:</p>
+&lt;c:set var=&quot;imageServer&quot; value=&quot;${PropertiesResolver.getImageServer()}&quot;/&gt;
+......
+viewer.openDzi(&quot;${imageServer}&lt;c:out value=&apos;/cgi-bin/iipsrv.fcgi?DeepZoom=${image.JP2AbsoluteLocation}&apos;/&gt;.dzi&quot;);
+</code></pre><h2 id="Orbeon-Engine"><a href="#Orbeon-Engine" class="headerlink" title="Orbeon Engine"></a>Orbeon Engine</h2><p>Refer to <a href="/iris-migration/">IRIS migration</a></p>
+<h2 id="logging-dependency-problem"><a href="#logging-dependency-problem" class="headerlink" title="logging dependency problem"></a>logging dependency problem</h2><p>The web app, e.g. iris working on local VM (Tomcat 9) but cannot start on dlibjavatest0 (Tomcat 8), and the error message is:</p>
 <pre><code>17:08:12.571 SEVERE [http-nio-8080-exec-2] org.apache.catalina.core.StandardContext.listenerStart Exception sending context initialized event to listener instance of class [org.springframework.web.context.ContextLoaderListener]
 java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does not define or inherit an implementation of the resolved method &apos;abstract void log(org.slf4j.Marker, java.lang.String, int, java.lang.String, java.lang.Throwable)&apos; of interface org.slf4j.spi.LocationAwareLogger.
        at org.apache.commons.logging.impl.SLF4JLocationAwareLog.info(SLF4JLocationAwareLog.java:159)
@@ -399,7 +461,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/iris-migration/" data-id="ck3ekt7s40000c2054mykml83" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/yodl-migration/" data-id="ck48pp4x40001j5058vjxad2a" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li></ul>
@@ -410,19 +472,10 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
     
 <nav id="article-nav">
   
-    <a href="/aws-s3-localstack/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          AWS S3 localstack
-        
-      </div>
-    </a>
   
-  
-    <a href="/ruby-tips/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/aws-s3-localstack/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Ruby tips</div>
+      <div class="article-nav-title">AWS S3 localstack</div>
     </a>
   
 </nav>
