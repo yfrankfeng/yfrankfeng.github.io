@@ -86,7 +86,7 @@ ga('send', 'pageview');
     <article id="post-yodl-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/yodl-migration/" class="article-date">
-  <time datetime="2019-12-16T17:27:42.783Z" itemprop="datePublished">2019-12-16</time>
+  <time datetime="2020-04-16T11:13:02.555Z" itemprop="datePublished">2020-04-16</time>
 </a>
     
   <div class="article-category">
@@ -109,356 +109,12 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Hard-coded-fedora-URL"><a href="#Hard-coded-fedora-URL" class="headerlink" title="Hard-coded fedora URL"></a>Hard-coded fedora URL</h2><p>In FedoraRepositoryService.java, </p>
-<pre><code>private HttpClient getHttpClient() {
-</code></pre><p>and</p>
-<pre><code>private HttpClient getHttpClientViaAdmin() {
-</code></pre><p>the following line is hard-coded to localhost:</p>
-<pre><code>new AuthScope(&quot;localhost&quot;, AuthScope.ANY_PORT),
-</code></pre><p>To fix:</p>
-<ol>
-<li><p>Modify yodl.properties, add property:</p>
-<p> fedora.server=XXXXXX</p>
-</li>
-<li><p>Modify web-application-config.xml:</p>
- <bean id="respositoryServiceParameters" class="xxxxxxxxxx.FedoraRepositoryServiceParameters" scope="prototype"><br>     ……<br>     <constructor-arg value="${fedora.server}"><br> </constructor-arg></bean>
-</li>
-<li><p>Modify IRepositoryServiceParameters.java to add:</p>
-<p> public abstract String getServer();</p>
-</li>
-<li><p>Modify FedoraRepositoryServiceParameters.java:</p>
-</li>
-</ol>
-<p>Add attribute:</p>
-<pre><code>private String server;
-</code></pre><p>Modify constructor:</p>
-<pre><code>public FedoraRepositoryServiceParameters(..., String server) {
-    ...
-    this.server = server;
-}    
-</code></pre><p>Add getter:</p>
-<pre><code>public String getServer() { return server; }    
-</code></pre><ol start="5">
-<li>Modify FedoraRepositoryService:</li>
-</ol>
-<p>Change method getHttpClient and getHttpClientViaAdmin:</p>
-<pre><code>new AuthScope(this.getRespositoryServiceParameters().getServer(), AuthScope.ANY_PORT),
-</code></pre><h2 id="hard-coded-Solr-URL"><a href="#hard-coded-Solr-URL" class="headerlink" title="hard-coded Solr URL"></a>hard-coded Solr URL</h2><h3 id="hard-coded-Solr-URL-in-Java-classes-and-Spring-config"><a href="#hard-coded-Solr-URL-in-Java-classes-and-Spring-config" class="headerlink" title="hard-coded Solr URL in Java classes and Spring config"></a>hard-coded Solr URL in Java classes and Spring config</h3><p>In src/main/java/uk/ac/york/dlib/yodling/service/search/SolrSearchService.java, solr is hard-coded:</p>
-<pre><code>private static String pathToSolr = &quot;http://localhost:8080/solr/&quot;;
-</code></pre><p>Now we need to turn this attribute to non-static, and use Spring to inject the Solr URL.</p>
-<p>First, declare the attribute as:</p>
-<pre><code>private String pathToSolr = &quot;http://localhost:8080/solr/&quot;;
-</code></pre><p>Add constructors:</p>
-<pre><code>public SolrSearchService() {
-}
-
-public SolrSearchService(String pathToSolr) {
-    try {
-        if(pathToSolr != null)
-            this.pathToSolr   = pathToSolr;
-        solrSearchServer  = new CommonsHttpSolrServer(this.pathToSolr);
-    } catch (Exception e) {
-        log.error(&quot;Exception while connecting to Solr&quot;, e);
-    }
-}
-</code></pre><p>In Spring config file, e.g. web-application-config.xml, define:</p>
-<pre><code>&lt;bean id=&quot;homeSearchService&quot; class=&quot;uk.ac.york.dlib.yodling.service.search.SolrSearchService&quot;   scope=&quot;prototype&quot;&gt;
-    &lt;constructor-arg name=&quot;pathToSolr&quot; value=&quot;${solr.baseURL}&quot; /&gt;
-
-    XXXXXXXXXXXX
-&lt;/bean&gt;           
-</code></pre><p>Do the same for imageSearchService, audioSearchService         </p>
-<p>In yodl.properties, add:</p>
-<pre><code>solr.baseURL=https://XXXX/solr   
-</code></pre><h3 id="hard-coded-Solr-URL-in-JSP"><a href="#hard-coded-Solr-URL-in-JSP" class="headerlink" title="hard-coded Solr URL in JSP"></a>hard-coded Solr URL in JSP</h3><h4 id="Top-Nav-jsp"><a href="#Top-Nav-jsp" class="headerlink" title="Top-Nav.jsp"></a>Top-Nav.jsp</h4><p>A few places use hard-coded Solr URL:</p>
-<pre><code>&lt;c:import url=&apos;http://localhost:8080/solr/select?q=PID%3A%22${prefix}%3A${ancestorPid}%22&apos; var=&quot;ancestralRelsXML&quot;/&gt; 
-</code></pre><p>To fix:</p>
-<ol>
-<li><p>Add a new class uk.ac.york.dlib.yodling.web.util.PropertiesResolver: </p>
-<p> package uk.ac.york.dlib.yodling.web.util;</p>
-<p> import org.apache.log4j.Logger;</p>
-<p> import java.util.HashSet;<br> import java.util.Properties;<br> import java.util.Set;</p>
-<p> public class PropertiesResolver {</p>
-<pre><code>private static final Logger log = Logger.getLogger(PropertiesResolver.class);
-private static Properties properties = null;
-
-public static void load() {
-    properties = new Properties();
-    try {
-        properties.load(PropertiesResolver.class
-                .getResourceAsStream(&quot;/yodl.properties&quot;));
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        log.error(&quot;Couldn&apos;t load Properties file&quot;, ex);
-    }
-}
-
-public static String getProperty(String key) {
-    if (properties == null)
-        load();
-    String value = properties.getProperty(key).trim();
-    if (value == null)
-        value = &quot;&quot;;
-    return value;
-}
-
-// **************************
-public static String getSolrUrl() {
-    if (properties == null)
-        load();
-    return getProperty(&quot;solr.baseURL&quot;).trim();
-}
-</code></pre><p> }</p>
-</li>
-<li><p>Modify Top-Nav.jsp</p>
-</li>
-</ol>
-<p>Add</p>
-<pre><code>&lt;%@page import=&quot;uk.ac.york.dlib.yodling.web.util.PropertiesResolver&quot;%&gt;
-</code></pre><p>Add</p>
-<pre><code>&lt;c:set var=&quot;solrUrl&quot; value=&quot;${PropertiesResolver.getSolrUrl()}&quot;/&gt;    
-</code></pre><p>Then change to:</p>
-<pre><code>&lt;c:import url=&apos;${solrUrl}/select?q=PID%3A%22${prefix}%3A${ancestorPid}%22&apos; var=&quot;ancestralRelsXML&quot;/&gt;   
-</code></pre><h2 id="Tiles-problem"><a href="#Tiles-problem" class="headerlink" title="Tiles problem"></a>Tiles problem</h2><p><strong>Problem</strong></p>
-<pre><code>ERROR 38:18 Digester&gt; Parse Error at line 105 column 21: The content of element type &quot;tiles-definitions&quot; must match &quot;(definition)+&quot;.
-</code></pre><p><strong>Reason and solution</strong></p>
-<p>In src/main/webapp/WEB-INF/HOME, views.xml is NOT well-formed.    </p>
-<h2 id="Search-Browse-problem"><a href="#Search-Browse-problem" class="headerlink" title="Search / Browse problem"></a>Search / Browse problem</h2><p>The search/browse was breaking, because the following expression is not working:</p>
-<pre><code>${modelToViewMapping[result.class.name]}
-</code></pre><p>Instead, change it to:</p>
-<pre><code>${modelToViewMapping[result.getClass().getName()]}    
-</code></pre><h2 id="CORS-problem-with-Seadragon-image-viewer"><a href="#CORS-problem-with-Seadragon-image-viewer" class="headerlink" title="CORS problem with Seadragon image viewer"></a>CORS problem with Seadragon image viewer</h2><p>In image detail page, the error appears:</p>
-<pre><code>site-aggregate.js?version=1.0.201205021213:59 Cross-Origin Read Blocking (CORB) blocked cross-origin response https://yodlapp3.york.ac.uk/cgi-bin/iipsrv.fcgi?DeepZoom=/usr/digilib-webdocs/digilibImages/HOA/current/OTHERS/20120614/53a427ab-a968-4a73-be38-8a69dd945416_4_monk_bar_york_cropped.jp2.dzi with MIME type application/xml. See https://www.chromestatus.com/feature/5629709824032768 for more details.
-</code></pre><p>Reason &amp; steps: needs to config CORS in apache on the image server. Below are the steps:</p>
-<pre><code>nano /etc/apache2/sites-enabled/xxxx.conf
-</code></pre><p>with following content:</p>
-<pre><code>Alias /cgi-bin &quot;/usr/lib/cgi-bin&quot;
-&lt;Directory &quot;/usr/lib/cgi-bin&quot;&gt;
-  AllowOverride None
-  Options None
-  Order allow,deny
-  Header set Access-Control-Allow-Origin &quot;*&quot;
-  Header set Access-Control-Allow-Methods &quot;GET,POST,OPTIONS&quot;
-  Header set Access-Control-Allow-Headers &quot;x-requested-with&quot;
-  Allow from all
-&lt;/Directory&gt;    
-</code></pre><p>Restart Apache</p>
-<p><strong>Remember to clear your browser’s cache!!!!!!</strong></p>
-<p>Also, change hard-coded image server URL from image detail page.</p>
-<p>Edit src/main/java/uk/ac/york/dlib/yodling/web/util/PropertiesResolver.java to add method:</p>
-<pre><code>public static String getImageServer() {
-       if (properties == null)
-           load();
-      return getProperty(&quot;image.server&quot;).trim();
-  }
-</code></pre><p>In Views/Image/Detail.jsp, add:</p>
-<pre><code>&lt;%@page import=&quot;uk.ac.york.dlib.yodling.web.util.PropertiesResolver&quot;%&gt;
-......
-&lt;c:set var=&quot;imageServer&quot; value=&quot;${PropertiesResolver.getImageServer()}&quot;/&gt;
-......
-viewer.openDzi(&quot;${imageServer}&lt;c:out value=&apos;/cgi-bin/iipsrv.fcgi?DeepZoom=${image.JP2AbsoluteLocation}&apos;/&gt;.dzi&quot;);
-</code></pre><h2 id="Orbeon-Engine"><a href="#Orbeon-Engine" class="headerlink" title="Orbeon Engine"></a>Orbeon Engine</h2><p>Refer to <a href="/iris-migration/">IRIS migration</a></p>
-<h2 id="logging-dependency-problem"><a href="#logging-dependency-problem" class="headerlink" title="logging dependency problem"></a>logging dependency problem</h2><p>The web app, e.g. iris working on local VM (Tomcat 9) but cannot start on dlibjavatest0 (Tomcat 8), and the error message is:</p>
-<pre><code>17:08:12.571 SEVERE [http-nio-8080-exec-2] org.apache.catalina.core.StandardContext.listenerStart Exception sending context initialized event to listener instance of class [org.springframework.web.context.ContextLoaderListener]
-java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does not define or inherit an implementation of the resolved method &apos;abstract void log(org.slf4j.Marker, java.lang.String, int, java.lang.String, java.lang.Throwable)&apos; of interface org.slf4j.spi.LocationAwareLogger.
-       at org.apache.commons.logging.impl.SLF4JLocationAwareLog.info(SLF4JLocationAwareLog.java:159)
-       at org.springframework.web.context.ContextLoader.initWebApplicationContext(ContextLoader.java:187)
-       at org.springframework.web.context.ContextLoaderListener.contextInitialized(ContextLoaderListener.java:47)
-       at org.apache.catalina.core.StandardContext.listenerStart(StandardContext.java:4643)
-       at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:5109)
-       at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:183)
-       at org.apache.catalina.manager.ManagerServlet.start(ManagerServlet.java:1395)
-       at org.apache.catalina.manager.HTMLManagerServlet.start(HTMLManagerServlet.java:698)
-       at org.apache.catalina.manager.HTMLManagerServlet.doPost(HTMLManagerServlet.java:223)
-       at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
-       at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
-       at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
-</code></pre><h3 id="Reason"><a href="#Reason" class="headerlink" title="Reason"></a>Reason</h3><p>If log4j-over-slf4j.jar and slf4j-log4j12.jar exist on the same classpath, the problem arise.      </p>
-<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p><strong>Manual test</strong><br>delete log4j-over-slf4j-1.7.5.jar on WEB-INF/lib folder and restart Tomcat 8.</p>
-<p><strong>Remove it from pom.xml</strong> </p>
-<p>Find transitive dependency in pom:</p>
-<pre><code>mvn dependency:tree
-</code></pre><p>The output looks like:</p>
-<pre><code>[INFO] +- javax.servlet:servlet-api:jar:2.4:compile
-[INFO] +- javax.faces:jsf-api:jar:1.2_04:provided
-[INFO] +- javax.faces:jsf-impl:jar:1.2_04:provided
-[INFO] +- commons-beanutils:commons-beanutils:jar:1.7.0:compile
-[INFO] +- commons-digester:commons-digester:jar:1.8:compile
-[INFO] +- commons-logging:commons-logging:jar:1.1.1:compile
-[INFO] +- commons-logging:commons-logging-api:jar:1.1:compile
-[INFO] +- junit:junit:jar:4.7:test
-[INFO] +- log4j:log4j:jar:1.2.15:compile
-[INFO] |  +- javax.jms:jms:jar:1.1:compile
-[INFO] |  \- com.sun.jmx:jmxri:jar:1.2.1:compile
-[INFO] +- taglibs:standard:jar:1.1.2:compile
-[INFO] +- org.apache.tiles:tiles-api:jar:2.1.4:compile
-[INFO] +- org.apache.tiles:tiles-core:jar:2.1.4:compile
-[INFO] +- org.apache.tiles:tiles-jsp:jar:2.1.4:compile
-[INFO] |  \- org.apache.tiles:tiles-servlet:jar:2.1.4:compile
-[INFO] +- com.sun.jdmk:jmxtools:jar:1.2.1:compile
-[INFO] +- org.apache.solr:solr-solrj:jar:3.6.2:compile
-[INFO] |  +- commons-httpclient:commons-httpclient:jar:3.1:compile
-[INFO] |  \- org.codehaus.woodstox:wstx-asl:jar:3.2.7:runtime
-[INFO] +- org.slf4j:slf4j-api:jar:1.5.11:compile
-[INFO] +- org.slf4j:slf4j-log4j12:jar:1.5.11:compile
-[INFO] +- org.slf4j:jcl-over-slf4j:jar:1.5.11:compile
-[INFO] +- javax.servlet:jstl:jar:1.2:compile
-[INFO] +- org.jvnet.ws.wadl:wadl-core:jar:1.0-SNAPSHOT-NT:compile
-[INFO] +- javax.xml.bind:jaxb-api:jar:2.3.1:compile
-[INFO] |  \- javax.activation:javax.activation-api:jar:1.2.0:compile
-[INFO] +- javax.activation:activation:jar:1.1:compile
-[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.1:compile
-[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.1:compile
-[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.7:compile
-[INFO] |  +- org.jvnet.staxex:stax-ex:jar:1.8:compile
-[INFO] |  \- com.sun.xml.fastinfoset:FastInfoset:jar:1.2.15:compile
-[INFO] +- javax.ws.rs:jsr311-api:jar:1.1.1:compile
-[INFO] +- com.sun.jersey:jersey-core:jar:1.3:compile
-[INFO] +- com.sun.jersey:jersey-client:jar:1.3:compile
-[INFO] +- com.sun.jersey.contribs:jersey-spring:jar:1.3:compile
-[INFO] +- xalan:xalan:jar:2.7.1:compile
-[INFO] |  \- xalan:serializer:jar:2.7.1:compile
-[INFO] +- com.sun.jersey:jersey-server:jar:1.3:compile
-[INFO] |  \- asm:asm:jar:3.1:compile
-[INFO] +- org.springframework:spring-mock:jar:2.0.8:test
-[INFO] +- org.springframework:spring-test:jar:3.0.5.RELEASE:test
-[INFO] +- org.springframework:spring-web:jar:3.0.5.RELEASE:compile
-[INFO] |  \- aopalliance:aopalliance:jar:1.0:compile
-[INFO] +- org.springframework:spring-webmvc:jar:3.0.5.RELEASE:compile
-[INFO] |  +- org.springframework:spring-asm:jar:3.0.5.RELEASE:compile
-[INFO] |  \- org.springframework:spring-context-support:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework:spring-beans:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework:spring-context:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework:spring-core:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework:spring-expression:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework.security:spring-security-web:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework.security:spring-security-config:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework.security:spring-security-taglibs:jar:3.0.5.RELEASE:compile
-[INFO] |  \- org.springframework.security:spring-security-acl:jar:3.0.5.RELEASE:compile
-[INFO] |     \- org.springframework:spring-jdbc:jar:3.0.3.RELEASE:compile
-[INFO] +- org.springframework:spring-aop:jar:3.0.5.RELEASE:compile
-[INFO] +- cglib:cglib:jar:2.2:compile
-[INFO] +- org.aspectj:aspectjweaver:jar:1.6.11:compile
-[INFO] +- com.yourmediashelf.fedora.client:fedora-client-core:jar:0.8s:compile
-[INFO] |  +- com.sun.jersey.contribs:jersey-multipart:jar:1.17.1:compile
-[INFO] |  |  \- org.jvnet:mimepull:jar:1.6:compile
-[INFO] |  +- com.hp.hpl.jena:jena:jar:2.6.4:compile
-[INFO] |  |  +- com.hp.hpl.jena:iri:jar:0.8:compile
-[INFO] |  |  \- com.ibm.icu:icu4j:jar:3.4.4:compile
-[INFO] |  +- org.apache.santuario:xmlsec:jar:1.5.4:compile
-[INFO] |  +- org.slf4j:log4j-over-slf4j:jar:1.7.5:runtime
-[INFO] |  \- xerces:xercesImpl:jar:2.11.0:compile
-[INFO] +- org.openrdf:openrdf-sesame:jar:onejar:2.3.2:compile
-[INFO] +- taglibs:string:jar:1.1.0:compile
-[INFO] +- org.apache.commons:commons-lang3:jar:3.4:compile
-[INFO] +- rome:rome-fetcher:jar:1.0:compile
-[INFO] |  +- jdom:jdom:jar:1.0:compile
-[INFO] |  \- rome:rome:jar:1.0:compile
-[INFO] +- orbeon:xforms-filter:jar:3.9:compile
-[INFO] +- com.jspsmart:upload:jar:1.0:compile
-[INFO] +- commons-fileupload:commons-fileupload:jar:1.2.2:compile
-[INFO] +- commons-io:commons-io:jar:2.0.1:compile
-[INFO] +- dom4j:dom4j:jar:1.6.1:compile
-[INFO] |  \- xml-apis:xml-apis:jar:1.0.b2:compile
-[INFO] +- jaxen:jaxen:jar:1.1.1:compile
-[INFO] |  \- xom:xom:jar:1.0:compile
-[INFO] |     \- xerces:xmlParserAPIs:jar:2.6.2:compile
-[INFO] +- org.apache.commons:commons-compress:jar:1.0:compile
-[INFO] +- javax.mail:mail:jar:1.4.5:compile
-[INFO] +- org.apache.commons:commons-email:jar:1.2:compile
-[INFO] +- org.freemarker:freemarker:jar:2.3.19:compile
-[INFO] +- displaytag:displaytag:jar:1.2:compile
-[INFO] |  +- commons-collections:commons-collections:jar:3.1:compile
-[INFO] |  +- commons-lang:commons-lang:jar:2.3:compile
-[INFO] |  \- com.lowagie:itext:jar:1.3:compile
-[INFO] +- jcs:jcs:jar:1.3:compile
-[INFO] |  +- commons-configuration:commons-configuration:jar:1.4:compile
-[INFO] |  |  +- commons-beanutils:commons-beanutils-core:jar:1.7.0:compile
-[INFO] |  |  \- commons-jxpath:commons-jxpath:jar:1.2:compile
-[INFO] |  |     \- ant:ant-optional:jar:1.5.1:compile
-[INFO] |  +- commons-dbcp:commons-dbcp:jar:1.2.2:compile
-[INFO] |  +- commons-pool:commons-pool:jar:1.3:compile
-[INFO] |  +- concurrent:concurrent:jar:1.0:compile
-[INFO] |  +- mysql:mysql-connector-java:jar:3.0.10:compile
-[INFO] |  |  +- javax.sql:jdbc-stdext:jar:2.0:compile
-[INFO] |  |  \- javax.transaction:jta:jar:1.0.1B:compile
-[INFO] |  +- hsqldb:hsqldb:jar:1.7.3.3:compile
-[INFO] |  +- tomcat:tomcat-util:jar:3.2.1:compile
-[INFO] |  +- velocity:velocity:jar:1.5:compile
-[INFO] |  |  \- oro:oro:jar:2.0.8:compile
-[INFO] |  +- xmlrpc:xmlrpc:jar:2.0:compile
-[INFO] |  \- berkeleydb:berkeleydb:jar:1.5.1:compile
-[INFO] +- net.sf.ehcache:ehcache:jar:2.4.2:compile
-[INFO] |  +- net.sf.ehcache:ehcache-core:jar:2.4.2:compile
-[INFO] |  \- net.sf.ehcache:ehcache-terracotta:jar:2.4.2:compile
-[INFO] +- org.codehaus.jackson:jackson-mapper-lgpl:jar:1.5.6:compile
-[INFO] |  \- org.codehaus.jackson:jackson-core-lgpl:jar:1.5.6:compile
-[INFO] +- org.apache.httpcomponents:httpclient:jar:4.3.6:compile
-[INFO] |  \- commons-codec:commons-codec:jar:1.6:compile
-[INFO] +- org.apache.httpcomponents:httpcore:jar:4.3.3:compile
-[INFO] +- eu.medsea.mimeutil:mime-util:jar:2.1.3:compile
-[INFO] +- joda-time:joda-time:jar:1.6.1:compile
-[INFO] +- org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:jar:1.0.1-SNAPSHOT:compile
-[INFO] +- org.apache.oltu.oauth2:org.apache.oltu.oauth2.common:jar:1.0.1-SNAPSHOT:compile
-[INFO] +- org.json:json:jar:20140107:compile
-[INFO] +- org.springframework.security.oauth:spring-security-oauth2:jar:1.0.5.RELEASE:compile
-[INFO] |  \- org.codehaus.jackson:jackson-mapper-asl:jar:1.9.2:compile
-[INFO] |     \- org.codehaus.jackson:jackson-core-asl:jar:1.9.2:compile
-[INFO] \- org.springframework.security:spring-security-core:jar:3.0.5.RELEASE:compile
-[INFO]    +- org.springframework:spring-tx:jar:3.0.3.RELEASE:compile
-[INFO]    \- org.aspectj:aspectjrt:jar:1.6.8:compile        
-</code></pre><p>Do a text search of ‘log4j-over-slf4j’ on the above result, and it shows that the com.yourmediashelf.fedora.client:fedora-client-core:jar has a transitive dependency on log4j-over-slf4j. </p>
-<p>In the pom.xml, change:</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;com.yourmediashelf.fedora.client&lt;/groupId&gt;
-    &lt;artifactId&gt;fedora-client-core&lt;/artifactId&gt;
-    &lt;version&gt;0.8s&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>to:</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;com.yourmediashelf.fedora.client&lt;/groupId&gt;
-    &lt;artifactId&gt;fedora-client-core&lt;/artifactId&gt;
-    &lt;version&gt;0.8s&lt;/version&gt;
-    &lt;exclusions&gt;
-        &lt;exclusion&gt;
-            &lt;artifactId&gt;log4j-over-slf4j&lt;/artifactId&gt;
-            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
-        &lt;/exclusion&gt;
-    &lt;/exclusions&gt;
-&lt;/dependency&gt;
-</code></pre><h2 id="JSTL-problem"><a href="#JSTL-problem" class="headerlink" title="JSTL problem"></a>JSTL problem</h2><p>While loading details page, an error message is showing in the Tomcat log:</p>
-<pre><code>[Fatal Error] jstl::1:1: Content is not allowed in prolog.
-</code></pre><h3 id="Reason-amp-fix"><a href="#Reason-amp-fix" class="headerlink" title="Reason &amp; fix"></a>Reason &amp; fix</h3><p>The feedbackXML has been’t generated properly if there is no FEEDBACK data stream. In AbstractResourceController.java, line 669:</p>
-<pre><code>try{
-    XXXXXXX
-}catch(Exception e) {
-    XXXXXXX
-}finally {
-&gt;&gt;&gt;&gt;    if(feedbackiris!=null)
-        XXXXXX
-    else
-        XXXXXX
-}
-</code></pre><p>It should be changed to:</p>
-<pre><code>if(feedbackiris!=null &amp;&amp; feedbackiris.startsWith(&quot;&lt;?xml version=&quot;))             
-</code></pre><h2 id="IP-restrictions"><a href="#IP-restrictions" class="headerlink" title="IP restrictions"></a>IP restrictions</h2><p>Edit /etc/apache2/sites-enabled/default-ssl.conf, add the following:</p>
-<pre><code>&lt;Location /solr&gt;
-  Allow from TEST_SERVER_IP                     
-  ...
-&lt;/Location&gt;  
-
-&lt;Location /fedora/risearch&gt;  
-  Allow from TEST_SERVER_IP                     
-  ...
-&lt;/Location&gt;
-
-&lt;Directory &quot;/usr/digilib-webdocs/digilibImages&quot;&gt;
-  Allow from dlibjavatest0.york.ac.uk
-  ...
-&lt;/Directory&gt;
-</code></pre><p>Restart Apache2</p>
-<pre><code>service apache2 restart
-</code></pre>
+        <h2 id="Tomcat"><a href="#Tomcat" class="headerlink" title="Tomcat"></a>Tomcat</h2><p>While installed Tomcat via apt, use the following steps to run tomcat service under dlib user:</p>
+        
+          <p class="article-more-link">
+            <a href="/yodl-migration/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -474,14 +130,14 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
 
 
   
-    <article id="post-aws-s3-localstack" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-ruby-rest-api" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/aws-s3-localstack/" class="article-date">
-  <time datetime="2019-12-06T16:41:38.997Z" itemprop="datePublished">2019-12-06</time>
+    <a href="/ruby-rest-api/" class="article-date">
+  <time datetime="2020-02-21T12:17:34.473Z" itemprop="datePublished">2020-02-21</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/AWS/">AWS</a>
+    <a class="article-category-link" href="/categories/ruby/">ruby</a>
   </div>
 
   </div>
@@ -492,7 +148,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/aws-s3-localstack/">AWS S3 localstack</a>
+      <a class="article-title" href="/ruby-rest-api/">Build Rest API in Ruby</a>
     </h1>
   
 
@@ -500,150 +156,489 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Below is just my notes following this tutorial: <a href="https://dev.to/goodidea/how-to-fake-aws-locally-with-localstack-27me" target="_blank" rel="noopener">https://dev.to/goodidea/how-to-fake-aws-locally-with-localstack-27me</a></p>
-<h2 id="LocalStack"><a href="#LocalStack" class="headerlink" title="LocalStack"></a>LocalStack</h2><p><a href="https://github.com/localstack/localstack" target="_blank" rel="noopener">Localstack</a> allows you to play AWS services on your PC. Lots of AWS services are supported by localstack.  </p>
-<p>The benefits of using localstack:</p>
-<ul>
-<li>Work offline</li>
-<li>You have full control of your own dev environment</li>
-<li>You can easily wipe &amp; replace your local buckets</li>
-<li>Free!</li>
-</ul>
-<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><p>Make sure you have installed the following: </p>
-<ul>
-<li>Docker</li>
-<li>AWS CLI</li>
-<li>AWS being configured (if not, run aws configure to create some credentials), actually localstack doesn’t check your credentials, as long as they are not empty!</li>
-</ul>
-<p>Create a project folder and add some files</p>
-<pre><code>mkdir test1
-touch index.js docker-compose.yml .env
-mkdir .localstack
-</code></pre><p>Copy a image, e.g. test.jpg to your project folder.</p>
-<p>Run the following commands to init the project and install npm packages:</p>
-<pre><code>npm init 
-npm install aws-sdk dotenv
-</code></pre><p>Edit docker-compose.yml with content:</p>
-<pre><code>version: &apos;3.2&apos;
-services:
-  localstack:
-    image: localstack/localstack:latest
-    container_name: localstack_demo
-    ports:
-      - &apos;4563-4599:4563-4599&apos;
-      - &apos;8055:8080&apos;
-    environment:
-      - SERVICES=s3
-      - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
-    volumes:
-      - &apos;./.localstack:/tmp/localstack&apos;
-      - &apos;/var/run/docker.sock:/var/run/docker.sock&apos;
-</code></pre><p>Start docker container:</p>
-<pre><code>docker-compose up 
-</code></pre><p>After a couple of minutes, you can access localstack UI via: <a href="http://localhost:8055/" target="_blank" rel="noopener">http://localhost:8055/</a></p>
-<p><img src="/images/aws/localstack-s3-1.png" alt="localstack"></p>
-<p>And local S3 UI: <a href="http://localhost:4572/" target="_blank" rel="noopener">http://localhost:4572/</a></p>
-<p>Now AWS is inside your VM!</p>
-<h2 id="Working-with-localstack"><a href="#Working-with-localstack" class="headerlink" title="Working with localstack"></a>Working with localstack</h2><p>Create a bucket in localstack:</p>
-<pre><code>aws --endpoint-url=http://localhost:4572 s3 mb s3://demo-bucket
-</code></pre><p>NB: the –endpoint-url specifies the localstack URL for s3</p>
-<p>From the localstack logs (via Docker), you will see something like:</p>
-<pre><code>localstack_demo | 2019-12-06 15:10:14,909:API: 127.0.0.1 - - [06/Dec/2019 15:10:14] &quot;PUT /demo-bucket HTTP/1.1&quot; 200 -
-</code></pre><p>From the localstack S3 UI, you will see:</p>
-<pre><code>&lt;Buckets&gt;
-    &lt;Bucket&gt;
-        &lt;Name&gt;demo-bucket&lt;/Name&gt;
-        &lt;CreationDate&gt;2006-02-03T16:45:09.000Z&lt;/CreationDate&gt;
-    &lt;/Bucket&gt;
-&lt;/Buckets&gt;
-</code></pre><p>Attach an ACL to the bucket:</p>
-<pre><code>aws --endpoint-url=http://localhost:4572 s3api put-bucket-acl --bucket demo-bucket --acl public-read
-</code></pre><p>Now, the S3 bucket is available in the localstack dashboard.</p>
-<p>Check .localstack/data/s3_api_calls.json file</p>
-<pre><code>{&quot;a&quot;: &quot;s3&quot;, &quot;m&quot;: &quot;PUT&quot;, &quot;p&quot;: &quot;/demo-bucket&quot;, &quot;d&quot;: &quot;XXXXXXXX&quot;, &quot;h&quot;: {&quot;host&quot;: &quot;localhost&quot;, &quot;Accept-Encoding&quot;: &quot;identity&quot;, &quot;User-Agent&quot;: &quot;aws-cli/1.16.183 Python/3.6.9 Linux/4.15.
-0-72-generic botocore/1.12.253&quot;, &quot;X-Amz-Date&quot;: &quot;20191206T151014Z&quot;, &quot;X-Amz-Content-SHA256&quot;: &quot;xxxx&quot;, &quot;Authorization&quot;: &quot;AWS4-HMAC-SHA256 Credential=XXXXXX, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=xxxx&quot;, &quot;Content-Length&quot;: &quot;153&quot;, &quot;X-Forwarded-For&quot;: &quot;172.30.0.1, 0.0.0.0:4572&quot;, &quot;content-type&quot;: &quot;binary/octet-str
-eam&quot;}}
-{&quot;a&quot;: &quot;s3&quot;, &quot;m&quot;: &quot;PUT&quot;, &quot;p&quot;: &quot;/demo-bucket?acl&quot;, &quot;d&quot;: &quot;&quot;, &quot;h&quot;: {&quot;host&quot;: &quot;localhost&quot;, &quot;Accept-Encoding&quot;: &quot;identity&quot;, &quot;x-amz-a
-cl&quot;: &quot;public-read&quot;, &quot;User-Agent&quot;: &quot;aws-cli/1.16.183 Python/3.6.9 Linux/4.15.0-72-generic botocore/1.12.253&quot;, &quot;X-Amz-Date&quot;: &quot;
-20191206T151327Z&quot;, &quot;X-Amz-Content-SHA256&quot;: &quot;xxxx&quot;, &quot;Authorizatio
-n&quot;: &quot;AWS4-HMAC-SHA256 Credential=xxxx&quot;, &quot;Content-Length&quot;: &quot;
-0&quot;, &quot;X-Forwarded-For&quot;: &quot;172.30.0.1, 0.0.0.0:4572&quot;, &quot;content-type&quot;: &quot;binary/octet-stream&quot;}}
-</code></pre><p>Edit .env file with content:</p>
-<pre><code>AWS_ACCESS_KEY_ID=&apos;123&apos; 
-AWS_SECRET_KEY=&apos;xyz&apos;
-AWS_BUCKET_NAME=&apos;demo-bucket&apos;
-</code></pre><p>Note: it doesn’t matter what your AWS key &amp; secret are, as long as they aren’t empty.</p>
-<p>Create aws.js</p>
-<pre><code>const AWS = require(&apos;aws-sdk&apos;)
-require(&apos;dotenv&apos;).config()
+        <p>Followed tutorial in: <a href="https://scotch.io/tutorials/build-a-restful-json-api-with-rails-5-part-one" target="_blank" rel="noopener">https://scotch.io/tutorials/build-a-restful-json-api-with-rails-5-part-one</a></p>
+<h2 id="Create-project"><a href="#Create-project" class="headerlink" title="Create project"></a>Create project</h2><p>rails new todos-api –api -T</p>
+<p>–api argument to tell Rails that we want an API application<br>-T to exclude Minitest the default testing framework.<br>Don’t freak out, we’re going to write tests. We’ll be using RSpec instead to test our API. I find RSpec to be more expressive and easier to start with as compared to Minitest.</p>
+<h2 id="Add-dependencies"><a href="#Add-dependencies" class="headerlink" title="Add dependencies"></a>Add dependencies</h2><p>In Gemfile, add:</p>
+<pre><code>group :development, :test do
+  gem &apos;byebug&apos;, platforms: [:mri, :mingw, :x64_mingw]
+  gem &apos;rspec-rails&apos;
+end
+</code></pre><p>and</p>
+<pre><code>group :test do
+  gem &apos;factory_bot_rails&apos;, &apos;~&gt; 4.0&apos;
+  gem &apos;shoulda-matchers&apos;, &apos;~&gt; 3.1&apos;
+  gem &apos;faker&apos;
+  gem &apos;database_cleaner&apos;
+end
+</code></pre><p>Run </p>
+<pre><code>bundle install
+</code></pre><h2 id="Get-test-folders-ready"><a href="#Get-test-folders-ready" class="headerlink" title="Get test folders ready"></a>Get test folders ready</h2><p>Initialize the spec folder:</p>
+<pre><code>rails g rspec:install
+</code></pre><p>Create a factories folder, where we will define the model factories.</p>
+<pre><code>mkdir spec/factories
+</code></pre><p>Edit spec/rails_helper.rb</p>
+<pre><code>require &apos;database_cleaner&apos;
+</code></pre><p>and</p>
+<pre><code># configure shoulda matchers to use rspec as the test framework and full matcher libraries for rails
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
+end
+</code></pre><p>and</p>
+<p>Under RSpec.configure do |config|,</p>
+<pre><code>config.include FactoryBot::Syntax::Methods
 
-const credentials = {
-   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-   secretAccessKey: process.env.AWS_SECRET_KEY,
-}
+# start by truncating all the tables but then use the faster transaction strategy the rest of the time.
+config.before(:suite) do
+  DatabaseCleaner.clean_with(:truncation)
+  DatabaseCleaner.strategy = :transaction
+end        
 
-const useLocal = process.env.NODE_ENV !== &apos;production&apos;
+# start the transaction strategy as examples are run
+config.around(:each) do |example|
+  DatabaseCleaner.cleaning do
+    example.run
+  end
+end        
+</code></pre><h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><p>Generate Todo model:</p>
+<pre><code>rails g model Todo title:string created_by:string
+</code></pre><p>Notice that we’ve included the model attributes in the model generation command. This way we don’t have to edit the migration file. The generator invokes active record and rspec to generate the migration, model, and spec respectively.</p>
+<pre><code>rails g model Item name:string done:boolean todo:references
+</code></pre><p>Run</p>
+<pre><code>rails db:migrate
+</code></pre><h2 id="Test-the-model"><a href="#Test-the-model" class="headerlink" title="Test the model"></a>Test the model</h2><p>Edit spec/models/todo_spec.rb:</p>
+<pre><code>RSpec.describe Todo, type: :model do
+  # ensure Todo model has a 1:m relationship with the Item model
+  it { should have_many(:items).dependent(:destroy) }
+  # Validation tests
+  # ensure columns title and created_by are present before saving
+  it { should validate_presence_of(:title) }
+  it { should validate_presence_of(:created_by) }
+end
+</code></pre><p>Edit spec/models/item_spec.rb</p>
+<pre><code>RSpec.describe Item, type: :model do
+  # Association test
+  # ensure an item record belongs to a single todo record
+  it { should belong_to(:todo) }
+  # Validation test
+  # ensure column name is present before saving
+  it { should validate_presence_of(:name) }
+end
+</code></pre><p>Run test:</p>
+<pre><code>bundle exec rspec
+</code></pre><p>It will fails:</p>
+<pre><code>→  todos-api git:(master) bundle exec rspec
+.FFFF
+</code></pre><p>Let’s fix it.</p>
+<p>Edit app/models/todo.rb:</p>
+<pre><code>class Todo &lt; ApplicationRecord
+    # model association
+    has_many :items, dependent: :destroy
 
-const bucketName = process.env.AWS_BUCKET_NAME
+    # validations
+    validates_presence_of :title, :created_by
+end
+</code></pre><p>Edit app/models/item.rb:</p>
+<pre><code>class Item &lt; ApplicationRecord
+  belongs_to :todo
 
-const s3client = new AWS.S3({
-   credentials,
+  # validation
+  validates_presence_of :name
+end
+</code></pre><p>Run test again</p>
+<pre><code>bundle exec rspec
+</code></pre><h2 id="Controllers"><a href="#Controllers" class="headerlink" title="Controllers"></a>Controllers</h2><p>Run:</p>
+<pre><code>rails g controller Todos
+rails g controller Items
+</code></pre><p>Add a requests folder to spec folder with corresponding spec files:</p>
+<pre><code>mkdir spec/requests &amp;&amp; touch spec/requests/{todos_spec.rb,items_spec.rb} 
+</code></pre><p>Add factories file:</p>
+<pre><code>touch spec/factories/{todos.rb,items.rb}            
+</code></pre><p>Add content to spec/factories/todos.rb:</p>
+<pre><code># spec/factories/todos.rb
+FactoryBot.define do
+  factory :todo do
+    title { Faker::Lorem.word }
+    created_by { Faker::Number.number(10) }
+  end
+end
+</code></pre><p>and add content to spec/factories/items.rb:</p>
+<pre><code># spec/factories/items.rb
+FactoryBot.define do
+  factory :item do
+    name { Faker::StarWars.character }
+    done false
+    todo_id nil
+  end
+end
+</code></pre><p>By wrapping faker methods in a block, we ensure that faker generates dynamic data every time the factory is invoked. This way, we always have unique data.</p>
+<p>Edit spec/requests/todos_spec.rb:</p>
+<pre><code># spec/requests/todos_spec.rb
+require &apos;rails_helper&apos;
 
-   endpoint: useLocal ? &apos;http://localhost:4572&apos; : undefined,
-   s3ForcePathStyle: true,
-})
+RSpec.describe &apos;Todos API&apos;, type: :request do
+    # initialize test data
+    let!(:todos) { create_list(:todo, 10) }
+    let(:todo_id) { todos.first.id }
+
+    # Test suite for GET /todos
+    describe &apos;GET /todos&apos; do
+        # make HTTP get request before each example
+        before { get &apos;/todos&apos; }
+
+        it &apos;returns todos&apos; do
+            # Note `json` is a custom helper to parse JSON responses
+            expect(json).not_to be_empty
+            expect(json.size).to eq(10)
+        end
+
+        it &apos;returns status code 200&apos; do
+            expect(response).to have_http_status(200)
+        end
+    end
+
+    # Test suite for GET /todos/:id
+    describe &apos;GET /todos/:id&apos; do
+        before { get &quot;/todos/#{todo_id}&quot; }
+
+        context &apos;when the record exists&apos; do
+            it &apos;returns the todo&apos; do
+                expect(json).not_to be_empty
+                expect(json[&apos;id&apos;]).to eq(todo_id)
+            end
+
+            it &apos;returns status code 200&apos; do
+                expect(response).to have_http_status(200)
+            end
+        end
+
+        context &apos;when the record does not exist&apos; do
+            let(:todo_id) { 100 }
+
+            it &apos;returns status code 404&apos; do
+                expect(response).to have_http_status(404)
+            end
+
+            it &apos;returns a not found message&apos; do
+                expect(response.body).to match(/Couldn&apos;t find Todo/)
+            end
+        end
+    end
+
+    # Test suite for POST /todos
+    describe &apos;POST /todos&apos; do
+        # valid payload
+        let(:valid_attributes) { { title: &apos;Learn Elm&apos;, created_by: &apos;1&apos; } }
+
+        context &apos;when the request is valid&apos; do
+            before { post &apos;/todos&apos;, params: valid_attributes }
+
+            it &apos;creates a todo&apos; do
+                expect(json[&apos;title&apos;]).to eq(&apos;Learn Elm&apos;)
+            end
+
+            it &apos;returns status code 201&apos; do
+                expect(response).to have_http_status(201)
+            end
+        end
+
+        context &apos;when the request is invalid&apos; do
+            before { post &apos;/todos&apos;, params: { title: &apos;Foobar&apos; } }
+
+            it &apos;returns status code 422&apos; do
+                expect(response).to have_http_status(422)
+            end
+
+            it &apos;returns a validation failure message&apos; do
+                expect(response.body)
+                    .to match(/Validation failed: Created by can&apos;t be blank/)
+            end
+        end
+    end
+
+    # Test suite for PUT /todos/:id
+    describe &apos;PUT /todos/:id&apos; do
+        let(:valid_attributes) { { title: &apos;Shopping&apos; } }
+
+        context &apos;when the record exists&apos; do
+            before { put &quot;/todos/#{todo_id}&quot;, params: valid_attributes }
+
+            it &apos;updates the record&apos; do
+                expect(response.body).to be_empty
+            end
+
+            it &apos;returns status code 204&apos; do
+                expect(response).to have_http_status(204)
+            end
+        end
+    end
+
+    # Test suite for DELETE /todos/:id
+    describe &apos;DELETE /todos/:id&apos; do
+        before { delete &quot;/todos/#{todo_id}&quot; }
+
+        it &apos;returns status code 204&apos; do
+            expect(response).to have_http_status(204)
+        end
+    end
+end
+</code></pre><p>We start by populating the database with a list of 10 todo records (thanks to factory bot). We also have a custom helper method json which parses the JSON response to a Ruby Hash which is easier to work with in our tests. Let’s define it in spec/support/request_spec_helper.</p>
+<pre><code>mkdir spec/support &amp;&amp; touch spec/support/request_spec_helper.rb
+</code></pre><p>Edit spec/support/request_spec_helper.rb:</p>
+<pre><code># spec/support/request_spec_helper
+module RequestSpecHelper
+  # Parse JSON response to ruby hash
+  def json
+    JSON.parse(response.body)
+  end
+end
+</code></pre><p>The support directory is not autoloaded by default. To enable this, open the rails helper and comment out the support directory auto-loading and then include it as shared module for all request specs in the RSpec configuration block.</p>
+<p>Edit spec/rails_helper.rb:</p>
+<pre><code>Dir[Rails.root.join(&apos;spec/support/**/*.rb&apos;)].each { |f| require f }
+# [...]
+RSpec.configuration do |config|
+  # [...]
+  config.include RequestSpecHelper, type: :request
+  # [...]
+end
+</code></pre><p>Run the test:</p>
+<pre><code>bundle exec rspec
+</code></pre><p>We get failing routing errors. This is because we haven’t defined the routes yet. Go ahead and define them in config/routes.rb.</p>
+<p>Edit config/routes.rb</p>
+<pre><code># config/routes.rb
+Rails.application.routes.draw do
+  resources :todos do
+    resources :items
+  end
+end
+</code></pre><p>In our route definition, we’re creating todo resource with a nested items resource. This enforces the 1:m (one to many) associations at the routing level. To view the routes, you can run:</p>
+<pre><code>rails routes
+</code></pre><p>Edit app/controllers/todos_controller.rb:</p>
+<pre><code># app/controllers/todos_controller.rb
+class TodosController &lt; ApplicationController
+  before_action :set_todo, only: [:show, :update, :destroy]
+
+  # GET /todos
+  def index
+    @todos = Todo.all
+    json_response(@todos)
+  end
+
+  # POST /todos
+  def create
+    @todo = Todo.create!(todo_params)
+    json_response(@todo, :created)
+  end
+
+  # GET /todos/:id
+  def show
+    json_response(@todo)
+  end
+
+  # PUT /todos/:id
+  def update
+    @todo.update(todo_params)
+    head :no_content
+  end
+
+  # DELETE /todos/:id
+  def destroy
+    @todo.destroy
+    head :no_content
+  end
+
+  private
+
+  def todo_params
+    # whitelist params
+    params.permit(:title, :created_by)
+  end
+
+  def set_todo
+    @todo = Todo.find(params[:id])
+  end
+end
+</code></pre><p>Add file: app/controllers/concerns/response.rb:</p>
+<pre><code># app/controllers/concerns/response.rb
+module Response
+  def json_response(object, status = :ok)
+    render json: object, status: status
+  end
+end
+</code></pre><p>set_todo - callback method to find a todo by id. In the case where the record does not exist, ActiveRecord will throw an exception ActiveRecord::RecordNotFound. We’ll rescue from this exception and return a 404 message.            </p>
+<p>Add file: app/controllers/concerns/exception_handler.rb:</p>
+<pre><code># app/controllers/concerns/exception_handler.rb
+module ExceptionHandler
+  # provides the more graceful `included` method
+  extend ActiveSupport::Concern
+
+  included do
+    rescue_from ActiveRecord::RecordNotFound do |e|
+      json_response({ message: e.message }, :not_found)
+    end
+
+    rescue_from ActiveRecord::RecordInvalid do |e|
+      json_response({ message: e.message }, :unprocessable_entity)
+    end
+  end
+end
+</code></pre><p>In our create method in the TodosController, note that we’re using create! instead of create. This way, the model will raise an exception ActiveRecord::RecordInvalid. This way, we can avoid deep nested if statements in the controller. Thus, we rescue from this exception in the ExceptionHandler module.    </p>
+<p>However, our controller classes don’t know about these helpers yet. Let’s fix that by including these modules in the application controller.</p>
+<pre><code># app/controllers/application_controller.rb
+class ApplicationController &lt; ActionController::API
+  include Response
+  include ExceptionHandler
+end
+</code></pre><p>Run test:</p>
+<pre><code>bundle exec rspec
+</code></pre><p>It should pass.</p>
+<h2 id="Manual-test"><a href="#Manual-test" class="headerlink" title="Manual test"></a>Manual test</h2><p>Install httpie to test:</p>
+<pre><code>sudo apt-get install httpie
+</code></pre><p>Run tests:</p>
+<pre><code>http :3000/todos
+http POST :3000/todos title=Mozart created_by=1
+http PUT :3000/todos/1 title=Beethoven
+http DELETE :3000/todos/1
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/ruby-rest-api/" data-id="ck92o0m3s000kky05sjmu7lrs" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rest-api/">rest api</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
 
 
-const uploadFile = async (data, fileName) =&gt;
-   new Promise((resolve) =&gt; {
-      s3client.upload(
-         {
-            Bucket: bucketName,
-            Key: fileName,
-            Body: data,
-         },
-         (err, response) =&gt; {
-            if (err) throw err
-            resolve(response)
-         },
-      )
-   })
+  
+    <article id="post-tomcat-over-apache2" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/tomcat-over-apache2/" class="article-date">
+  <time datetime="2020-02-21T11:10:34.354Z" itemprop="datePublished">2020-02-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+  </div>
 
-module.exports = uploadFile
-</code></pre><p>Create test-upload.js with content:</p>
-<pre><code>const fs = require(&apos;fs&apos;)
-const path = require(&apos;path&apos;)
-const uploadFile = require(&apos;./aws&apos;)
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
+    </h1>
+  
 
-const testUpload = () =&gt; {
-    const filePath = path.resolve(__dirname, &apos;test.jpg&apos;)
-    const fileStream = fs.createReadStream(filePath)
-    const now = new Date()
-    const fileName = `test-image-${now.toISOString()}.jpg`
-    uploadFile(fileStream, fileName).then((response) =&gt; {
-        console.log(&quot;:)&quot;)
-        console.log(response)
-    }).catch((err) =&gt; {
-        console.log(&quot;:|&quot;)
-        console.log(err)
-    })
-}
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Only-for-testing-Self-signed-SSL-certificate"><a href="#Only-for-testing-Self-signed-SSL-certificate" class="headerlink" title="(Only for testing) Self-signed SSL certificate"></a>(Only for testing) Self-signed SSL certificate</h2><p>For test purpose, you may want to create self signed certificate, so run:</p>
+<pre><code>openssl req -new &gt; new.ssl.csr
+</code></pre><p>With the following inputs:</p>
+<pre><code>Country Name (2 letter code) [AU]: GB
+State or Province Name (full name) [Some-State]: York
+Locality Name (eg, city) []: York
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: University of York
+Organizational Unit Name (eg, section) []: 
+Common Name (eg, YOUR name) []:First and Last Name
+Email Address []:Work Email
 
-testUpload()
-</code></pre><p>To test, run:</p>
-<pre><code>node test-upload.js
-</code></pre><p>From the output, you can find the image location, like: </p>
-<pre><code>http://localhost:4572/demo-bucket/test-image-2019-12-06T15%3A28%3A57.037Z.jpg
-</code></pre><p>If check .localstack/data/s3_api_calls.json file again, you will see the file containing image binary data.</p>
+Please enter the following &apos;extra&apos; attributes
+to be sent with your certificate request
+A challenge password []: **Leave Blank**
+An optional company name []:Optional
+</code></pre><p>Then run commands:</p>
+<pre><code>sudo openssl rsa -in privkey.pem -out new.cert.key
+sudo openssl x509 -in new.ssl.csr -out new.cert.cert -req -signkey new.cert.key -days 365
+sudo cp new.cert.cert /etc/apache2/ssl/server.crt
+sudo cp new.cert.key /etc/apache2/ssl/server.key
+</code></pre><p>The above server.crt and server.key can be used in apache2.</p>
+<h2 id="Put-the-real-SSL-certificate-files-in-place"><a href="#Put-the-real-SSL-certificate-files-in-place" class="headerlink" title="Put the real SSL certificate files in place"></a>Put the real SSL certificate files in place</h2><p>The files required are:</p>
+<pre><code>/etc/apache2/ssl/www.example.com.crt
+/etc/apache2/ssl/www.example.com.pem
+</code></pre><h2 id="Apache-configuration"><a href="#Apache-configuration" class="headerlink" title="Apache configuration"></a>Apache configuration</h2><pre><code>apt install tomcat8 tomcat8-admin apache2 libapache2-mod-jk
+a2enmod ssl
+a2enmod rewrite
+a2enmod headers
+</code></pre><p>Run command:</p>
+<pre><code>sudo nano /etc/apache2/sites-available/example-ssl.conf
+</code></pre><p>With content:</p>
+<pre><code>&lt;IfModule mod_ssl.c&gt;
+    SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
+    SSLCipherSuite          ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AE$
+    SSLHonorCipherOrder     on
+    SSLCompression          off
+    &lt;VirtualHost *:443&gt;
+        ServerAdmin YOUR_EMAIL
+        ServerName www.example.com
+        JkMount /example_app worker1
+        JkMount /example_app/* worker1
+        RedirectMatch ^/$ /example_app/
+        SSLEngine on
+        SSLCertificateFile /etc/apache2/ssl/www.example.com.crt
+        SSLCertificateKeyFile /etc/apache2/ssl/www.example.com.pem
+        # HSTS (mod_headers is required) (15768000 seconds = 6 months)
+        Header always set Strict-Transport-Security &quot;max-age=15768000&quot;
+    &lt;/VirtualHost&gt;
+&lt;/IfModule&gt;
+</code></pre><p>Edit file /etc/apache2/sites-available/example-non-ssl.conf with content:</p>
+<pre><code>&lt;VirtualHost *:80&gt;
+  ServerAdmin YOUR_EMAIL
+  ServerName www.example.com
+  RedirectMatch / https://www.example.com/$1
+&lt;/VirtualHost&gt;
+</code></pre><p>Run:</p>
+<pre><code>a2ensite example-non-ssl
+a2ensite example-ssl
+a2dissite 000-default
+a2dissite default-ssl
+</code></pre><h2 id="Tomcat-configuration"><a href="#Tomcat-configuration" class="headerlink" title="Tomcat configuration"></a>Tomcat configuration</h2><p>Edit /etc/tomcat8/server.xml:</p>
+<p>Comment out:</p>
+<pre><code>&lt;Connector port=&quot;8080&quot; protocol=&quot;HTTP/1.1&quot;
+           connectionTimeout=&quot;20000&quot;
+           redirectPort=&quot;8443&quot; /&gt;    
+</code></pre><p>add:</p>
+<pre><code>&lt;Connector port=&quot;8080&quot; protocol=&quot;HTTP/1.1&quot;
+           connectionTimeout=&quot;60000&quot;
+           maxThreads=&quot;400&quot;
+           URIEncoding=&quot;UTF-8&quot;
+           redirectPort=&quot;8443&quot;/&gt;
+</code></pre><p>add:</p>
+<pre><code>&lt;!-- Define an AJP 1.3 Connector on port 8009 --&gt;
+&lt;Connector port=&quot;8009&quot; protocol=&quot;AJP/1.3&quot; redirectPort=&quot;8443&quot;  maxthreads=&quot;400&quot; connectionTimeout=&quot;6000&quot; tomcatAuthentication=&quot;false&quot;/&gt;
+</code></pre><p>Edit file: /etc/libapache2-mod-jk/workers.properties with content:</p>
+<pre><code>workers.tomcat_home=/usr/share/tomcat8
+workers.java_home=/usr/lib/jvm/default-java
+ps=/
+
+worker.list=worker1
+worker.worker1.port=8009
+worker.worker1.host=localhost
+worker.worker1.type=ajp13
+</code></pre><h2 id="peer-not-authenticated-problem"><a href="#peer-not-authenticated-problem" class="headerlink" title="peer not authenticated problem"></a>peer not authenticated problem</h2><p>Error message:</p>
+<pre><code>javax.net.ssl.SSLPeerUnverifiedException: peer not authenticated                                    
+        at java.base/sun.security.ssl.SSLSessionImpl.getPeerCertificates(SSLSessionImpl.java:558)
+</code></pre><p>Reason: incorrect SSL certificate.            </p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/aws-s3-localstack/" data-id="ck3udhcdj0000wh05q1k9g56l" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/tomcat-over-apache2/" data-id="ck92o0m1q0004ky05bnzzx5r1" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/localstack/">localstack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/s3/">s3</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SSL/">SSL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tomcat/">Tomcat</a></li></ul>
 
     </footer>
   </div>
@@ -655,7 +650,7 @@ testUpload()
     <article id="post-iris-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/iris-migration/" class="article-date">
-  <time datetime="2019-12-05T14:49:32.568Z" itemprop="datePublished">2019-12-05</time>
+  <time datetime="2020-01-29T16:27:38.305Z" itemprop="datePublished">2020-01-29</time>
 </a>
     
   <div class="article-category">
@@ -946,7 +941,70 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
 }
 </code></pre><p>It should be changed to:</p>
 <pre><code>if(feedbackiris!=null &amp;&amp; feedbackiris.startsWith(&quot;&lt;?xml version=&quot;))             
-</code></pre><h2 id="IP-restrictions"><a href="#IP-restrictions" class="headerlink" title="IP restrictions"></a>IP restrictions</h2><p>Edit /etc/apache2/sites-enabled/default-ssl.conf, add the following:</p>
+</code></pre><h2 id="Detail-page-problem"><a href="#Detail-page-problem" class="headerlink" title="Detail page problem"></a>Detail page problem</h2><h3 id="Error-message"><a href="#Error-message" class="headerlink" title="Error message"></a>Error message</h3><pre><code>06-Jan-2020 11:42:08.726 SEVERE [http-nio-8080-exec-1] com.sun.xml.bind.v2.util.XmlFactory.createParserFactory null
+ org.xml.sax.SAXNotRecognizedException: http://javax.xml.XMLConstants/feature/secure-processing
+        at org.apache.xerces.parsers.AbstractSAXParser.setFeature(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserImpl.setFeatures(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserImpl.&lt;init&gt;(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserFactoryImpl.newSAXParserImpl(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserFactoryImpl.setFeature(Unknown Source)
+        at com.sun.xml.bind.v2.util.XmlFactory.createParserFactory(XmlFactory.java:136)
+        at com.sun.xml.bind.v2.runtime.unmarshaller.UnmarshallerImpl.getXMLReader(UnmarshallerImpl.java:154)
+        at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:170)
+        at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:219)
+        at com.yourmediashelf.fedora.client.response.FedoraResponseImpl.unmarshallResponse(FedoraResponseImpl.java:133)
+        at com.yourmediashelf.fedora.client.response.ObjectDatastreamsResponse.getObjectDatastreams(ObjectDatastreamsRespon
+se.java:74)
+        at com.yourmediashelf.fedora.client.response.ListDatastreamsResponse.getDatastreams(ListDatastreamsResponse.java:52
+)
+        at uk.ac.york.dlib.yodling.service.repository.FedoraRepositoryService.getAssets(FedoraRepositoryService.java:565)
+        at uk.ac.york.dlib.yodling.web.AbstractResourceController.detail(AbstractResourceController.java:676)
+</code></pre><h3 id="Reason-amp-solution"><a href="#Reason-amp-solution" class="headerlink" title="Reason &amp; solution"></a>Reason &amp; solution</h3><p>The problem is caused by Xerces impl, remove xercesImpl-2.4.0.jar will fix this problem.</p>
+<p>To remove the dependency from pom.xml, run</p>
+<pre><code>mvn dependency:tree
+</code></pre><p>And found it was Rome causing the problem:</p>
+<pre><code>[INFO] +- rome:rome-fetcher:jar:1.0:compile
+[INFO] |  +- jdom:jdom:jar:1.0:compile
+[INFO] |  +- xerces:xercesImpl:jar:2.4.0:compile
+[INFO] |  \- rome:rome:jar:1.0:compile    
+</code></pre><p>Edit pom.xml:</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;rome&lt;/groupId&gt;
+    &lt;artifactId&gt;rome-fetcher&lt;/artifactId&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
+            &lt;groupId&gt;xerces&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;jaxen&lt;/groupId&gt;
+    &lt;artifactId&gt;jaxen&lt;/artifactId&gt;
+    &lt;version&gt;1.1.1&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
+            &lt;groupId&gt;xerces&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;jcs&lt;/groupId&gt;
+    &lt;artifactId&gt;jcs&lt;/artifactId&gt;
+    &lt;version&gt;1.3&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
+            &lt;groupId&gt;xerces&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;    
+</code></pre><p>Rebuild &amp; redeploy will fix this problem.                        </p>
+<h2 id="IP-restrictions"><a href="#IP-restrictions" class="headerlink" title="IP restrictions"></a>IP restrictions</h2><p>Edit /etc/apache2/sites-enabled/default-ssl.conf, add the following:</p>
 <pre><code>&lt;Location /solr&gt;
   Allow from TEST_SERVER_IP                     
   ...
@@ -963,7 +1021,13 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
 &lt;/Directory&gt;
 </code></pre><p>Restart Apache2</p>
 <pre><code>service apache2 restart
-</code></pre>
+</code></pre><h2 id="Workflow"><a href="#Workflow" class="headerlink" title="Workflow"></a>Workflow</h2><p>As Fedora/Solr server is separated from the front end, there are some work to do to make the workflow working in the new infrastructure.</p>
+<h3 id="Paths"><a href="#Paths" class="headerlink" title="Paths"></a>Paths</h3><p><strong>Where the uploaded files are stored?</strong><br>configured in yodl.properties: iris.imageRootFolder</p>
+<p>So, on the new Java VM,<br>    sudo mkdir /usr/xxxxxxx-webdocs<br>    sudo chown xxxx:xxxx /usr/xxxxxxx-webdocs<br>    mount -v -o vers=3,sec=sys,tcp rdfs:/vol/yodl2/xxxx-xxxx/test-webdocs /usr/xxxxxxx-webdocs</p>
+<p><strong>DO NOT use the default mount parameters!</strong> The following won’t work!</p>
+<pre><code>mount rdfs:/vol/xxxx/xxxx-xxxx/test-webdocs /usr/xxxxxxx-webdocs
+</code></pre><h3 id="File-upload-submission-handling"><a href="#File-upload-submission-handling" class="headerlink" title="File upload/submission handling"></a>File upload/submission handling</h3><p><strong>WorkflowController</strong><br>File upload handler: WorkflowController.fileUpload</p>
+
       
     </div>
     <footer class="article-footer">
@@ -979,14 +1043,14 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
 
 
   
-    <article id="post-ruby-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-react-char-js" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/ruby-tips/" class="article-date">
-  <time datetime="2019-12-05T11:12:51.114Z" itemprop="datePublished">2019-12-05</time>
+    <a href="/react-char-js/" class="article-date">
+  <time datetime="2020-01-21T11:20:34.982Z" itemprop="datePublished">2020-01-21</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Ruby/">Ruby</a>
+    <a class="article-category-link" href="/categories/reactjs/">reactjs</a>
   </div>
 
   </div>
@@ -997,7 +1061,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/ruby-tips/">Ruby tips</a>
+      <a class="article-title" href="/react-char-js/">Use ReactJS with Chart.js</a>
     </h1>
   
 
@@ -1005,522 +1069,103 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Language-basics"><a href="#Language-basics" class="headerlink" title="Language basics"></a>Language basics</h2><h3 id=""><a href="#" class="headerlink" title="||="></a>||=</h3><pre><code>x ||= y 
-</code></pre><p>means </p>
-<pre><code>x || x = y 
-</code></pre><p>so if x is nil or false set x to be the value of y.</p>
-<h2 id="Class-attributes"><a href="#Class-attributes" class="headerlink" title="Class attributes"></a>Class attributes</h2><p>Use of attribute readers (public/private)</p>
-<pre><code>attr_reader :names
-def initialize(names)
-    @names = names
-end
-</code></pre><p>Then @names can be accessed via ‘names’</p>
-<pre><code>def latest
-    names.last
-end
-</code></pre><h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><pre><code>String.lines
-</code></pre><p>Check if a string starts with any string from an array:</p>
-<pre><code>prefixes=[&apos;Dr&apos;,&apos;Mr&apos;,&apos;Miss&apos;,&apos;Mrs&apos;]
-&apos;Tom Smith&apos;.starts_with?(*prefixes)
-=&gt; false
-&apos;Mr Tom Smith&apos;.starts_with?(*prefixes)
-=&gt; true        
-</code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><h3 id="Swap-array-rows-with-columns"><a href="#Swap-array-rows-with-columns" class="headerlink" title="Swap array rows with columns"></a>Swap array rows with columns</h3><pre><code>Array.transpose()
-</code></pre><p>e.g.<br>    matrix_string = “1 2 3\n4 5 6\n7 8 9”<br>    @rows = matrix_string.lines.collect{|x| x.split.collect{|y| y.to_i}}<br>    @columns = @rows.transpose()    </p>
-<h3 id="Remove-duplicate-elements-from-array"><a href="#Remove-duplicate-elements-from-array" class="headerlink" title="Remove duplicate elements from array"></a>Remove duplicate elements from array</h3><pre><code>array_name.uniq
-</code></pre><p>OR use the following to operate on the same array</p>
-<pre><code>array_name.uniq!
-</code></pre><h3 id="each-cons"><a href="#each-cons" class="headerlink" title="each_cons"></a>each_cons</h3><pre><code>irb(main):001:0&gt; s = &quot;123456789&quot;
-=&gt; &quot;123456789&quot;
+        <h2 id="HTML-page"><a href="#HTML-page" class="headerlink" title="HTML page"></a>HTML page</h2><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Downloader Statistics&lt;/title&gt;
+    &lt;script src=&quot;https://unpkg.com/react@16/umd/react.development.js&quot; crossorigin&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://unpkg.com/react-dom@16/umd/react-dom.development.js&quot; crossorigin&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://unpkg.com/babel-standalone@6/babel.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js&quot;&gt;&lt;/script&gt;
 
-irb(main):002:0&gt; s.chars
-=&gt; [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;]
+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;iris_statistics.css&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id = &quot;iris_downloader_statistics&quot;&gt;
 
-irb(main):003:0&gt; s.chars.each_cons(2).to_a
-=&gt; [[&quot;1&quot;, &quot;2&quot;], [&quot;2&quot;, &quot;3&quot;], [&quot;3&quot;, &quot;4&quot;], [&quot;4&quot;, &quot;5&quot;], [&quot;5&quot;, &quot;6&quot;], [&quot;6&quot;, &quot;7&quot;], [&quot;7&quot;, &quot;8&quot;], [&quot;8&quot;, &quot;9&quot;]]
+    &lt;/div&gt;
 
-irb(main):004:0&gt; s.chars.each_cons(2).to_a.collect {|a| a.join}
-=&gt; [&quot;12&quot;, &quot;23&quot;, &quot;34&quot;, &quot;45&quot;, &quot;56&quot;, &quot;67&quot;, &quot;78&quot;, &quot;89&quot;]    
-</code></pre><p>The above expression can be simplified:</p>
-<pre><code>irb(main):004:0&gt; s.chars.each_cons(2).collect(&amp;:join)
-=&gt; [&quot;12&quot;, &quot;23&quot;, &quot;34&quot;, &quot;45&quot;, &quot;56&quot;, &quot;67&quot;, &quot;78&quot;, &quot;89&quot;]    
-</code></pre><h3 id="zip-amp-count"><a href="#zip-amp-count" class="headerlink" title="zip &amp; count"></a>zip &amp; count</h3><pre><code>strand1 = &apos;AAAB&apos;
-strand2 = &apos;AAAC&apos;
-strand1.chars.zip(strand2.chars).count {|n1, n2| n1 != n2}  
-</code></pre><h2 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a>Collections</h2><p>Lots of internal methods can be used in collections, e.g.</p>
-<pre><code>scores.last
-scores.max
-scores.min
-scores.sort
-soores.reverse
-</code></pre><h3 id="Enumerable"><a href="#Enumerable" class="headerlink" title="Enumerable"></a>Enumerable</h3><pre><code>s = &quot;aa bb cc dd ee ff gg aa&quot;
+    &lt;script type=&quot;text/jsx&quot; src=&quot;iris_statistics.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><h2 id="Javascript"><a href="#Javascript" class="headerlink" title="Javascript"></a>Javascript</h2><pre><code>&apos;use strict&apos;;
+const e = React.createElement;
 
-s.scan(/\w+(?:&apos;\w+)*/)
-=&gt; [&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;, &quot;dd&quot;, &quot;ee&quot;, &quot;ff&quot;, &quot;gg&quot;, &quot;aa&quot;]
+class LineGraph extends React.Component {
+    chartRef = React.createRef();
 
-s.scan(/\w+(?:&apos;\w+)*/).group_by(&amp;:itself)
-=&gt; {&quot;aa&quot;=&gt;[&quot;aa&quot;, &quot;aa&quot;], &quot;bb&quot;=&gt;[&quot;bb&quot;], &quot;cc&quot;=&gt;[&quot;cc&quot;], &quot;dd&quot;=&gt;[&quot;dd&quot;], &quot;ee&quot;=&gt;[&quot;ee&quot;], &quot;ff&quot;=&gt;[&quot;ff&quot;], &quot;gg&quot;=&gt;[&quot;gg&quot;]}
+    componentDidMount() {
+        const myChartRef = this.chartRef.current.getContext(&quot;2d&quot;);
 
-s.scan(/\w+(?:&apos;\w+)*/).group_by(&amp;:itself).transform_values{|x| x.length}
-=&gt; {&quot;aa&quot;=&gt;2, &quot;bb&quot;=&gt;1, &quot;cc&quot;=&gt;1, &quot;dd&quot;=&gt;1, &quot;ee&quot;=&gt;1, &quot;ff&quot;=&gt;1, &quot;gg&quot;=&gt;1}
-</code></pre><p><strong>each_with_object</strong> method gives a way to iterate an Enumerable and doing some process within the loop.<br>    drop = 15<br>    drops = {<br>          3  =&gt; ‘Pling’,<br>          5  =&gt; ‘Plang’,<br>          7  =&gt; ‘Plong’<br>    }<br>    sounds = drops.each_with_object(‘’) { |(factor, note), sound| sound &lt;&lt; note if (drop % factor).zero? }</p>
-<h2 id="Regular-expressions"><a href="#Regular-expressions" class="headerlink" title="Regular expressions"></a>Regular expressions</h2><h3 id="acronyms"><a href="#acronyms" class="headerlink" title="acronyms"></a>acronyms</h3><p>Question: convert a sentence to its acronym, e.g.</p>
-<pre><code>Portable Network Graphics &gt; PNG
-Ruby on Rails &gt; ROR
-First In, First Out &gt; FIFO
-Something - I made up from thin air &gt; SIMUFTA        
-</code></pre><p>The easy solution is to use RE:</p>
-<pre><code>def self.abbreviate(phrase)
-    phrase.scan(/\b\w/).join.upcase
-end
-</code></pre><p>Scan with the regex /\b\w/ will catch ‘word boundaries’ (space, - and more) followed by a word character. This means that scan(/\b\w/) returns an array with the first letters only.    </p>
-<h3 id="Word-counts"><a href="#Word-counts" class="headerlink" title="Word counts"></a>Word counts</h3><pre><code>class Phrase
-  attr_reader :phrase
-
-  def initialize(phrase)
-    @phrase = phrase
-  end
-
-  def word_count
-    counts = Hash.new(0)
-    phrase.downcase.scan(/\w+(?:&apos;\w+)*/).each { |w| counts[w] += 1 }
-    counts
-  end
-end  
-</code></pre><ul>
-<li>\w+ - 1 or more word chars</li>
-<li><p>(?:’\w+)<em> - zero or more sequences (as (?:…)</em> is a non-capturing group that groups a sequence of subpatterns quantified with * quantifier matching 0 or more occurrences) of:</p>
-<ul>
-<li>‘ - apostrophe</li>
-<li><p>\w+ - 1 or more word chars.</p>
-<p>phrase = “Joe can’t tell between ‘large’ and large.”<br>phrase.downcase.scan(/\w+(?:’\w+)*/).each { |w| counts[w] += 1 }</p>
-<blockquote>
-<blockquote>
-</blockquote>
-<p>{“joe”=&gt;1, “can’t”=&gt;1, “tell”=&gt;1, “between”=&gt;1, “large”=&gt;2, “and”=&gt;1}</p>
-</blockquote>
-</li>
-</ul>
-</li>
-</ul>
-<p><strong>Iteration 2</strong>: to remove the temporary variable</p>
-<pre><code>phrase.downcase.scan(/\w+(?:&apos;\w+)*/).group_by{|e| e}.map{|k, v| [k, v.length]}.to_h
-</code></pre><p><strong>Iteration 3</strong>: think about SRP and remove intermediate array generated by map</p>
-<pre><code>def words
-    phrase.downcase.scan(/\w+(?:&apos;\w+)*/)
-end
-
-def word_count
-    #words.group_by(&amp;:itself).transform_values{|x| x.length}
-    words.group_by(&amp;:itself).transform_values(&amp;:length)
-end     
-</code></pre><h2 id="Error-handling"><a href="#Error-handling" class="headerlink" title="Error handling"></a>Error handling</h2><h3 id="Subclassing-a-standard-Error-class"><a href="#Subclassing-a-standard-Error-class" class="headerlink" title="Subclassing a standard Error class"></a>Subclassing a standard Error class</h3><pre><code>class StrandLengthsError &lt; ArgumentError
-  attr_reader :object
-
-  def initialize(message = &apos;Strand lengths must be identical.&apos;, object)
-    super(message)
-    @object = object
-  end
-end
-</code></pre><h2 id="Code-style-conventions"><a href="#Code-style-conventions" class="headerlink" title="Code style conventions"></a>Code style conventions</h2><h3 id="Indentation"><a href="#Indentation" class="headerlink" title="Indentation"></a>Indentation</h3><p>The indentation for Ruby programs should be 2 spaces.</p>
-<h3 id="Spaces"><a href="#Spaces" class="headerlink" title="Spaces"></a>Spaces</h3><p>The ones with space around are:</p>
-<pre><code>=
-==
-!= &lt;---
--
-+
-*
-%
-</code></pre><p>The / method sometimes with space around and sometimes not:</p>
-<ul>
-<li>No space when communication “fraction”</li>
-<li>Space around when communicating “division”</li>
-</ul>
-<p>No Space for ** method, as it mirrors how people write on paper, such as $x^y$.    </p>
-<h3 id="Ruby-class-structure"><a href="#Ruby-class-structure" class="headerlink" title="Ruby class structure"></a>Ruby class structure</h3><pre><code>class Class XX
-
-  # class methods
-
-  private
-
-  # constructors
-
-  # attribute readers
-
-  # private methods
-
-  public
-
-  # public methods
-
-end
-</code></pre><h3 id="defined-by-proximity"><a href="#defined-by-proximity" class="headerlink" title="defined by proximity"></a>defined by proximity</h3><pre><code>def distance
-  nucleotides.count { |n1, n2| n1 != n2 }
-end
-</code></pre><p>From above code, it’s very easy to understand what ‘n1’ and ‘n2’ mean.</p>
-<h3 id="Variable-names"><a href="#Variable-names" class="headerlink" title="Variable names"></a>Variable names</h3><p>If we are talking about programming languages and what each with object does, we<br> might use k and v since those are speaking to the key and value positions,<br> and are “commonly known” to the problem domain of programming languages.<br> But programming language <strong>isn’t the problem being solved in all situations</strong>,<br> so perhaps factor and note and sound makes sense for the argument list in that block in the raindrop program. </p>
-<h3 id="Line-length"><a href="#Line-length" class="headerlink" title="Line length"></a>Line length</h3><p>Rubocop suggests that a single line should not longer than 80 columns.</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ruby-tips/" data-id="cjzxw1akv0001bh05yr23udlh" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-rails-page-only-working-after-refresh" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/rails-page-only-working-after-refresh/" class="article-date">
-  <time datetime="2019-11-15T12:40:12.000Z" itemprop="datePublished">2019-11-15</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Ruby/">Ruby</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="The-problem"><a href="#The-problem" class="headerlink" title="The problem"></a>The problem</h2><p>Some Rails pages are not working properly, e.g. the JavaScript code stops working. However, after a refresh, it’s working again.</p>
-<p>Sounds familiar?</p>
-<p>Actually, to be more accurate, the problem happens if:</p>
-<p>You click a link in your Rails application and it takes you to another page, still within the same domain. The JS stops working.</p>
-<p>However, if you copy the second page URL and paste it to the URL address bar, it works. </p>
-<h2 id="Reason"><a href="#Reason" class="headerlink" title="Reason"></a>Reason</h2><p>It’s the compatibility problem between turbolinks and jQuery. Basically, turbolinks optimized the links within the application and only partially load the target page elements and combine it with current page. Sometimes it’s noting working.</p>
-<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><p>Prior to Rails before 2013, you can use a gem called jquery-turbolinks which will resolve this problem for you. </p>
-<p>However, with the latest Rails (5.x+), the gem won’t work.</p>
-<p>The workaround is to monitor the appropriate event, e.g. </p>
-<p>Change</p>
-<pre><code>$(function() {
-</code></pre><p>To:</p>
-<pre><code>$(document).on(&apos;turbolinks:load&apos;, function() {
-</code></pre><p>It should just works.</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a href="https://github.com/onokumus/metismenu/issues/121" target="_blank" rel="noopener">https://github.com/onokumus/metismenu/issues/121</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/rails-page-only-working-after-refresh/" data-id="ck30a6m1k0000us05zn13snib" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/turbolinks/">turbolinks</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hyrax-content-blocks" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/hyrax-content-blocks/" class="article-date">
-  <time datetime="2019-10-29T12:40:12.000Z" itemprop="datePublished">2019-10-29</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/hyrax-content-blocks/">How does Hyrax content blocks work?</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>To add a new content block page, you need to follow steps below:</p>
-<h2 id="Register-a-new-content-block-in-models"><a href="#Register-a-new-content-block-in-models" class="headerlink" title="Register a new content block in models"></a>Register a new content block in models</h2><p>app/models/content_block.rb</p>
-<pre><code>def help_page
-  find_by(name: &apos;help_page&apos;) ||
-    create(name: &apos;help_page&apos;, value: default_help_text)
-end
-</code></pre><p>and</p>
-<pre><code>def default_help_text
-  ERB.new(
-    IO.read(
-        Rails.root.join(&apos;app&apos;, &apos;views&apos;, &apos;hyrax&apos;, &apos;content_blocks&apos;, &apos;templates&apos;, &apos;help.html.erb&apos;)
-    )
-  ).result
-end
-</code></pre><h2 id="Template-file"><a href="#Template-file" class="headerlink" title="Template file"></a>Template file</h2><p>app/views/hyrax/content_blocks/templates</p>
-<p>just add any HTML you like to the template file, e.g. help.html.erb</p>
-<p>Still Not showing the new page content?</p>
-<p>You need to delete the record in the database ‘content_blocks’ table</p>
-<h2 id="Add-a-new-content-block-tab-in-Admin-page"><a href="#Add-a-new-content-block-tab-in-Admin-page" class="headerlink" title="Add a new content block tab in Admin page"></a>Add a new content block tab in Admin page</h2><p>app/views/hyrax/content_blocks/_form.html.erb</p>
-<p>On the top, add:</p>
-<pre><code>&lt;li&gt;
-  &lt;a href=&quot;#help&quot; role=&quot;tab&quot; data-toggle=&quot;tab&quot; class=&quot;nav-safety-confirm&quot;&gt;&lt;%= t(:&apos;hyrax.content_blocks.tabs.help&apos;) %&gt;&lt;/a&gt;
-&lt;/li&gt;
-</code></pre><p>On the bottom, add:</p>
-<pre><code>&lt;div id=&quot;help&quot; class=&quot;tab-pane&quot;&gt;
-  &lt;div class=&quot;panel panel-default labels&quot;&gt;
-    &lt;%= simple_form_for ContentBlock.for(:help), url: hyrax.content_block_path(ContentBlock.for(:help)), html: {class: &apos;nav-safety&apos;} do |f| %&gt;
-      &lt;div class=&quot;panel-body&quot;&gt;
-        &lt;div class=&quot;field form-group&quot;&gt;
-          &lt;%= f.label :help %&gt;&lt;br /&gt;
-          &lt;%= f.text_area :help, value: f.object.value, class: &apos;form-control tinymce&apos;, rows: 20, cols: 120 %&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-      &lt;div class=&quot;panel-footer&quot;&gt;
-        &lt;%= link_to t(:&apos;hyrax.content_blocks.cancel&apos;), hyrax.admin_admin_sets_path, class: &apos;btn btn-default pull-right&apos; %&gt;
-        &lt;%= f.button :submit, class: &apos;btn btn-primary pull-right&apos; %&gt;
-      &lt;/div&gt;
-    &lt;% end %&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-</code></pre><h2 id="Content-block-controller"><a href="#Content-block-controller" class="headerlink" title="Content block controller"></a>Content block controller</h2><p>Copy content_blocks_controller.rb from app/controllers/hyrax to NCELP and update the following:</p>
-<pre><code>params.require(:content_block).permit(:marketing,
-                                      :announcement,
-                                      :researcher,
-                                      :help)
-</code></pre><h2 id="Update-locale-file"><a href="#Update-locale-file" class="headerlink" title="Update locale file"></a>Update locale file</h2><p>Edit config/locales/hyrax.en.yml, and add:</p>
-<pre><code>hyrax:
-  content_blocks:
-    help: Help
-</code></pre><h2 id="Add-a-menu-in-the-menubar"><a href="#Add-a-menu-in-the-menubar" class="headerlink" title="Add a menu in the menubar"></a>Add a menu in the menubar</h2><p>Edit app/views/_controls.html.erb, and add:</p>
-<pre><code>&lt;li &lt;%= &apos;class=active&apos; if current_page?(hyrax.about_path) %&gt;&gt;
-    &lt;%= link_to t(:&apos;hyrax.controls.about&apos;), hyrax.about_path, aria: current_page?(hyrax.about_path) ? {current: &apos;page&apos;} : nil %&gt;&lt;/li&gt;   
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/hyrax-content-blocks/" data-id="ck2byutc60000vz05lqcmuka4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-how-to-disable-download-notification-for-a-user" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/how-to-disable-download-notification-for-a-user/" class="article-date">
-  <time datetime="2019-10-08T21:40:12.000Z" itemprop="datePublished">2019-10-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/System/">System</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/how-to-disable-download-notification-for-a-user/">How to disable download notifications to authors in IRIS</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>The following steps mainly for IRIS admins who left IRIS team, but the email notifications are still triggered. Tons of undelivered email may result in the suspension of the IRIS admin email account.</p>
-<p>1) Open yodl.properties file, and find object PID, e.g. with key iris.userMappings.</p>
-<p>2) Open the fedora object in Fedora admin web UI.</p>
-<p>3) Find matched ownerid for a particular email from UserMapping datastream.</p>
-<p>4) Run the following RI query to find user’s profile object id:</p>
-<pre><code>select $object
-from &lt;#ri&gt;
-where $object &lt;fedora-model:hasModel&gt; &lt;fedora:york:CModel-User&gt;
-and $object &lt;info:fedora/fedora-system:def/model#ownerId&gt; &apos;THE_ABOVE_OWNERID&apos;
-order by $object
-</code></pre><p>5) Open user profile object in Fedora Web UI and open User datastream.</p>
-<p>6) Change notifyDownloads to ‘false’</p>
-<pre><code>&lt;notifyDownloads&gt;false&lt;/notifyDownloads&gt;
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-disable-download-notification-for-a-user/" data-id="ck1j33wqw00004405jczltdl2" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/notification/">notification</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-ruby-aws-lambda" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/ruby-aws-lambda/" class="article-date">
-  <time datetime="2019-10-03T21:40:12.000Z" itemprop="datePublished">2019-10-03</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/AWS/">AWS</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/ruby-aws-lambda/">Develop an AWS Lambda with Ruby</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Install-jets-and-create-project"><a href="#Install-jets-and-create-project" class="headerlink" title="Install jets and create project"></a>Install jets and create project</h2><pre><code>gem install jets
-jets new dad-jokes-sms --mode api --no-database
-jets serve --host 0.0.0.0
-</code></pre><p>Then try to access the app from localhost:8888</p>
-<pre><code>jets generate controller Messages create
-</code></pre><h2 id="Implement-the-application-in-the-local-environment"><a href="#Implement-the-application-in-the-local-environment" class="headerlink" title="Implement the application in the local environment"></a>Implement the application in the local environment</h2><p>Edit config/routes.rb</p>
-<pre><code>post &apos;messages&apos;, to: &apos;messages#create&apos;
-root &quot;jets/public#show&quot;
-</code></pre><p>Replace message_controller.rb with following:</p>
-<pre><code>require &apos;open-uri&apos;
-
-class MessagesController &lt; ApplicationController
- def create
-   twiml = Twilio::TwiML::MessagingResponse.new
-   twiml.message body: random_joke
-   render xml: twiml.to_xml
- end
-
- private
-   def random_joke
-     open(&apos;https://icanhazdadjoke.com/&apos;, { &apos;Accept&apos; =&gt; &apos;text/plain&apos; }).read
-   end
-end
-</code></pre><p>Add following to Gemfile:</p>
-<pre><code>gem &quot;jets&quot;
-gem &quot;twilio-ruby&quot;
-</code></pre><p>Run:</p>
-<pre><code>bundle install
-</code></pre><p>Restart Jets and run:</p>
-<pre><code>curl --data &quot;&quot; http://localhost:8888/messages
-</code></pre><h2 id="AWS-setup"><a href="#AWS-setup" class="headerlink" title="AWS setup"></a>AWS setup</h2><p>In AWS IAM, create a policy, choose “json” and paste the following:</p>
-<pre><code>{
- &quot;Version&quot;: &quot;2012-10-17&quot;,
- &quot;Statement&quot;: [
- {
- &quot;Effect&quot;: &quot;Allow&quot;,
- &quot;Action&quot;: [
- &quot;apigateway:*&quot;,
- &quot;cloudformation:*&quot;,
- &quot;dynamodb:*&quot;,
- &quot;events:*&quot;,
- &quot;iam:*&quot;,
- &quot;lambda:*&quot;,
- &quot;logs:*&quot;,
- &quot;route53:*&quot;,
- &quot;s3:*&quot;
- ],
- &quot;Resource&quot;: [
- &quot;*&quot;
- ]
- }
- ]
+        new Chart(myChartRef, {
+            type: &quot;line&quot;,
+            data: {
+                labels: [&quot;Jan&quot;, &quot;Feb&quot;, &quot;March&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;June&quot;, &quot;July&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;, &quot;Dec&quot;],
+                datasets: [
+                    {
+                        label: &quot;Downloads&quot;,
+                        data: [651, 1034, 843, 877, 649, 661, 490, 332, 514, 914, 903, 602],
+                    }
+                ]
+            },
+            options: {
+                //Customize chart options
+            }
+        });
+    }
+    render() {
+        return (
+            &lt;div&gt;
+              &lt;canvas
+                id=&quot;myChart&quot;
+                ref={this.chartRef}
+              /&gt;
+            &lt;/div&gt;
+        )
+    }
 }
-</code></pre><p>Add name/desc and click “Create”.</p>
-<p>Create a user: jets-user<br>With this option: Programmatic access</p>
-<p>Attach jets-policy to jets-user</p>
-<p>Then you will have the access key and secret. </p>
-<h2 id="Deploy-it-to-AWS"><a href="#Deploy-it-to-AWS" class="headerlink" title="Deploy it to AWS"></a>Deploy it to AWS</h2><p>Run the following command:</p>
-<pre><code>AWS_ACCESS_KEY_ID=XXXXXX AWS_SECRET_ACCESS_KEY=XXXXXX jets deploy
-</code></pre><p><strong>If you have a problem complaining about jsych, try to add it into Gemfile and bundle install.</strong></p>
-<p>If successful, you should see something like:</p>
-<pre><code>Uploading s3://dad-jokes-sms-dev-s3bucket-1iez1o87ck0t0/jets/public/index.html
-Uploading s3://dad-jokes-sms-dev-s3bucket-1iez1o87ck0t0/jets/public/422.html
-Uploading s3://dad-jokes-sms-dev-s3bucket-1iez1o87ck0t0/jets/public/404.html
-Time for public assets to s3: 0s
-Deploying CloudFormation stack with jets app!
-10:20:57AM UPDATE_IN_PROGRESS AWS::CloudFormation::Stack dad-jokes-sms-dev User Initiated
-10:20:59AM CREATE_IN_PROGRESS AWS::Lambda::LayerVersion GemLayer 
-10:20:59AM CREATE_IN_PROGRESS AWS::IAM::Role IamRole 
-10:20:59AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiGateway 
-10:21:00AM CREATE_IN_PROGRESS AWS::IAM::Role IamRole Resource creation Initiated
-10:21:00AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiGateway Resource creation Initiated
-10:21:11AM CREATE_COMPLETE AWS::CloudFormation::Stack ApiGateway 
-10:21:11AM CREATE_COMPLETE AWS::IAM::Role IamRole 
-10:21:12AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiResources1 
-10:21:12AM CREATE_IN_PROGRESS AWS::Lambda::LayerVersion GemLayer Resource creation Initiated
-10:21:12AM CREATE_COMPLETE AWS::Lambda::LayerVersion GemLayer 
-10:21:13AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiResources1 Resource creation Initiated
-10:21:14AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack JetsPreheatJob 
-10:21:15AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack JetsPreheatJob Resource creation Initiated
-10:21:23AM CREATE_COMPLETE AWS::CloudFormation::Stack ApiResources1 
-10:21:25AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack JetsPublicController 
-10:21:25AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack MessagesController 
-10:21:25AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack JetsPublicController Resource creation Initiated
-10:21:26AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack MessagesController Resource creation Initiated
-10:21:47AM CREATE_COMPLETE AWS::CloudFormation::Stack JetsPublicController 
-10:21:47AM CREATE_COMPLETE AWS::CloudFormation::Stack MessagesController 
-10:21:49AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiDeployment20190926102055 
-10:21:50AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiDeployment20190926102055 Resource creation Initiated
-10:22:00AM CREATE_COMPLETE AWS::CloudFormation::Stack ApiDeployment20190926102055 
-10:22:49AM CREATE_COMPLETE AWS::CloudFormation::Stack JetsPreheatJob 
-10:22:50AM UPDATE_COMPLETE_CLEANUP_IN_PROGRESS AWS::CloudFormation::Stack dad-jokes-sms-dev 
-10:22:51AM UPDATE_COMPLETE AWS::CloudFormation::Stack dad-jokes-sms-dev 
-Stack success status: UPDATE_COMPLETE
-Time took for stack deployment: 1m 58s.
-Prewarming application.
-API Gateway Endpoint: https://XXXXXXXX.execute-api.eu-west-2.amazonaws.com/dev/
-</code></pre><p>Test it with curl:</p>
-<pre><code>curl --data &quot;&quot; https://XXXXXXXX.execute-api.eu-west-2.amazonaws.com/dev/messages
-</code></pre><h2 id="Some-AWS-cli-commands"><a href="#Some-AWS-cli-commands" class="headerlink" title="Some AWS cli commands:"></a>Some AWS cli commands:</h2><p>To list all your apigateway endpoints:</p>
-<pre><code>aws apigateway get-rest-apis
-</code></pre><p>Show all lambda functions:</p>
-<pre><code>aws lambda list-functions | grep FunctionName
-</code></pre><h2 id="Delete-the-AWS-resources"><a href="#Delete-the-AWS-resources" class="headerlink" title="Delete the AWS resources"></a>Delete the AWS resources</h2><pre><code>AWS_ACCESS_KEY_ID=XXXXXXXX AWS_SECRET_ACCESS_KEY=XXXXXXXX jets delete
-</code></pre><h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a href="https://www.infoq.cn/article/FSPhFgYw769V*brbEyJW" target="_blank" rel="noopener">https://www.infoq.cn/article/FSPhFgYw769V*brbEyJW</a><br><a href="https://www.twilio.com/blog/serverless-ruby-on-aws-lambda-with-the-jets-framework" target="_blank" rel="noopener">https://www.twilio.com/blog/serverless-ruby-on-aws-lambda-with-the-jets-framework</a></p>
 
+
+const domContainer = document.querySelector(&apos;#iris_downloader_statistics&apos;);
+ReactDOM.render(e(LineGraph), domContainer);
+</code></pre><h2 id="CSS"><a href="#CSS" class="headerlink" title="CSS"></a>CSS</h2><pre><code>#title {
+  text-align: center;
+  font-family: arial, sans-serif;
+}
+
+#downloads {
+  text-align: center;
+  font-family: &quot;Trebuchet MS&quot;, Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  border: 3px solid #ddd;
+  width: 100%;
+}
+
+#downloads td, #downloads th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#downloads tr:nth-child(even){background-color: #f2f2f2;}
+
+#downloads tr:hover {background-color: #ddd;}
+
+#downloads th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+  background-color: #4CAF50;
+  color: white;
+}
+</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ruby-aws-lambda/" data-id="ck1c0wtj100005205esosyt3j" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/react-char-js/" data-id="ck92o0lyo0000ky05vu69mnp8" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Chart-js/">Chart.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReactJS/">ReactJS</a></li></ul>
 
     </footer>
   </div>
@@ -1529,10 +1174,10 @@ API Gateway Endpoint: https://XXXXXXXX.execute-api.eu-west-2.amazonaws.com/dev/
 
 
   
-    <article id="post-python-aws-lambda" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-aws-java-sdk-s3-dynamodb" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/python-aws-lambda/" class="article-date">
-  <time datetime="2019-10-03T21:40:12.000Z" itemprop="datePublished">2019-10-03</time>
+    <a href="/aws-java-sdk-s3-dynamodb/" class="article-date">
+  <time datetime="2020-01-17T15:20:55.733Z" itemprop="datePublished">2020-01-17</time>
 </a>
     
   <div class="article-category">
@@ -1547,7 +1192,7 @@ API Gateway Endpoint: https://XXXXXXXX.execute-api.eu-west-2.amazonaws.com/dev/
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/python-aws-lambda/">Develop an AWS Lambda with Python</a>
+      <a class="article-title" href="/aws-java-sdk-s3-dynamodb/">Using AWS Java SDK for S3 and DynamoDB</a>
     </h1>
   
 
@@ -1555,37 +1200,352 @@ API Gateway Endpoint: https://XXXXXXXX.execute-api.eu-west-2.amazonaws.com/dev/
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Install-serverless-framework"><a href="#Install-serverless-framework" class="headerlink" title="Install serverless framework"></a>Install serverless framework</h2><pre><code>npm install -g serverless
-</code></pre><h2 id="Create-the-project"><a href="#Create-the-project" class="headerlink" title="Create the project"></a>Create the project</h2><pre><code>mkdir -p hello-world
-cd hello-world
-serverless create --template aws-python3 --name hello-world
-</code></pre><h2 id="Create-AWS-user"><a href="#Create-AWS-user" class="headerlink" title="Create AWS user"></a>Create AWS user</h2><p>Create a user, e.g. serverless-user and add the access key and secret access key in the .aws/credentials:</p>
-<pre><code>[serverless]
-aws_access_key_id = XXXXXXXXXXXXXXXXXXXXXXX
-aws_secret_access_key = XXXXXXXXXXXXXXXXXXXXXXX
-</code></pre><h2 id="Deploy-first-attempt"><a href="#Deploy-first-attempt" class="headerlink" title="Deploy - first attempt"></a>Deploy - first attempt</h2><pre><code>export AWS_PROFILE=&quot;serverless&quot;
-serverless deploy  --region eu-west-1
-</code></pre><p>Till now, you won’t see the APIGateway endpoint as it hasn’t been defined yet.</p>
-<p>Edit serverless.yml:</p>
-<pre><code>events:
-    - http:
-        path: hello
-        method: get
-</code></pre><p>Then run:</p>
-<pre><code>serverless deploy -v
-</code></pre><p>You will see the endpoint like: <a href="https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev" target="_blank" rel="noopener">https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev</a></p>
-<p>The service can be tested by this command:</p>
-<pre><code>sls invoke -f hello
-</code></pre><p>Make sure to remove AWS resources when they are not needed:</p>
-<pre><code>serverless remove
+        <p>Below is just my notes following this official AWS Java SDK tutorial.</p>
+<h2 id="pom-xml"><a href="#pom-xml" class="headerlink" title="pom.xml"></a>pom.xml</h2><pre><code>&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.yf.demos&lt;/groupId&gt;
+    &lt;artifactId&gt;aws-java-demo&lt;/artifactId&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+
+    &lt;name&gt;aws-java-demo&lt;/name&gt;
+    &lt;url&gt;http://aws.amazon.com/sdkforjava&lt;/url&gt;
+
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencyManagement&gt;
+        &lt;dependencies&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;com.amazonaws&lt;/groupId&gt;
+                &lt;artifactId&gt;aws-java-sdk-bom&lt;/artifactId&gt;
+                &lt;version&gt;1.11.327&lt;/version&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+            &lt;/dependency&gt;
+        &lt;/dependencies&gt;
+    &lt;/dependencyManagement&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.amazonaws&lt;/groupId&gt;
+            &lt;artifactId&gt;aws-java-sdk&lt;/artifactId&gt;
+            &lt;version&gt;1.11.708&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.amazonaws&lt;/groupId&gt;
+            &lt;artifactId&gt;aws-java-sdk-dynamodb&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;jakarta.xml.bind&lt;/groupId&gt;
+            &lt;artifactId&gt;jakarta.xml.bind-api&lt;/artifactId&gt;
+            &lt;version&gt;2.3.2&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.glassfish.jaxb&lt;/groupId&gt;
+            &lt;artifactId&gt;jaxb-runtime&lt;/artifactId&gt;
+            &lt;version&gt;2.3.2&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;resources&gt;
+            &lt;resource&gt;
+                &lt;directory&gt;${env.HOME}/.aws/&lt;/directory&gt;
+            &lt;/resource&gt;
+        &lt;/resources&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;version&gt;2.3&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.8&lt;/source&gt;
+                    &lt;target&gt;1.8&lt;/target&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+                &lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
+                &lt;version&gt;1.2.1&lt;/version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;java&lt;/goal&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+                &lt;configuration&gt;
+                    &lt;mainClass&gt;com.amazonaws.samples.DynamoDBScanTest&lt;/mainClass&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+&lt;/project&gt;
+</code></pre><h2 id="Access-S3"><a href="#Access-S3" class="headerlink" title="Access S3"></a>Access S3</h2><pre><code>/*
+ * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;).
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the &quot;license&quot; file accompanying this file. This file is distributed
+ * on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+package com.amazonaws.samples;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.UUID;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+
+public class S3Sample {
+
+    public static void main(String[] args) throws IOException {
+        AmazonS3 s3 = new AmazonS3Client();
+        Region euWest1 = Region.getRegion(Regions.EU_WEST_1);
+        s3.setRegion(euWest1);
+
+        String bucketName = &quot;my-first-s3-bucket-&quot; + UUID.randomUUID();
+        String key = &quot;MyObjectKey&quot;;
+
+        System.out.println(&quot;===========================================&quot;);
+        System.out.println(&quot;Getting Started with Amazon S3&quot;);
+        System.out.println(&quot;===========================================\n&quot;);
+
+        try {
+/*
+            System.out.println(&quot;Creating bucket &quot; + bucketName + &quot;\n&quot;);
+            s3.createBucket(bucketName);
+*/
+
+            System.out.println(&quot;Listing buckets&quot;);
+            for (Bucket bucket : s3.listBuckets()) {
+                System.out.println(&quot; - &quot; + bucket.getName());
+            }
+            System.out.println();
+
+/*
+            System.out.println(&quot;Uploading a new object to S3 from a file\n&quot;);
+            s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));
+*/
+
+/*
+            System.out.println(&quot;Downloading an object&quot;);
+            S3Object object = s3.getObject(new GetObjectRequest(bucketName, key));
+            System.out.println(&quot;Content-Type: &quot;  + object.getObjectMetadata().getContentType());
+            displayTextInputStream(object.getObjectContent());
+*/
+/*
+            System.out.println(&quot;Listing objects&quot;);
+            ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
+                    .withBucketName(bucketName)
+                    .withPrefix(&quot;My&quot;));
+            for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+                System.out.println(&quot; - &quot; + objectSummary.getKey() + &quot;  &quot; +
+                        &quot;(size = &quot; + objectSummary.getSize() + &quot;)&quot;);
+            }
+            System.out.println();
+*/
+
+/*
+            System.out.println(&quot;Deleting an object\n&quot;);
+            s3.deleteObject(bucketName, key);
+*/
+
+/*
+            System.out.println(&quot;Deleting bucket &quot; + bucketName + &quot;\n&quot;);
+            s3.deleteBucket(bucketName);
+ */
+        } catch (AmazonServiceException ase) {
+            System.out.println(&quot;Caught an AmazonServiceException, which means your request made it &quot;
+                    + &quot;to Amazon S3, but was rejected with an error response for some reason.&quot;);
+            System.out.println(&quot;Error Message:    &quot; + ase.getMessage());
+            System.out.println(&quot;HTTP Status Code: &quot; + ase.getStatusCode());
+            System.out.println(&quot;AWS Error Code:   &quot; + ase.getErrorCode());
+            System.out.println(&quot;Error Type:       &quot; + ase.getErrorType());
+            System.out.println(&quot;Request ID:       &quot; + ase.getRequestId());
+        } catch (AmazonClientException ace) {
+            System.out.println(&quot;Caught an AmazonClientException, which means the client encountered &quot;
+                    + &quot;a serious internal problem while trying to communicate with S3, &quot;
+                    + &quot;such as not being able to access the network.&quot;);
+            System.out.println(&quot;Error Message: &quot; + ace.getMessage());
+        }
+    }
+
+    private static File createSampleFile() throws IOException {
+        File file = File.createTempFile(&quot;aws-java-sdk-&quot;, &quot;.txt&quot;);
+        file.deleteOnExit();
+
+        Writer writer = new OutputStreamWriter(new FileOutputStream(file));
+        writer.write(&quot;abcdefghijklmnopqrstuvwxyz\n&quot;);
+        writer.write(&quot;01234567890112345678901234\n&quot;);
+        writer.write(&quot;!@#$%^&amp;*()-=[]{};&apos;:&apos;,.&lt;&gt;/?\n&quot;);
+        writer.write(&quot;01234567890112345678901234\n&quot;);
+        writer.write(&quot;abcdefghijklmnopqrstuvwxyz\n&quot;);
+        writer.close();
+
+        return file;
+    }
+
+    private static void displayTextInputStream(InputStream input) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        while (true) {
+            String line = reader.readLine();
+            if (line == null) break;
+
+            System.out.println(&quot;    &quot; + line);
+        }
+        System.out.println();
+    }
+
+}
+</code></pre><h2 id="Query-DynamoDB"><a href="#Query-DynamoDB" class="headerlink" title="Query DynamoDB"></a>Query DynamoDB</h2><pre><code>package com.amazonaws.samples;
+
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException;
+import com.amazonaws.AmazonServiceException;
+
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.io.IOException;
+
+public class DynamoDBQueryTest {
+    public static &lt;DynamoDbClient, ScanIterable, ScanResponse&gt; void main(String[] args) throws IOException {
+        String table_name = &quot;XXXXXXXX&quot;;
+        String partition_key_name = &quot;date&quot;;
+        String partition_key_val = &quot;2013-03-08&quot;;
+        String partition_alias = &quot;#a&quot;;
+
+        System.out.format(&quot;Querying %s&quot;, table_name);
+        System.out.println(&quot;&quot;);
+
+        final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
+
+        //set up an alias for the partition key name in case it&apos;s a reserved word
+        HashMap&lt;String,String&gt; attrNameAlias =
+                new HashMap&lt;String,String&gt;();
+        attrNameAlias.put(partition_alias, partition_key_name);
+
+        //set up mapping of the partition name with the value
+        HashMap&lt;String, AttributeValue&gt; attrValues =
+                new HashMap&lt;String,AttributeValue&gt;();
+        attrValues.put(&quot;:&quot;+partition_key_name, new AttributeValue().withS(partition_key_val));
+
+        QueryRequest queryReq = new QueryRequest()
+                .withTableName(table_name)
+                .withKeyConditionExpression(partition_alias + &quot; = :&quot; + partition_key_name)
+                .withExpressionAttributeNames(attrNameAlias)
+                .withExpressionAttributeValues(attrValues);
+
+        try {
+            QueryResult response = ddb.query(queryReq);
+            //System.out.println(response.getCount());
+            System.out.println();
+            System.out.println(response);
+        } catch (AmazonDynamoDBException e) {
+            System.err.println(e.getErrorMessage());
+            System.exit(1);
+        }
+    }
+}
+</code></pre><h2 id="Scan-a-DynamoDB"><a href="#Scan-a-DynamoDB" class="headerlink" title="Scan a DynamoDB"></a>Scan a DynamoDB</h2><pre><code>package com.amazonaws.samples;
+
+import java.util.Iterator;
+
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+
+public class DynamoDBScanTest {
+    public static void main(String[] args) throws Exception {
+        String table_name = &quot;XXXXXXXX&quot;;
+        String partition_key_name = &quot;date&quot;;
+        String partition_key_val = &quot;2013-03-08&quot;;
+        String partition_alias = &quot;#a&quot;;
+
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+                .build();
+
+        DynamoDB dynamoDB = new DynamoDB(client);
+
+        Table table = dynamoDB.getTable(table_name);
+
+        // Scan between 2 dates
+        /*
+        ScanSpec scanSpec = new ScanSpec().withProjectionExpression(&quot;#date, pid, downloads, title&quot;)
+                .withFilterExpression(&quot;#date between :start_date and :end_date&quot;).withNameMap(new NameMap().with(&quot;#date&quot;, &quot;date&quot;))
+                .withValueMap(new ValueMap().withString(&quot;:start_date&quot;, &quot;2018-08-01&quot;).withString(&quot;:end_date&quot;, &quot;2018-08-31&quot;));
+         */
+
+        // Scan a month
+        ScanSpec scanSpec = new ScanSpec().withProjectionExpression(&quot;#date, pid, downloads, title&quot;)
+                .withFilterExpression(&quot;contains(#date, :month)&quot;)
+                .withNameMap(new NameMap().with(&quot;#date&quot;, &quot;date&quot;))
+                .withValueMap(new ValueMap().withString(&quot;:month&quot;, &quot;2018-08&quot;));
+
+        try {
+            ItemCollection&lt;ScanOutcome&gt; items = table.scan(scanSpec);
+            Iterator&lt;Item&gt; iter = items.iterator();
+            while (iter.hasNext()) {
+                Item item = iter.next();
+                System.out.println(item.toString());
+            }
+        }
+        catch (Exception e) {
+            System.err.println(&quot;Unable to scan the table:&quot;);
+            System.err.println(e.getMessage());
+        }
+
+    }
+}
 </code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/python-aws-lambda/" data-id="ck1c0dgao0000xo05eyld631w" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/aws-java-sdk-s3-dynamodb/" data-id="ck92o0m3o000jky05c8jee76b" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DynamoDB/">DynamoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/s3/">s3</a></li></ul>
 
     </footer>
   </div>
@@ -1594,14 +1554,14 @@ serverless deploy  --region eu-west-1
 
 
   
-    <article id="post-how-to-build-a-slack-bot-in-python" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-iris-new-field" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/how-to-build-a-slack-bot-in-python/" class="article-date">
-  <time datetime="2019-09-29T21:40:12.000Z" itemprop="datePublished">2019-09-29</time>
+    <a href="/iris-new-field/" class="article-date">
+  <time datetime="2020-01-14T11:20:45.854Z" itemprop="datePublished">2020-01-14</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Python/">Python</a>
+    <a class="article-category-link" href="/categories/Java/">Java</a>
   </div>
 
   </div>
@@ -1612,7 +1572,7 @@ serverless deploy  --region eu-west-1
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/how-to-build-a-slack-bot-in-python/">How to build a Slack bot in Python</a>
+      <a class="article-title" href="/iris-new-field/">How to add a new field in IRIS</a>
     </h1>
   
 
@@ -1620,27 +1580,658 @@ serverless deploy  --region eu-west-1
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Install-slackclient"><a href="#Install-slackclient" class="headerlink" title="Install slackclient"></a>Install slackclient</h2><pre><code>pip3 install slackclient
-</code></pre><h2 id="Create-Slack-app"><a href="#Create-Slack-app" class="headerlink" title="Create Slack app"></a>Create Slack app</h2><p>Visit: <a href="https://api.slack.com/apps" target="_blank" rel="noopener">https://api.slack.com/apps</a> to create a new bot</p>
-<p><img src="https://user-images.githubusercontent.com/437701/65965620-d433dd80-e456-11e9-90d2-9a028a561813.png" alt="image"></p>
-<p>In the following window, choose ‘Bots’</p>
-<p><img src="https://user-images.githubusercontent.com/437701/65965695-f299d900-e456-11e9-8db0-997f251ede79.png" alt="image"></p>
-<p>Add a bot user, e.g. ‘myalertbot’</p>
-<p>Click your app, then click ‘Install your app to your workspace’.</p>
-<p>Then you will have OAuth Access token and Bot User OAuth Access token.</p>
-<h2 id="Send-messages-in-Slack-bot"><a href="#Send-messages-in-Slack-bot" class="headerlink" title="Send messages in Slack bot"></a>Send messages in Slack bot</h2><pre><code>import os
-import slack
+        <h2 id="XML-Schema"><a href="#XML-Schema" class="headerlink" title="XML Schema"></a>XML Schema</h2><p>Use ‘reliability’ as an example.</p>
+<p>First, add reliability under _instrumentType: </p>
+<pre><code>&lt;xs:complexType name=&quot;_instrumentType&quot;&gt;
+  &lt;xs:choice minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot;&gt;
+    ...
+    &lt;xs:element ref=&quot;reliability&quot;/&gt;
+    ...
+  &lt;/xs:choice&gt;
+&lt;/xs:complexType&gt;
+</code></pre><p>Declare reliability element:</p>
+<pre><code>&lt;xs:element name=&quot;reliability&quot;&gt;
+    &lt;xs:complexType&gt;
+      &lt;xs:simpleContent&gt;
+        &lt;xs:extension base=&quot;xs:string&quot;&gt;
+          &lt;xs:attribute name=&quot;vocab&quot; type=&quot;xs:anyURI&quot;/&gt;
+          &lt;xs:attribute name=&quot;newValue&quot; type=&quot;xs:string&quot;/&gt;
+        &lt;/xs:extension&gt;
+      &lt;/xs:simpleContent&gt;
+    &lt;/xs:complexType&gt;
+  &lt;/xs:element&gt;      
+</code></pre><h2 id="Data-dictionary"><a href="#Data-dictionary" class="headerlink" title="Data dictionary"></a>Data dictionary</h2><p>Edit commons.xml, and add:</p>
+<pre><code>&lt;Reliabilities name=&quot;Reliability&quot; vocab=&quot;http://dlib.york.ac.uk/ontologies/iris/reliability&quot;&gt;
+    &lt;Reliability vocab=&quot;http://dlib.york.ac.uk/ontologies/iris/reliability#&quot; value=&quot;001&quot; label=&quot;Kappa&quot;/&gt;
+    &lt;Reliability vocab=&quot;http://dlib.york.ac.uk/ontologies/iris/reliability#&quot; value=&quot;999&quot; label=&quot;Other&quot;/&gt;
+&lt;/Reliabilities&gt;
+</code></pre><p>Add preReliabilities.xml</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 
-client = slack.WebClient(token=&apos;SLACK_API_TOKEN&apos;)
-response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;Hello world!&quot;)
-</code></pre>
+&lt;reliabilities&gt;
+&lt;/reliabilities&gt;
+</code></pre><h2 id="Default-xml-file"><a href="#Default-xml-file" class="headerlink" title="Default xml file"></a>Default xml file</h2><p>Edit IRIS.xml and add placeholder:</p>
+<pre><code>&lt;iris:reliability newValue=&quot;&quot;/&gt;
+</code></pre><h2 id="Xforms"><a href="#Xforms" class="headerlink" title="Xforms"></a>Xforms</h2><p>To enable show/hide button/link, add:</p>
+<pre><code>&lt;xforms:instance id=&quot;xform-tree-switches&quot;&gt;
+    &lt;irisform:switches&gt;
+        ......
+        &lt;irisform:reliability open=&quot;true&quot;/&gt;
+    &lt;/irisform:switches&gt;    
+&lt;/xforms:instance&gt;
+</code></pre><p>Add related xform sections for reliability.    </p>
+<h2 id="gsearch-XSLT"><a href="#gsearch-XSLT" class="headerlink" title="gsearch XSLT"></a>gsearch XSLT</h2><p>Edit foxmlToSolrGenerated.xslt</p>
+<h2 id="Solr"><a href="#Solr" class="headerlink" title="Solr"></a>Solr</h2><p>Edit schema.xml and add:</p>
+<pre><code>&lt;field name=&quot;iris.instrument.reliability&quot;  type=&quot;string&quot;  indexed=&quot;true&quot;  stored=&quot;true&quot; multiValued=&quot;true&quot;/&gt;
+...
+&lt;field name=&quot;iris2.instrument.reliability&quot;  type=&quot;string&quot;  indexed=&quot;true&quot;  stored=&quot;true&quot; multiValued=&quot;true&quot;/&gt;
+...
+&lt;copyField source=&quot;iris.instrument.reliability&quot; dest=&quot;iris2.instrument.reliability&quot;/&gt; 
+</code></pre><p>Edit solrconfig.xml and add:</p>
+<pre><code>iris2.instrument.reliability^2
+</code></pre><h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-build-a-slack-bot-in-python/" data-id="ck17vvq9s00003105id6mrrtk" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/iris-new-field/" data-id="ck56tlql90000aw059zxou1wg" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/slack/">slack</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xforms/">xforms</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-react-iris-statistics" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/react-iris-statistics/" class="article-date">
+  <time datetime="2020-01-10T18:48:31.143Z" itemprop="datePublished">2020-01-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/reactjs/">reactjs</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/react-iris-statistics/">Use ReactJS to build IRIS statistics app</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Setup-project"><a href="#Setup-project" class="headerlink" title="Setup project"></a>Setup project</h2><pre><code>npx create-react-app iris-statistics
+cd iris-statistics
+yarn start
+</code></pre><p>You will see the UI:</p>
+<pre><code>https://snipboard.io/FawR2z.jpg
+</code></pre><h2 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h2><p>Add LanguageList.js:</p>
+<pre><code>import React from &apos;react&apos;;
+
+class LanguageList extends React.Component {
+    render() {
+        return (
+            &lt;div className=&quot;language-list&quot;&gt;
+                &lt;h1&gt;My favorite language list&lt;/h1&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Python&lt;/li&gt;
+                    &lt;li&gt;NodeJS&lt;/li&gt;
+                    &lt;li&gt;Java&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+
+export default LanguageList;
+</code></pre><p>Use it in App.js:</p>
+<pre><code>import LanguageList from &apos;./LanguageList&apos;;
+
+function App() {
+  return (
+    &lt;div className=&quot;App&quot;&gt;
+      &lt;header className=&quot;App-header&quot;&gt;
+        &lt;p&gt;
+          &lt;LanguageList /&gt;
+        &lt;/p&gt;
+      &lt;/header&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre><p>You will see: </p>
+<p><img src="https://snipboard.io/lLJUWH.jpg" alt=""></p>
+<h2 id="Board-Game-UI"><a href="#Board-Game-UI" class="headerlink" title="Board Game UI"></a>Board Game UI</h2><p>Square.js:</p>
+<pre><code>import React from &apos;react&apos;;
+
+class Square extends React.Component {
+    render() {
+        return (
+            &lt;button className=&quot;square&quot;&gt;
+                {/* TODO */}
+            &lt;/button&gt;
+        );
+    }
+}
+
+export default Square;
+</code></pre><p>Board.js:</p>
+<pre><code>import React from &apos;react&apos;;
+
+import Square from &apos;./Square&apos;;
+
+class Board extends React.Component {
+    renderSquare(i) {
+        return &lt;Square /&gt;;
+    }
+
+    render() {
+        const status = &apos;Next player: X&apos;;
+
+        return (
+            &lt;div&gt;
+                &lt;div className=&quot;status&quot;&gt;{status}&lt;/div&gt;
+                &lt;div className=&quot;board-row&quot;&gt;
+                    {this.renderSquare(0)}
+                    {this.renderSquare(1)}
+                    {this.renderSquare(2)}
+                &lt;/div&gt;
+                &lt;div className=&quot;board-row&quot;&gt;
+                    {this.renderSquare(3)}
+                    {this.renderSquare(4)}
+                    {this.renderSquare(5)}
+                &lt;/div&gt;
+                &lt;div className=&quot;board-row&quot;&gt;
+                    {this.renderSquare(6)}
+                    {this.renderSquare(7)}
+                    {this.renderSquare(8)}
+                &lt;/div&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+
+export default Board;
+</code></pre><p>Within App.js:</p>
+<pre><code>&lt;div className=&quot;game-board&quot;&gt;
+    &lt;Board /&gt;
+&lt;/div&gt;        
+</code></pre><p>Add CSS in App.css:</p>
+<pre><code>body {
+  font: 14px &quot;Century Gothic&quot;, Futura, sans-serif;
+  margin: 20px;
+}
+
+ol, ul {
+  padding-left: 30px;
+}
+
+.board-row:after {
+  clear: both;
+  content: &quot;&quot;;
+  display: table;
+}
+
+.status {
+  margin-bottom: 10px;
+}
+
+.square {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.kbd-navigation .square:focus {
+  background: #ddd;
+}
+
+.game {
+  display: flex;
+  flex-direction: row;
+}
+
+.game-info {
+  margin-left: 20px;
+}
+</code></pre><h2 id="Pass-a-prop-to-component"><a href="#Pass-a-prop-to-component" class="headerlink" title="Pass a prop to component"></a>Pass a prop to component</h2><p>in Board.js:</p>
+<pre><code>renderSquare(i) {
+    return &lt;Square value={i}/&gt;;
+}
+</code></pre><p>Change Square.js:</p>
+<pre><code>&lt;button className=&quot;square&quot;&gt;
+    {this.props.value}
+&lt;/button&gt;            
+</code></pre><p>Now you will see:</p>
+<p><img src="https://snipboard.io/rDe6Nj.jpg" alt=""></p>
+<h2 id="Making-interactive-component"><a href="#Making-interactive-component" class="headerlink" title="Making interactive component"></a>Making interactive component</h2><p>Test onClick event, in Square.js:</p>
+<pre><code>&lt;button className=&quot;square&quot; onClick={function() { alert(&apos;click&apos;); }}&gt;
+    {this.props.value}
+&lt;/button&gt;
+</code></pre><p>Or with arrow function:</p>
+<pre><code>&lt;button className=&quot;square&quot; onClick={() =&gt; alert(&apos;click&apos;) }&gt;
+</code></pre><p>Add constructor to Square:</p>
+<pre><code>constructor(props) {
+    super(props);
+    this.state = {
+       value: null,
+    };
+}
+</code></pre><p>and:</p>
+<pre><code>&lt;button className=&quot;square&quot; onClick={() =&gt; this.setState({value: &apos;X&apos;}) }&gt;
+   {this.state.value}
+&lt;/button&gt;    
+</code></pre><h2 id="React-Dev-tool-extension"><a href="#React-Dev-tool-extension" class="headerlink" title="React Dev tool extension"></a>React Dev tool extension</h2><p>Install it and it will help you to debug React app</p>
+<h2 id="Complete-the-game"><a href="#Complete-the-game" class="headerlink" title="Complete the game"></a>Complete the game</h2><p>To collect data from multiple children, or to have two child components communicate with each other, you need to declare the shared state in their parent component instead. The parent component can pass the state back down to the children by using props; this keeps the child components in sync with each other and with the parent component.</p>
+<p>Add a constructor to Board:</p>
+<pre><code>constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+    };
+}
+</code></pre><p>Change renderSquare:</p>
+<pre><code>renderSquare(i) {
+    return &lt;Square value={this.state.squares[i]} /&gt;;
+}    
+</code></pre><p>Locate the following string to continue</p>
+<p>After these changes, we’re again able to click on the Squares to fill them, the same as we had before. However, now the state is stored in the Board component instead of the individual Square components. When the Board’s state changes, the Square components re-render automatically. Keeping the state of all squares in the Board component will allow it to determine the winner in the future.    </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/react-iris-statistics/" data-id="ck92o0lze0001ky05vjgxhcy4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReactJS/">ReactJS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-react-graphql-amplify" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/react-graphql-amplify/" class="article-date">
+  <time datetime="2019-12-23T10:34:24.507Z" itemprop="datePublished">2019-12-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AWS/">AWS</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/react-graphql-amplify/">React GraphQL and Amplify</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Below is just my notes following this tutorial: <a href="https://read.acloud.guru/build-your-own-multi-user-photo-album-app-with-react-graphql-and-aws-amplify-18d9cfe27f60" target="_blank" rel="noopener">https://read.acloud.guru/build-your-own-multi-user-photo-album-app-with-react-graphql-and-aws-amplify-18d9cfe27f60</a></p>
+<h2 id="Create-React-application"><a href="#Create-React-application" class="headerlink" title="Create React application"></a>Create React application</h2><pre><code>npx create-react-app photo-albums
+</code></pre><p>Test if it works:</p>
+<pre><code>cd photo-albums
+npm start
+</code></pre><p>Try to access it from <a href="http://localhost:3000" target="_blank" rel="noopener">http://localhost:3000</a>        </p>
+<p>Install semantic-ui-react pacakge to make our UI looking nicer:</p>
+<pre><code>npm install --save semantic-ui-react
+</code></pre><p>Edit public/index.html and add to head section:</p>
+<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.css&quot;&gt;&lt;/link&gt;
+</code></pre><p>Edit App.js with the following content:</p>
+<pre><code>import React, { Component } from &apos;react&apos;;
+import { Header } from &apos;semantic-ui-react&apos;;
+
+class App extends Component {
+  render() {
+    return (
+        &lt;div&gt;
+          &lt;Header as=&apos;h1&apos;&gt;Hello World!&lt;/Header&gt;
+        &lt;/div&gt;
+    );
+  }
+}
+export default App;
+</code></pre><h2 id="Use-amplify-to-add-user-authentication"><a href="#Use-amplify-to-add-user-authentication" class="headerlink" title="Use amplify to add user authentication"></a>Use amplify to add user authentication</h2><h3 id="amplify-installation"><a href="#amplify-installation" class="headerlink" title="amplify installation"></a>amplify installation</h3><p>If amplify is not installed, do following:</p>
+<pre><code>npm install -g @aws-amplify/cli
+amplify configure
+</code></pre><h3 id="Link-project-to-AWS"><a href="#Link-project-to-AWS" class="headerlink" title="Link project to AWS"></a>Link project to AWS</h3><p>In project folder, run </p>
+<pre><code>amplify init
+</code></pre><p>Then choose the following values:</p>
+<p>Choose the type of app that you’re building: javascript</p>
+<p>What javascript framework are you using: react</p>
+<p>Choose default settings for other questions.</p>
+<p>After this command, the following files will be created:</p>
+<pre><code>modified:   .gitignore
+new file:   amplify/.config/project-config.json
+new file:   amplify/backend/backend-config.json
+new file:   amplify/team-provider-info.json
+</code></pre><h3 id="Add-auth-to-AWS-Cognito-with-amplify"><a href="#Add-auth-to-AWS-Cognito-with-amplify" class="headerlink" title="Add auth to AWS Cognito with amplify"></a>Add auth to AWS Cognito with amplify</h3><p>Run</p>
+<pre><code>amplify add auth
+</code></pre><p>Use default configuration</p>
+<p>Run the following command to push your local backend resources and provision it in the cloud:</p>
+<pre><code>amplify push
+</code></pre><p>The above command willl update src/aws-exports.js with configuration data. </p>
+<p>Till now, you have created a serverless backend for user registration and authorization with Amazon Cognito.</p>
+<h3 id="Frontend-for-user-auth-and-authz"><a href="#Frontend-for-user-auth-and-authz" class="headerlink" title="Frontend for user auth and authz"></a>Frontend for user auth and authz</h3><p>Run:</p>
+<pre><code>npm install --save aws-amplify aws-amplify-react
+</code></pre><p>Edit src/App.js, add following:</p>
+<pre><code>import Amplify from &apos;aws-amplify&apos;;
+import aws_exports from &apos;./aws-exports&apos;;
+import { withAuthenticator } from &apos;aws-amplify-react&apos;;
+Amplify.configure(aws_exports);
+</code></pre><p>and</p>
+<pre><code>export default withAuthenticator(App, {includeGreetings: true});
+</code></pre><p>Now check the app in browser, you will see:</p>
+<p><img src="https://user-images.githubusercontent.com/437701/71269603-a40a2580-2347-11ea-8004-86447277e4b0.png" alt="amplify with Cognito"></p>
+<p>Now the auth / authz is working. If you want to do more customization, check this:</p>
+<p><a href="https://aws.github.io/aws-amplify/media/authentication_guide#customization" target="_blank" rel="noopener">https://aws.github.io/aws-amplify/media/authentication_guide#customization</a></p>
+<h2 id="Create-a-serverless-GraphQL-API-backend-with-AWS-AppSync"><a href="#Create-a-serverless-GraphQL-API-backend-with-AWS-AppSync" class="headerlink" title="Create a serverless GraphQL API backend with AWS AppSync"></a>Create a serverless GraphQL API backend with AWS AppSync</h2><p><img src="https://user-images.githubusercontent.com/437701/71270123-ba64b100-2348-11ea-9625-ab2132100308.png" alt="AWS AppSync"></p>
+<p>Run </p>
+<pre><code>amplify add api
+</code></pre><p>Answer like below:</p>
+<pre><code>? Please select from one of the below mentioned services: GraphQL
+? Provide API name: photoalbums
+? Choose the default authorization type for the API Amazon Cognito User Pool
+? Do you want to configure advanced settings for the GraphQL API No
+? Do you have an annotated GraphQL schema? No
+? Do you want a guided schema creation? Yes
+? What best describes your project: One-to-many relationship (e.g., “Blogs” with “Posts” and “Comments”)
+? Do you want to edit the schema now? Yes
+? Press enter to continue Selected  editor intellij was not found in your machine. Please manually edit the file created at /xxxx/photo-albums/amplify/backend/api/photoalbums/schema.graphql       
+</code></pre><p>Edit file: /amplify/backend/api/photoalbums/schema.graphql with content:</p>
+<pre><code>type Album @model {
+  id: ID!
+  name: String!
+  owner: String!
+  photos: [Photo] @connection(name: &quot;AlbumPhotos&quot;)
+}
+
+type Photo @model {
+  id: ID!
+  album: Album @connection(name: &quot;AlbumPhotos&quot;)
+  bucket: String!
+  fullsize: PhotoS3Info!
+  thumbnail: PhotoS3Info!
+}
+
+type PhotoS3Info {
+    key: String!
+    width: Int!
+    height: Int!
+}
+</code></pre><p>Press enter to continue</p>
+<p>Run</p>
+<pre><code>amplify push
+</code></pre><h3 id="Test-AppSync-API"><a href="#Test-AppSync-API" class="headerlink" title="Test AppSync API"></a>Test AppSync API</h3><p>Open AppSync web console, then click ‘Login with User Pools’.</p>
+<p>In the ClientId field, enter ‘aws_user_pools_web_client_id’ defined in ‘aws-export.js’, then username/password, and click ‘Login’        </p>
+<p><img src="https://user-images.githubusercontent.com/437701/71351456-a1881580-256b-11ea-95ce-54e96b22d467.png" alt="image"></p>
+<p>Add a new album:</p>
+<pre><code>mutation {
+    createAlbum(input:{name:&quot;First Album&quot;, owner:&quot;Someone&quot;}) {
+        id
+        name
+    }
+}
+</code></pre><p>Add second album:</p>
+<pre><code>mutation {
+    createAlbum(input:{name:&quot;Second Album&quot;, owner:&quot;Someone&quot;}) {
+        id
+        name
+    }
+}
+</code></pre><p>List albums:</p>
+<pre><code>query {
+    listAlbums {
+        items {
+            id
+            name
+            owner
+        }
+    }
+}
+</code></pre><p>In AWS AppSync, Click ‘Schema’, then under ‘Resolvers’, search for ‘mutation’, click ‘AlbumTable’ link next to createAlbum,</p>
+<p><img src="https://user-images.githubusercontent.com/437701/71352163-769ec100-256d-11ea-865c-d1c534f3238f.png" alt="image"></p>
+<p>On top of the code, add a new line:</p>
+<pre><code>$util.qr($context.args.input.put(&quot;owner&quot;, $context.identity.username))
+</code></pre><p>Then click ‘Save Resolver’        </p>
+<p>Also, since we’re no longer passing a value for owner, edit Schema, and edit createAlbumInput to:</p>
+<pre><code>input CreateAlbumInput {
+    id: ID
+    name: String!
+}
+</code></pre><p><img src="https://user-images.githubusercontent.com/437701/71352644-be721800-256e-11ea-8001-70885f5599ef.png" alt="image"></p>
+<p>Test by creating another Album:</p>
+<pre><code>mutation {
+    createAlbum(input: {name:&quot;Album with username from context&quot;}) {
+        id
+        name
+        owner
+    }
+}
+</code></pre><p>The album’s owner filed contains the username we logged in with.</p>
+<h2 id="Connecting-app-to-GraphQL-API-via-Apollo-client"><a href="#Connecting-app-to-GraphQL-API-via-Apollo-client" class="headerlink" title="Connecting app to GraphQL API via Apollo client"></a>Connecting app to GraphQL API via Apollo client</h2><p>The Amplify CLI has already taken care of making sure that our src/aws-exports.js file contains all of the configuration we’ll need to pass to the Amplify JS library in order to talk to the AppSync API. All we’ll need to do is add some new code to interact with the API.</p>
+<p>In the real app, we should create seperate files, but for now, we put everything in a single file:</p>
+<p>Edit src/App.js:</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/react-graphql-amplify/" data-id="ck56tlqlg0001aw05bhu1t72n" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/amplify/">amplify</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/graphql/">graphql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/react/">react</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-aws-s3-localstack" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/aws-s3-localstack/" class="article-date">
+  <time datetime="2019-12-06T16:41:38.997Z" itemprop="datePublished">2019-12-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AWS/">AWS</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/aws-s3-localstack/">AWS S3 localstack</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Below is just my notes following this tutorial: <a href="https://dev.to/goodidea/how-to-fake-aws-locally-with-localstack-27me" target="_blank" rel="noopener">https://dev.to/goodidea/how-to-fake-aws-locally-with-localstack-27me</a></p>
+<h2 id="LocalStack"><a href="#LocalStack" class="headerlink" title="LocalStack"></a>LocalStack</h2><p><a href="https://github.com/localstack/localstack" target="_blank" rel="noopener">Localstack</a> allows you to play AWS services on your PC. Lots of AWS services are supported by localstack.  </p>
+<p>The benefits of using localstack:</p>
+<ul>
+<li>Work offline</li>
+<li>You have full control of your own dev environment</li>
+<li>You can easily wipe &amp; replace your local buckets</li>
+<li>Free!</li>
+</ul>
+<h2 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h2><p>Make sure you have installed the following: </p>
+<ul>
+<li>Docker</li>
+<li>AWS CLI</li>
+<li>AWS being configured (if not, run aws configure to create some credentials), actually localstack doesn’t check your credentials, as long as they are not empty!</li>
+</ul>
+<p>Create a project folder and add some files</p>
+<pre><code>mkdir test1
+touch index.js docker-compose.yml .env
+mkdir .localstack
+</code></pre><p>Copy a image, e.g. test.jpg to your project folder.</p>
+<p>Run the following commands to init the project and install npm packages:</p>
+<pre><code>npm init 
+npm install aws-sdk dotenv
+</code></pre><p>Edit docker-compose.yml with content:</p>
+<pre><code>version: &apos;3.2&apos;
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack_demo
+    ports:
+      - &apos;4563-4599:4563-4599&apos;
+      - &apos;8055:8080&apos;
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - &apos;./.localstack:/tmp/localstack&apos;
+      - &apos;/var/run/docker.sock:/var/run/docker.sock&apos;
+</code></pre><p>Start docker container:</p>
+<pre><code>docker-compose up 
+</code></pre><p>After a couple of minutes, you can access localstack UI via: <a href="http://localhost:8055/" target="_blank" rel="noopener">http://localhost:8055/</a></p>
+<p><img src="/images/aws/localstack-s3-1.png" alt="localstack"></p>
+<p>And local S3 UI: <a href="http://localhost:4572/" target="_blank" rel="noopener">http://localhost:4572/</a></p>
+<p>Now AWS is inside your VM!</p>
+<h2 id="Working-with-localstack"><a href="#Working-with-localstack" class="headerlink" title="Working with localstack"></a>Working with localstack</h2><p>Create a bucket in localstack:</p>
+<pre><code>aws --endpoint-url=http://localhost:4572 s3 mb s3://demo-bucket
+</code></pre><p>NB: the –endpoint-url specifies the localstack URL for s3</p>
+<p>From the localstack logs (via Docker), you will see something like:</p>
+<pre><code>localstack_demo | 2019-12-06 15:10:14,909:API: 127.0.0.1 - - [06/Dec/2019 15:10:14] &quot;PUT /demo-bucket HTTP/1.1&quot; 200 -
+</code></pre><p>From the localstack S3 UI, you will see:</p>
+<pre><code>&lt;Buckets&gt;
+    &lt;Bucket&gt;
+        &lt;Name&gt;demo-bucket&lt;/Name&gt;
+        &lt;CreationDate&gt;2006-02-03T16:45:09.000Z&lt;/CreationDate&gt;
+    &lt;/Bucket&gt;
+&lt;/Buckets&gt;
+</code></pre><p>Attach an ACL to the bucket:</p>
+<pre><code>aws --endpoint-url=http://localhost:4572 s3api put-bucket-acl --bucket demo-bucket --acl public-read
+</code></pre><p>Now, the S3 bucket is available in the localstack dashboard.</p>
+<p>Check .localstack/data/s3_api_calls.json file</p>
+<pre><code>{&quot;a&quot;: &quot;s3&quot;, &quot;m&quot;: &quot;PUT&quot;, &quot;p&quot;: &quot;/demo-bucket&quot;, &quot;d&quot;: &quot;XXXXXXXX&quot;, &quot;h&quot;: {&quot;host&quot;: &quot;localhost&quot;, &quot;Accept-Encoding&quot;: &quot;identity&quot;, &quot;User-Agent&quot;: &quot;aws-cli/1.16.183 Python/3.6.9 Linux/4.15.
+0-72-generic botocore/1.12.253&quot;, &quot;X-Amz-Date&quot;: &quot;20191206T151014Z&quot;, &quot;X-Amz-Content-SHA256&quot;: &quot;xxxx&quot;, &quot;Authorization&quot;: &quot;AWS4-HMAC-SHA256 Credential=XXXXXX, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=xxxx&quot;, &quot;Content-Length&quot;: &quot;153&quot;, &quot;X-Forwarded-For&quot;: &quot;172.30.0.1, 0.0.0.0:4572&quot;, &quot;content-type&quot;: &quot;binary/octet-str
+eam&quot;}}
+{&quot;a&quot;: &quot;s3&quot;, &quot;m&quot;: &quot;PUT&quot;, &quot;p&quot;: &quot;/demo-bucket?acl&quot;, &quot;d&quot;: &quot;&quot;, &quot;h&quot;: {&quot;host&quot;: &quot;localhost&quot;, &quot;Accept-Encoding&quot;: &quot;identity&quot;, &quot;x-amz-a
+cl&quot;: &quot;public-read&quot;, &quot;User-Agent&quot;: &quot;aws-cli/1.16.183 Python/3.6.9 Linux/4.15.0-72-generic botocore/1.12.253&quot;, &quot;X-Amz-Date&quot;: &quot;
+20191206T151327Z&quot;, &quot;X-Amz-Content-SHA256&quot;: &quot;xxxx&quot;, &quot;Authorizatio
+n&quot;: &quot;AWS4-HMAC-SHA256 Credential=xxxx&quot;, &quot;Content-Length&quot;: &quot;
+0&quot;, &quot;X-Forwarded-For&quot;: &quot;172.30.0.1, 0.0.0.0:4572&quot;, &quot;content-type&quot;: &quot;binary/octet-stream&quot;}}
+</code></pre><p>Edit .env file with content:</p>
+<pre><code>AWS_ACCESS_KEY_ID=&apos;123&apos; 
+AWS_SECRET_KEY=&apos;xyz&apos;
+AWS_BUCKET_NAME=&apos;demo-bucket&apos;
+</code></pre><p>Note: it doesn’t matter what your AWS key &amp; secret are, as long as they aren’t empty.</p>
+<p>Create aws.js</p>
+<pre><code>const AWS = require(&apos;aws-sdk&apos;)
+require(&apos;dotenv&apos;).config()
+
+const credentials = {
+   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+   secretAccessKey: process.env.AWS_SECRET_KEY,
+}
+
+const useLocal = process.env.NODE_ENV !== &apos;production&apos;
+
+const bucketName = process.env.AWS_BUCKET_NAME
+
+const s3client = new AWS.S3({
+   credentials,
+
+   endpoint: useLocal ? &apos;http://localhost:4572&apos; : undefined,
+   s3ForcePathStyle: true,
+})
+
+
+const uploadFile = async (data, fileName) =&gt;
+   new Promise((resolve) =&gt; {
+      s3client.upload(
+         {
+            Bucket: bucketName,
+            Key: fileName,
+            Body: data,
+         },
+         (err, response) =&gt; {
+            if (err) throw err
+            resolve(response)
+         },
+      )
+   })
+
+module.exports = uploadFile
+</code></pre><p>Create test-upload.js with content:</p>
+<pre><code>const fs = require(&apos;fs&apos;)
+const path = require(&apos;path&apos;)
+const uploadFile = require(&apos;./aws&apos;)
+
+const testUpload = () =&gt; {
+    const filePath = path.resolve(__dirname, &apos;test.jpg&apos;)
+    const fileStream = fs.createReadStream(filePath)
+    const now = new Date()
+    const fileName = `test-image-${now.toISOString()}.jpg`
+    uploadFile(fileStream, fileName).then((response) =&gt; {
+        console.log(&quot;:)&quot;)
+        console.log(response)
+    }).catch((err) =&gt; {
+        console.log(&quot;:|&quot;)
+        console.log(err)
+    })
+}
+
+testUpload()
+</code></pre><p>To test, run:</p>
+<pre><code>node test-upload.js
+</code></pre><p>From the output, you can find the image location, like: </p>
+<pre><code>http://localhost:4572/demo-bucket/test-image-2019-12-06T15%3A28%3A57.037Z.jpg
+</code></pre><p>If check .localstack/data/s3_api_calls.json file again, you will see the file containing image binary data.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/aws-s3-localstack/" data-id="ck3udhcdj0000wh05q1k9g56l" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/localstack/">localstack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/s3/">s3</a></li></ul>
 
     </footer>
   </div>
@@ -1653,7 +2244,7 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
 
   <nav id="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
   </nav>
 
 </section>
@@ -1664,7 +2255,7 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/reactjs/">reactjs</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ruby/">ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -1674,7 +2265,7 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Solr/">Solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/localstack/">localstack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/turbolinks/">turbolinks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chart-js/">Chart.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DynamoDB/">DynamoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ReactJS/">ReactJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SSL/">SSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Solr/">Solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tomcat/">Tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/amplify/">amplify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graphql/">graphql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/localstack/">localstack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest-api/">rest api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/turbolinks/">turbolinks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xforms/">xforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -1684,7 +2275,7 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 11.67px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 13.33px;">Java</a> <a href="/tags/Solr/" style="font-size: 11.67px;">Solr</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 13.33px;">aws</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 13.33px;">ruby</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/Chart-js/" style="font-size: 10px;">Chart.js</a> <a href="/tags/DynamoDB/" style="font-size: 10px;">DynamoDB</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 11.43px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 15.71px;">Java</a> <a href="/tags/ReactJS/" style="font-size: 11.43px;">ReactJS</a> <a href="/tags/SSL/" style="font-size: 10px;">SSL</a> <a href="/tags/Solr/" style="font-size: 12.86px;">Solr</a> <a href="/tags/Tomcat/" style="font-size: 10px;">Tomcat</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/amplify/" style="font-size: 10px;">amplify</a> <a href="/tags/aws/" style="font-size: 15.71px;">aws</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/graphql/" style="font-size: 10px;">graphql</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 17.14px;">hyrax</a> <a href="/tags/java/" style="font-size: 12.86px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 12.86px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/rest-api/" style="font-size: 10px;">rest api</a> <a href="/tags/ruby/" style="font-size: 14.29px;">ruby</a> <a href="/tags/s3/" style="font-size: 11.43px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.57px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/xforms/" style="font-size: 10px;">xforms</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1693,7 +2284,7 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1710,7 +2301,11 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
           </li>
         
           <li>
-            <a href="/aws-s3-localstack/">AWS S3 localstack</a>
+            <a href="/ruby-rest-api/">Build Rest API in Ruby</a>
+          </li>
+        
+          <li>
+            <a href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
           </li>
         
           <li>
@@ -1718,11 +2313,7 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
           </li>
         
           <li>
-            <a href="/ruby-tips/">Ruby tips</a>
-          </li>
-        
-          <li>
-            <a href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
+            <a href="/react-char-js/">Use ReactJS with Chart.js</a>
           </li>
         
       </ul>
@@ -1737,7 +2328,7 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Frank<br>
+      &copy; 2020 Frank<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

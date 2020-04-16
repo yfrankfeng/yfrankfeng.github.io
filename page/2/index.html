@@ -83,6 +83,676 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-ruby-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/ruby-tips/" class="article-date">
+  <time datetime="2019-12-05T11:12:51.114Z" itemprop="datePublished">2019-12-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Ruby/">Ruby</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/ruby-tips/">Ruby tips</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Language-basics"><a href="#Language-basics" class="headerlink" title="Language basics"></a>Language basics</h2><h3 id=""><a href="#" class="headerlink" title="||="></a>||=</h3><pre><code>x ||= y 
+</code></pre><p>means </p>
+<pre><code>x || x = y 
+</code></pre><p>so if x is nil or false set x to be the value of y.</p>
+<h2 id="Class-attributes"><a href="#Class-attributes" class="headerlink" title="Class attributes"></a>Class attributes</h2><p>Use of attribute readers (public/private)</p>
+<pre><code>attr_reader :names
+def initialize(names)
+    @names = names
+end
+</code></pre><p>Then @names can be accessed via ‘names’</p>
+<pre><code>def latest
+    names.last
+end
+</code></pre><h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><pre><code>String.lines
+</code></pre><p>Check if a string starts with any string from an array:</p>
+<pre><code>prefixes=[&apos;Dr&apos;,&apos;Mr&apos;,&apos;Miss&apos;,&apos;Mrs&apos;]
+&apos;Tom Smith&apos;.starts_with?(*prefixes)
+=&gt; false
+&apos;Mr Tom Smith&apos;.starts_with?(*prefixes)
+=&gt; true        
+</code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><h3 id="Swap-array-rows-with-columns"><a href="#Swap-array-rows-with-columns" class="headerlink" title="Swap array rows with columns"></a>Swap array rows with columns</h3><pre><code>Array.transpose()
+</code></pre><p>e.g.<br>    matrix_string = “1 2 3\n4 5 6\n7 8 9”<br>    @rows = matrix_string.lines.collect{|x| x.split.collect{|y| y.to_i}}<br>    @columns = @rows.transpose()    </p>
+<h3 id="Remove-duplicate-elements-from-array"><a href="#Remove-duplicate-elements-from-array" class="headerlink" title="Remove duplicate elements from array"></a>Remove duplicate elements from array</h3><pre><code>array_name.uniq
+</code></pre><p>OR use the following to operate on the same array</p>
+<pre><code>array_name.uniq!
+</code></pre><h3 id="each-cons"><a href="#each-cons" class="headerlink" title="each_cons"></a>each_cons</h3><pre><code>irb(main):001:0&gt; s = &quot;123456789&quot;
+=&gt; &quot;123456789&quot;
+
+irb(main):002:0&gt; s.chars
+=&gt; [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;]
+
+irb(main):003:0&gt; s.chars.each_cons(2).to_a
+=&gt; [[&quot;1&quot;, &quot;2&quot;], [&quot;2&quot;, &quot;3&quot;], [&quot;3&quot;, &quot;4&quot;], [&quot;4&quot;, &quot;5&quot;], [&quot;5&quot;, &quot;6&quot;], [&quot;6&quot;, &quot;7&quot;], [&quot;7&quot;, &quot;8&quot;], [&quot;8&quot;, &quot;9&quot;]]
+
+irb(main):004:0&gt; s.chars.each_cons(2).to_a.collect {|a| a.join}
+=&gt; [&quot;12&quot;, &quot;23&quot;, &quot;34&quot;, &quot;45&quot;, &quot;56&quot;, &quot;67&quot;, &quot;78&quot;, &quot;89&quot;]    
+</code></pre><p>The above expression can be simplified:</p>
+<pre><code>irb(main):004:0&gt; s.chars.each_cons(2).collect(&amp;:join)
+=&gt; [&quot;12&quot;, &quot;23&quot;, &quot;34&quot;, &quot;45&quot;, &quot;56&quot;, &quot;67&quot;, &quot;78&quot;, &quot;89&quot;]    
+</code></pre><h3 id="zip-amp-count"><a href="#zip-amp-count" class="headerlink" title="zip &amp; count"></a>zip &amp; count</h3><pre><code>strand1 = &apos;AAAB&apos;
+strand2 = &apos;AAAC&apos;
+strand1.chars.zip(strand2.chars).count {|n1, n2| n1 != n2}  
+</code></pre><h2 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a>Collections</h2><p>Lots of internal methods can be used in collections, e.g.</p>
+<pre><code>scores.last
+scores.max
+scores.min
+scores.sort
+soores.reverse
+</code></pre><h3 id="Enumerable"><a href="#Enumerable" class="headerlink" title="Enumerable"></a>Enumerable</h3><pre><code>s = &quot;aa bb cc dd ee ff gg aa&quot;
+
+s.scan(/\w+(?:&apos;\w+)*/)
+=&gt; [&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;, &quot;dd&quot;, &quot;ee&quot;, &quot;ff&quot;, &quot;gg&quot;, &quot;aa&quot;]
+
+s.scan(/\w+(?:&apos;\w+)*/).group_by(&amp;:itself)
+=&gt; {&quot;aa&quot;=&gt;[&quot;aa&quot;, &quot;aa&quot;], &quot;bb&quot;=&gt;[&quot;bb&quot;], &quot;cc&quot;=&gt;[&quot;cc&quot;], &quot;dd&quot;=&gt;[&quot;dd&quot;], &quot;ee&quot;=&gt;[&quot;ee&quot;], &quot;ff&quot;=&gt;[&quot;ff&quot;], &quot;gg&quot;=&gt;[&quot;gg&quot;]}
+
+s.scan(/\w+(?:&apos;\w+)*/).group_by(&amp;:itself).transform_values{|x| x.length}
+=&gt; {&quot;aa&quot;=&gt;2, &quot;bb&quot;=&gt;1, &quot;cc&quot;=&gt;1, &quot;dd&quot;=&gt;1, &quot;ee&quot;=&gt;1, &quot;ff&quot;=&gt;1, &quot;gg&quot;=&gt;1}
+</code></pre><p><strong>each_with_object</strong> method gives a way to iterate an Enumerable and doing some process within the loop.<br>    drop = 15<br>    drops = {<br>          3  =&gt; ‘Pling’,<br>          5  =&gt; ‘Plang’,<br>          7  =&gt; ‘Plong’<br>    }<br>    sounds = drops.each_with_object(‘’) { |(factor, note), sound| sound &lt;&lt; note if (drop % factor).zero? }</p>
+<h2 id="Regular-expressions"><a href="#Regular-expressions" class="headerlink" title="Regular expressions"></a>Regular expressions</h2><h3 id="acronyms"><a href="#acronyms" class="headerlink" title="acronyms"></a>acronyms</h3><p>Question: convert a sentence to its acronym, e.g.</p>
+<pre><code>Portable Network Graphics &gt; PNG
+Ruby on Rails &gt; ROR
+First In, First Out &gt; FIFO
+Something - I made up from thin air &gt; SIMUFTA        
+</code></pre><p>The easy solution is to use RE:</p>
+<pre><code>def self.abbreviate(phrase)
+    phrase.scan(/\b\w/).join.upcase
+end
+</code></pre><p>Scan with the regex /\b\w/ will catch ‘word boundaries’ (space, - and more) followed by a word character. This means that scan(/\b\w/) returns an array with the first letters only.    </p>
+<h3 id="Word-counts"><a href="#Word-counts" class="headerlink" title="Word counts"></a>Word counts</h3><pre><code>class Phrase
+  attr_reader :phrase
+
+  def initialize(phrase)
+    @phrase = phrase
+  end
+
+  def word_count
+    counts = Hash.new(0)
+    phrase.downcase.scan(/\w+(?:&apos;\w+)*/).each { |w| counts[w] += 1 }
+    counts
+  end
+end  
+</code></pre><ul>
+<li>\w+ - 1 or more word chars</li>
+<li><p>(?:’\w+)<em> - zero or more sequences (as (?:…)</em> is a non-capturing group that groups a sequence of subpatterns quantified with * quantifier matching 0 or more occurrences) of:</p>
+<ul>
+<li>‘ - apostrophe</li>
+<li><p>\w+ - 1 or more word chars.</p>
+<p>phrase = “Joe can’t tell between ‘large’ and large.”<br>phrase.downcase.scan(/\w+(?:’\w+)*/).each { |w| counts[w] += 1 }</p>
+<blockquote>
+<blockquote>
+</blockquote>
+<p>{“joe”=&gt;1, “can’t”=&gt;1, “tell”=&gt;1, “between”=&gt;1, “large”=&gt;2, “and”=&gt;1}</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Iteration 2</strong>: to remove the temporary variable</p>
+<pre><code>phrase.downcase.scan(/\w+(?:&apos;\w+)*/).group_by{|e| e}.map{|k, v| [k, v.length]}.to_h
+</code></pre><p><strong>Iteration 3</strong>: think about SRP and remove intermediate array generated by map</p>
+<pre><code>def words
+    phrase.downcase.scan(/\w+(?:&apos;\w+)*/)
+end
+
+def word_count
+    #words.group_by(&amp;:itself).transform_values{|x| x.length}
+    words.group_by(&amp;:itself).transform_values(&amp;:length)
+end     
+</code></pre><h2 id="Error-handling"><a href="#Error-handling" class="headerlink" title="Error handling"></a>Error handling</h2><h3 id="Subclassing-a-standard-Error-class"><a href="#Subclassing-a-standard-Error-class" class="headerlink" title="Subclassing a standard Error class"></a>Subclassing a standard Error class</h3><pre><code>class StrandLengthsError &lt; ArgumentError
+  attr_reader :object
+
+  def initialize(message = &apos;Strand lengths must be identical.&apos;, object)
+    super(message)
+    @object = object
+  end
+end
+</code></pre><h2 id="Code-style-conventions"><a href="#Code-style-conventions" class="headerlink" title="Code style conventions"></a>Code style conventions</h2><h3 id="Indentation"><a href="#Indentation" class="headerlink" title="Indentation"></a>Indentation</h3><p>The indentation for Ruby programs should be 2 spaces.</p>
+<h3 id="Spaces"><a href="#Spaces" class="headerlink" title="Spaces"></a>Spaces</h3><p>The ones with space around are:</p>
+<pre><code>=
+==
+!= &lt;---
+-
++
+*
+%
+</code></pre><p>The / method sometimes with space around and sometimes not:</p>
+<ul>
+<li>No space when communication “fraction”</li>
+<li>Space around when communicating “division”</li>
+</ul>
+<p>No Space for ** method, as it mirrors how people write on paper, such as $x^y$.    </p>
+<h3 id="Ruby-class-structure"><a href="#Ruby-class-structure" class="headerlink" title="Ruby class structure"></a>Ruby class structure</h3><pre><code>class Class XX
+
+  # class methods
+
+  private
+
+  # constructors
+
+  # attribute readers
+
+  # private methods
+
+  public
+
+  # public methods
+
+end
+</code></pre><h3 id="defined-by-proximity"><a href="#defined-by-proximity" class="headerlink" title="defined by proximity"></a>defined by proximity</h3><pre><code>def distance
+  nucleotides.count { |n1, n2| n1 != n2 }
+end
+</code></pre><p>From above code, it’s very easy to understand what ‘n1’ and ‘n2’ mean.</p>
+<h3 id="Variable-names"><a href="#Variable-names" class="headerlink" title="Variable names"></a>Variable names</h3><p>If we are talking about programming languages and what each with object does, we<br> might use k and v since those are speaking to the key and value positions,<br> and are “commonly known” to the problem domain of programming languages.<br> But programming language <strong>isn’t the problem being solved in all situations</strong>,<br> so perhaps factor and note and sound makes sense for the argument list in that block in the raindrop program. </p>
+<h3 id="Line-length"><a href="#Line-length" class="headerlink" title="Line length"></a>Line length</h3><p>Rubocop suggests that a single line should not longer than 80 columns.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/ruby-tips/" data-id="cjzxw1akv0001bh05yr23udlh" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-rails-page-only-working-after-refresh" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/rails-page-only-working-after-refresh/" class="article-date">
+  <time datetime="2019-11-15T12:40:12.000Z" itemprop="datePublished">2019-11-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Ruby/">Ruby</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="The-problem"><a href="#The-problem" class="headerlink" title="The problem"></a>The problem</h2><p>Some Rails pages are not working properly, e.g. the JavaScript code stops working. However, after a refresh, it’s working again.</p>
+<p>Sounds familiar?</p>
+<p>Actually, to be more accurate, the problem happens if:</p>
+<p>You click a link in your Rails application and it takes you to another page, still within the same domain. The JS stops working.</p>
+<p>However, if you copy the second page URL and paste it to the URL address bar, it works. </p>
+<h2 id="Reason"><a href="#Reason" class="headerlink" title="Reason"></a>Reason</h2><p>It’s the compatibility problem between turbolinks and jQuery. Basically, turbolinks optimized the links within the application and only partially load the target page elements and combine it with current page. Sometimes it’s noting working.</p>
+<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><p>Prior to Rails before 2013, you can use a gem called jquery-turbolinks which will resolve this problem for you. </p>
+<p>However, with the latest Rails (5.x+), the gem won’t work.</p>
+<p>The workaround is to monitor the appropriate event, e.g. </p>
+<p>Change</p>
+<pre><code>$(function() {
+</code></pre><p>To:</p>
+<pre><code>$(document).on(&apos;turbolinks:load&apos;, function() {
+</code></pre><p>It should just works.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a href="https://github.com/onokumus/metismenu/issues/121" target="_blank" rel="noopener">https://github.com/onokumus/metismenu/issues/121</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/rails-page-only-working-after-refresh/" data-id="ck30a6m1k0000us05zn13snib" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/turbolinks/">turbolinks</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-hyrax-content-blocks" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/hyrax-content-blocks/" class="article-date">
+  <time datetime="2019-10-29T12:40:12.000Z" itemprop="datePublished">2019-10-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/hyrax/">hyrax</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/hyrax-content-blocks/">How does Hyrax content blocks work?</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>To add a new content block page, you need to follow steps below:</p>
+<h2 id="Register-a-new-content-block-in-models"><a href="#Register-a-new-content-block-in-models" class="headerlink" title="Register a new content block in models"></a>Register a new content block in models</h2><p>app/models/content_block.rb</p>
+<pre><code>def help_page
+  find_by(name: &apos;help_page&apos;) ||
+    create(name: &apos;help_page&apos;, value: default_help_text)
+end
+</code></pre><p>and</p>
+<pre><code>def default_help_text
+  ERB.new(
+    IO.read(
+        Rails.root.join(&apos;app&apos;, &apos;views&apos;, &apos;hyrax&apos;, &apos;content_blocks&apos;, &apos;templates&apos;, &apos;help.html.erb&apos;)
+    )
+  ).result
+end
+</code></pre><h2 id="Template-file"><a href="#Template-file" class="headerlink" title="Template file"></a>Template file</h2><p>app/views/hyrax/content_blocks/templates</p>
+<p>just add any HTML you like to the template file, e.g. help.html.erb</p>
+<p>Still Not showing the new page content?</p>
+<p>You need to delete the record in the database ‘content_blocks’ table</p>
+<h2 id="Add-a-new-content-block-tab-in-Admin-page"><a href="#Add-a-new-content-block-tab-in-Admin-page" class="headerlink" title="Add a new content block tab in Admin page"></a>Add a new content block tab in Admin page</h2><p>app/views/hyrax/content_blocks/_form.html.erb</p>
+<p>On the top, add:</p>
+<pre><code>&lt;li&gt;
+  &lt;a href=&quot;#help&quot; role=&quot;tab&quot; data-toggle=&quot;tab&quot; class=&quot;nav-safety-confirm&quot;&gt;&lt;%= t(:&apos;hyrax.content_blocks.tabs.help&apos;) %&gt;&lt;/a&gt;
+&lt;/li&gt;
+</code></pre><p>On the bottom, add:</p>
+<pre><code>&lt;div id=&quot;help&quot; class=&quot;tab-pane&quot;&gt;
+  &lt;div class=&quot;panel panel-default labels&quot;&gt;
+    &lt;%= simple_form_for ContentBlock.for(:help), url: hyrax.content_block_path(ContentBlock.for(:help)), html: {class: &apos;nav-safety&apos;} do |f| %&gt;
+      &lt;div class=&quot;panel-body&quot;&gt;
+        &lt;div class=&quot;field form-group&quot;&gt;
+          &lt;%= f.label :help %&gt;&lt;br /&gt;
+          &lt;%= f.text_area :help, value: f.object.value, class: &apos;form-control tinymce&apos;, rows: 20, cols: 120 %&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;panel-footer&quot;&gt;
+        &lt;%= link_to t(:&apos;hyrax.content_blocks.cancel&apos;), hyrax.admin_admin_sets_path, class: &apos;btn btn-default pull-right&apos; %&gt;
+        &lt;%= f.button :submit, class: &apos;btn btn-primary pull-right&apos; %&gt;
+      &lt;/div&gt;
+    &lt;% end %&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre><h2 id="Content-block-controller"><a href="#Content-block-controller" class="headerlink" title="Content block controller"></a>Content block controller</h2><p>Copy content_blocks_controller.rb from app/controllers/hyrax to NCELP and update the following:</p>
+<pre><code>params.require(:content_block).permit(:marketing,
+                                      :announcement,
+                                      :researcher,
+                                      :help)
+</code></pre><h2 id="Update-locale-file"><a href="#Update-locale-file" class="headerlink" title="Update locale file"></a>Update locale file</h2><p>Edit config/locales/hyrax.en.yml, and add:</p>
+<pre><code>hyrax:
+  content_blocks:
+    help: Help
+</code></pre><h2 id="Add-a-menu-in-the-menubar"><a href="#Add-a-menu-in-the-menubar" class="headerlink" title="Add a menu in the menubar"></a>Add a menu in the menubar</h2><p>Edit app/views/_controls.html.erb, and add:</p>
+<pre><code>&lt;li &lt;%= &apos;class=active&apos; if current_page?(hyrax.about_path) %&gt;&gt;
+    &lt;%= link_to t(:&apos;hyrax.controls.about&apos;), hyrax.about_path, aria: current_page?(hyrax.about_path) ? {current: &apos;page&apos;} : nil %&gt;&lt;/li&gt;   
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/hyrax-content-blocks/" data-id="ck2byutc60000vz05lqcmuka4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/samvera/">samvera</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-how-to-disable-download-notification-for-a-user" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-disable-download-notification-for-a-user/" class="article-date">
+  <time datetime="2019-10-08T21:40:12.000Z" itemprop="datePublished">2019-10-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/System/">System</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/how-to-disable-download-notification-for-a-user/">How to disable download notifications to authors in IRIS</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>The following steps mainly for IRIS admins who left IRIS team, but the email notifications are still triggered. Tons of undelivered email may result in the suspension of the IRIS admin email account.</p>
+<p>1) Open yodl.properties file, and find object PID, e.g. with key iris.userMappings.</p>
+<p>2) Open the fedora object in Fedora admin web UI.</p>
+<p>3) Find matched ownerid for a particular email from UserMapping datastream.</p>
+<p>4) Run the following RI query to find user’s profile object id:</p>
+<pre><code>select $object
+from &lt;#ri&gt;
+where $object &lt;fedora-model:hasModel&gt; &lt;fedora:york:CModel-User&gt;
+and $object &lt;info:fedora/fedora-system:def/model#ownerId&gt; &apos;THE_ABOVE_OWNERID&apos;
+order by $object
+</code></pre><p>5) Open user profile object in Fedora Web UI and open User datastream.</p>
+<p>6) Change notifyDownloads to ‘false’</p>
+<pre><code>&lt;notifyDownloads&gt;false&lt;/notifyDownloads&gt;
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-disable-download-notification-for-a-user/" data-id="ck1j33wqw00004405jczltdl2" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/notification/">notification</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-ruby-aws-lambda" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/ruby-aws-lambda/" class="article-date">
+  <time datetime="2019-10-03T21:40:12.000Z" itemprop="datePublished">2019-10-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AWS/">AWS</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/ruby-aws-lambda/">Develop an AWS Lambda with Ruby</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Install-jets-and-create-project"><a href="#Install-jets-and-create-project" class="headerlink" title="Install jets and create project"></a>Install jets and create project</h2><pre><code>gem install jets
+jets new dad-jokes-sms --mode api --no-database
+jets serve --host 0.0.0.0
+</code></pre><p>Then try to access the app from localhost:8888</p>
+<pre><code>jets generate controller Messages create
+</code></pre><h2 id="Implement-the-application-in-the-local-environment"><a href="#Implement-the-application-in-the-local-environment" class="headerlink" title="Implement the application in the local environment"></a>Implement the application in the local environment</h2><p>Edit config/routes.rb</p>
+<pre><code>post &apos;messages&apos;, to: &apos;messages#create&apos;
+root &quot;jets/public#show&quot;
+</code></pre><p>Replace message_controller.rb with following:</p>
+<pre><code>require &apos;open-uri&apos;
+
+class MessagesController &lt; ApplicationController
+ def create
+   twiml = Twilio::TwiML::MessagingResponse.new
+   twiml.message body: random_joke
+   render xml: twiml.to_xml
+ end
+
+ private
+   def random_joke
+     open(&apos;https://icanhazdadjoke.com/&apos;, { &apos;Accept&apos; =&gt; &apos;text/plain&apos; }).read
+   end
+end
+</code></pre><p>Add following to Gemfile:</p>
+<pre><code>gem &quot;jets&quot;
+gem &quot;twilio-ruby&quot;
+</code></pre><p>Run:</p>
+<pre><code>bundle install
+</code></pre><p>Restart Jets and run:</p>
+<pre><code>curl --data &quot;&quot; http://localhost:8888/messages
+</code></pre><h2 id="AWS-setup"><a href="#AWS-setup" class="headerlink" title="AWS setup"></a>AWS setup</h2><p>In AWS IAM, create a policy, choose “json” and paste the following:</p>
+<pre><code>{
+ &quot;Version&quot;: &quot;2012-10-17&quot;,
+ &quot;Statement&quot;: [
+ {
+ &quot;Effect&quot;: &quot;Allow&quot;,
+ &quot;Action&quot;: [
+ &quot;apigateway:*&quot;,
+ &quot;cloudformation:*&quot;,
+ &quot;dynamodb:*&quot;,
+ &quot;events:*&quot;,
+ &quot;iam:*&quot;,
+ &quot;lambda:*&quot;,
+ &quot;logs:*&quot;,
+ &quot;route53:*&quot;,
+ &quot;s3:*&quot;
+ ],
+ &quot;Resource&quot;: [
+ &quot;*&quot;
+ ]
+ }
+ ]
+}
+</code></pre><p>Add name/desc and click “Create”.</p>
+<p>Create a user: jets-user<br>With this option: Programmatic access</p>
+<p>Attach jets-policy to jets-user</p>
+<p>Then you will have the access key and secret. </p>
+<h2 id="Deploy-it-to-AWS"><a href="#Deploy-it-to-AWS" class="headerlink" title="Deploy it to AWS"></a>Deploy it to AWS</h2><p>Run the following command:</p>
+<pre><code>AWS_ACCESS_KEY_ID=XXXXXX AWS_SECRET_ACCESS_KEY=XXXXXX jets deploy
+</code></pre><p><strong>If you have a problem complaining about jsych, try to add it into Gemfile and bundle install.</strong></p>
+<p>If successful, you should see something like:</p>
+<pre><code>Uploading s3://dad-jokes-sms-dev-s3bucket-1iez1o87ck0t0/jets/public/index.html
+Uploading s3://dad-jokes-sms-dev-s3bucket-1iez1o87ck0t0/jets/public/422.html
+Uploading s3://dad-jokes-sms-dev-s3bucket-1iez1o87ck0t0/jets/public/404.html
+Time for public assets to s3: 0s
+Deploying CloudFormation stack with jets app!
+10:20:57AM UPDATE_IN_PROGRESS AWS::CloudFormation::Stack dad-jokes-sms-dev User Initiated
+10:20:59AM CREATE_IN_PROGRESS AWS::Lambda::LayerVersion GemLayer 
+10:20:59AM CREATE_IN_PROGRESS AWS::IAM::Role IamRole 
+10:20:59AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiGateway 
+10:21:00AM CREATE_IN_PROGRESS AWS::IAM::Role IamRole Resource creation Initiated
+10:21:00AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiGateway Resource creation Initiated
+10:21:11AM CREATE_COMPLETE AWS::CloudFormation::Stack ApiGateway 
+10:21:11AM CREATE_COMPLETE AWS::IAM::Role IamRole 
+10:21:12AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiResources1 
+10:21:12AM CREATE_IN_PROGRESS AWS::Lambda::LayerVersion GemLayer Resource creation Initiated
+10:21:12AM CREATE_COMPLETE AWS::Lambda::LayerVersion GemLayer 
+10:21:13AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiResources1 Resource creation Initiated
+10:21:14AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack JetsPreheatJob 
+10:21:15AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack JetsPreheatJob Resource creation Initiated
+10:21:23AM CREATE_COMPLETE AWS::CloudFormation::Stack ApiResources1 
+10:21:25AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack JetsPublicController 
+10:21:25AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack MessagesController 
+10:21:25AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack JetsPublicController Resource creation Initiated
+10:21:26AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack MessagesController Resource creation Initiated
+10:21:47AM CREATE_COMPLETE AWS::CloudFormation::Stack JetsPublicController 
+10:21:47AM CREATE_COMPLETE AWS::CloudFormation::Stack MessagesController 
+10:21:49AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiDeployment20190926102055 
+10:21:50AM CREATE_IN_PROGRESS AWS::CloudFormation::Stack ApiDeployment20190926102055 Resource creation Initiated
+10:22:00AM CREATE_COMPLETE AWS::CloudFormation::Stack ApiDeployment20190926102055 
+10:22:49AM CREATE_COMPLETE AWS::CloudFormation::Stack JetsPreheatJob 
+10:22:50AM UPDATE_COMPLETE_CLEANUP_IN_PROGRESS AWS::CloudFormation::Stack dad-jokes-sms-dev 
+10:22:51AM UPDATE_COMPLETE AWS::CloudFormation::Stack dad-jokes-sms-dev 
+Stack success status: UPDATE_COMPLETE
+Time took for stack deployment: 1m 58s.
+Prewarming application.
+API Gateway Endpoint: https://XXXXXXXX.execute-api.eu-west-2.amazonaws.com/dev/
+</code></pre><p>Test it with curl:</p>
+<pre><code>curl --data &quot;&quot; https://XXXXXXXX.execute-api.eu-west-2.amazonaws.com/dev/messages
+</code></pre><h2 id="Some-AWS-cli-commands"><a href="#Some-AWS-cli-commands" class="headerlink" title="Some AWS cli commands:"></a>Some AWS cli commands:</h2><p>To list all your apigateway endpoints:</p>
+<pre><code>aws apigateway get-rest-apis
+</code></pre><p>Show all lambda functions:</p>
+<pre><code>aws lambda list-functions | grep FunctionName
+</code></pre><h2 id="Delete-the-AWS-resources"><a href="#Delete-the-AWS-resources" class="headerlink" title="Delete the AWS resources"></a>Delete the AWS resources</h2><pre><code>AWS_ACCESS_KEY_ID=XXXXXXXX AWS_SECRET_ACCESS_KEY=XXXXXXXX jets delete
+</code></pre><h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a href="https://www.infoq.cn/article/FSPhFgYw769V*brbEyJW" target="_blank" rel="noopener">https://www.infoq.cn/article/FSPhFgYw769V*brbEyJW</a><br><a href="https://www.twilio.com/blog/serverless-ruby-on-aws-lambda-with-the-jets-framework" target="_blank" rel="noopener">https://www.twilio.com/blog/serverless-ruby-on-aws-lambda-with-the-jets-framework</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/ruby-aws-lambda/" data-id="ck1c0wtj100005205esosyt3j" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-python-aws-lambda" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/python-aws-lambda/" class="article-date">
+  <time datetime="2019-10-03T21:40:12.000Z" itemprop="datePublished">2019-10-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/AWS/">AWS</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/python-aws-lambda/">Develop an AWS Lambda with Python</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Install-serverless-framework"><a href="#Install-serverless-framework" class="headerlink" title="Install serverless framework"></a>Install serverless framework</h2><pre><code>npm install -g serverless
+</code></pre><h2 id="Create-the-project"><a href="#Create-the-project" class="headerlink" title="Create the project"></a>Create the project</h2><pre><code>mkdir -p hello-world
+cd hello-world
+serverless create --template aws-python3 --name hello-world
+</code></pre><h2 id="Create-AWS-user"><a href="#Create-AWS-user" class="headerlink" title="Create AWS user"></a>Create AWS user</h2><p>Create a user, e.g. serverless-user and add the access key and secret access key in the .aws/credentials:</p>
+<pre><code>[serverless]
+aws_access_key_id = XXXXXXXXXXXXXXXXXXXXXXX
+aws_secret_access_key = XXXXXXXXXXXXXXXXXXXXXXX
+</code></pre><h2 id="Deploy-first-attempt"><a href="#Deploy-first-attempt" class="headerlink" title="Deploy - first attempt"></a>Deploy - first attempt</h2><pre><code>export AWS_PROFILE=&quot;serverless&quot;
+serverless deploy  --region eu-west-1
+</code></pre><p>Till now, you won’t see the APIGateway endpoint as it hasn’t been defined yet.</p>
+<p>Edit serverless.yml:</p>
+<pre><code>events:
+    - http:
+        path: hello
+        method: get
+</code></pre><p>Then run:</p>
+<pre><code>serverless deploy -v
+</code></pre><p>You will see the endpoint like: <a href="https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev" target="_blank" rel="noopener">https://XXXXXXXXXX.execute-api.us-east-1.amazonaws.com/dev</a></p>
+<p>The service can be tested by this command:</p>
+<pre><code>sls invoke -f hello
+</code></pre><p>Make sure to remove AWS resources when they are not needed:</p>
+<pre><code>serverless remove
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/python-aws-lambda/" data-id="ck1c0dgao0000xo05eyld631w" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-how-to-build-a-slack-bot-in-python" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/how-to-build-a-slack-bot-in-python/" class="article-date">
+  <time datetime="2019-09-29T21:40:12.000Z" itemprop="datePublished">2019-09-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Python/">Python</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/how-to-build-a-slack-bot-in-python/">How to build a Slack bot in Python</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Install-slackclient"><a href="#Install-slackclient" class="headerlink" title="Install slackclient"></a>Install slackclient</h2><pre><code>pip3 install slackclient
+</code></pre><h2 id="Create-Slack-app"><a href="#Create-Slack-app" class="headerlink" title="Create Slack app"></a>Create Slack app</h2><p>Visit: <a href="https://api.slack.com/apps" target="_blank" rel="noopener">https://api.slack.com/apps</a> to create a new bot</p>
+<p><img src="https://user-images.githubusercontent.com/437701/65965620-d433dd80-e456-11e9-90d2-9a028a561813.png" alt="image"></p>
+<p>In the following window, choose ‘Bots’</p>
+<p><img src="https://user-images.githubusercontent.com/437701/65965695-f299d900-e456-11e9-8db0-997f251ede79.png" alt="image"></p>
+<p>Add a bot user, e.g. ‘myalertbot’</p>
+<p>Click your app, then click ‘Install your app to your workspace’.</p>
+<p>Then you will have OAuth Access token and Bot User OAuth Access token.</p>
+<h2 id="Send-messages-in-Slack-bot"><a href="#Send-messages-in-Slack-bot" class="headerlink" title="Send messages in Slack bot"></a>Send messages in Slack bot</h2><pre><code>import os
+import slack
+
+client = slack.WebClient(token=&apos;SLACK_API_TOKEN&apos;)
+response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;Hello world!&quot;)
+</code></pre>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/how-to-build-a-slack-bot-in-python/" data-id="ck17vvq9s00003105id6mrrtk" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/slack/">slack</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-python-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/python-tips/" class="article-date">
@@ -144,6 +814,10 @@ s = zip(s1, s2)
 [(&apos;A&apos;, &apos;A&apos;), (&apos;A&apos;, &apos;A&apos;), (&apos;B&apos;, &apos;B&apos;), (&apos;B&apos;, &apos;B&apos;), (&apos;C&apos;, &apos;D&apos;)]
 &gt;&gt;&gt; sum(a!=b for a,b in zip(s1, s2))
 1
+</code></pre><h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><h2 id="check-if-isogram"><a href="#check-if-isogram" class="headerlink" title="check if isogram"></a>check if isogram</h2><p>The best way is to check the size of original string and the set, e.g. len(s) == len(set(s))</p>
+<pre><code>def is_isogram(string):
+    s = string.replace(&apos; &apos;, &apos;&apos;).replace(&apos;-&apos;, &apos;&apos;).lower()
+    return len(s) == len(set(s))
 </code></pre><h2 id="Code-refactoring"><a href="#Code-refactoring" class="headerlink" title="Code refactoring"></a>Code refactoring</h2><p>The following code:</p>
 <pre><code>def convert(number):
     the_string = &apos;&apos;
@@ -357,658 +1031,11 @@ location / {
 
 
   
-    <article id="post-java-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/java-tips/" class="article-date">
-  <time datetime="2019-08-20T21:40:12.000Z" itemprop="datePublished">2019-08-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Java/">Java</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/java-tips/">Java tips</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><h3 id="String-Concatenation"><a href="#String-Concatenation" class="headerlink" title="String Concatenation"></a>String Concatenation</h3><p>String.format is extremely slow for a problem that only requires simple String concatenation with the + operator. </p>
-<p>Read: <a href="https://redfin.engineering/java-string-concatenation-which-way-is-best-8f590a7d22a8" target="_blank" rel="noopener">https://redfin.engineering/java-string-concatenation-which-way-is-best-8f590a7d22a8</a></p>
-<h3 id="Iterate-each-character-in-a-String"><a href="#Iterate-each-character-in-a-String" class="headerlink" title="Iterate each character in a String"></a>Iterate each character in a String</h3><pre><code>Map&lt;Character, Integer&gt; dict = new HashMap&lt;Character, Integer&gt;();  
-&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;.chars().forEach(letter -&gt; dict.put((char) letter, 1));  
-</code></pre><h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p>To get a value from map if not null, can be something like this:</p>
-<pre><code>int v = 0;
-if(dict.get(c)!=null) {
-    v += dict.get(c);
-}   
-</code></pre><p>It can be simplified to:</p>
-<pre><code>v += dict.getOrDefault(c,0);
-</code></pre><h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><h3 id="Sum-of-n-n-2-n-3"><a href="#Sum-of-n-n-2-n-3" class="headerlink" title="Sum of n, $n^2$, $n^3$"></a>Sum of n, $n^2$, $n^3$</h3><p>Rather than using loops, some formulas can be used to make O(1) algorithms:</p>
-<p><img src="/images/sums.png" alt=""></p>
-<p>Ref: <a href="https://brilliant.org/wiki/sum-of-n-n2-or-n3/" target="_blank" rel="noopener">https://brilliant.org/wiki/sum-of-n-n2-or-n3/</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/java-tips/" data-id="cjzxw1akj0000bh0589zvpa6v" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-solr-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/solr-tips/" class="article-date">
-  <time datetime="2019-08-19T12:40:12.000Z" itemprop="datePublished">2019-08-19</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/solr/">solr</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/solr-tips/">Solr tips</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Delete-a-solr-document-in-Solr-Admin"><a href="#Delete-a-solr-document-in-Solr-Admin" class="headerlink" title="Delete a solr document in Solr Admin"></a>Delete a solr document in Solr Admin</h2><p>Click ‘Documents’</p>
-<p>In ‘Document Type’ dropdown, select ‘Solr Command (raw XML or JSON)’</p>
-<p>In Documents textbox, enter:</p>
-<pre><code>&lt;delete&gt;&lt;query&gt;id:6969z076v&lt;/query&gt;&lt;/delete&gt;
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/solr-tips/" data-id="cjzid96gq0000uw05kexfcyv0" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-arch1_edit_notes" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/arch1_edit_notes/" class="article-date">
-  <time datetime="2019-07-07T12:40:12.000Z" itemprop="datePublished">2019-07-07</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/rails/">rails</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/arch1_edit_notes/">archbishopsregisters edit application notes</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="How-edit-application-works"><a href="#How-edit-application-works" class="headerlink" title="How edit application works?"></a>How edit application works?</h2><h3 id="place-and-person-facet-on-the-left"><a href="#place-and-person-facet-on-the-left" class="headerlink" title="place and person facet on the left"></a>place and person facet on the left</h3><p>For person facet, the data is generated via new_solr_fields_controller.rb, e.g.</p>
-<pre><code>entry_person_name_authority_new = get_entry_agent_array(sdoc[:id])
-sdoc[&apos;entry_person_same_as_facet_ssim&apos;] = entry_person_name_authority_new
-</code></pre><p>And within get_entry_agent_array method:</p>
-<pre><code>preflabel_array = []
-query = SolrQuery.new
-q = &apos;relatedAgentFor_ssim:&apos; + id
-
-unless id.nil?
-  num = query.solr_query(q, &apos;person_same_as_tesim&apos;, 0)[&apos;response&apos;][&apos;numFound&apos;].to_i
-  query.solr_query(q, &apos;person_same_as_tesim&apos;, num)[&apos;response&apos;][&apos;docs&apos;].map do |result|
-    unless result[&apos;person_same_as_tesim&apos;].nil?
-      result[&apos;person_same_as_tesim&apos;].each do |agent|
-        query.solr_query(&apos;id:&apos; + agent, &apos;preflabel_tesim&apos;, 1)[&apos;response&apos;][&apos;docs&apos;].map do |result2|
-          preflabel = result2[&apos;preflabel_tesim&apos;].join unless result2[&apos;preflabel_tesim&apos;].nil?
-          preflabel_array &lt;&lt; preflabel
-        end
-      end
-    end
-  end
-end
-
-preflabel_array
-</code></pre><p>Similarly for place:</p>
-<pre><code>get_entry_place_array    
-</code></pre><h3 id="customized-index-fields-in-NewSolrFieldsController"><a href="#customized-index-fields-in-NewSolrFieldsController" class="headerlink" title="customized index fields in NewSolrFieldsController"></a>customized index fields in NewSolrFieldsController</h3><p>The ‘modify_sdoc’ method has been used to customized which fields need to be index in solr and how to generate values for them. However, it seems that the method is a ‘God’ method, e.g. it works for all content models and makes lots of unnecessary calls for non-existing fields for some models. </p>
-<pre><code>def modify_sdoc(sdoc)
-......
-end    
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/arch1_edit_notes/" data-id="cjyzza0yc0000z3052tvpv2dy" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-arch1_search_notes" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/arch1_search_notes/" class="article-date">
-  <time datetime="2019-07-04T12:40:12.000Z" itemprop="datePublished">2019-07-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/rails/">rails</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/arch1_search_notes/">archbishopsregisters search application notes</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="How-search-works"><a href="#How-search-works" class="headerlink" title="How search works?"></a>How search works?</h2><p>The magic starts from <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/searches_controller.rb#L79" target="_blank" rel="noopener">here</a>, e.g. the call to ‘set_search_result_arrays’ within searches_controller.rb.</p>
-<p>Within <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L5" target="_blank" rel="noopener">set_search_result_arrays method</a>, the search result is built in a few steps:</p>
-<p>NB: it uses lowercased search terms, as shown here:</p>
-<pre><code>search_term2 = @search_term.downcase.tr(&apos; &apos;, &apos;*&apos;) 
-</code></pre><p>(1) It searches all entries against the search term, e.g. </p>
-<pre><code>q = &quot;has_model_ssim:Entry AND (entry_type_search:*#{search_term2}* or section_type_search:*#{search_term2}* or summary_search:*#{search_term2}* or marginalia_search:*#{search_term2}* or subject_search:*#{search_term2}* or language_search:*#{search_term2}* or note_search:*#{search_term2}* or editorial_note_search:*#{search_term2}* or is_referenced_by_search:*#{search_term2}*)&quot;
-</code></pre><p>Search results will be saved in q_result and the facets will be updated.    </p>
-<p>More importantly, <strong>‘entry_id_set’</strong> will be updated with entry IDs.</p>
-<p><a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L26-#L40" target="_blank" rel="noopener">GH Link</a></p>
-<p>(2) Use same search term to search people/groups and get the object ID, e.g.</p>
-<pre><code>q = &quot;has_model_ssim:RelatedAgent AND (person_same_as_search:*#{search_term2}* or person_role_search:*#{search_term2}* or person_descriptor_search:*#{search_term2}* or person_descriptor_same_as_search:*#{search_term2}* or person_note_search:*#{search_term2}* or person_same_as_search:*#{search_term2}* or person_related_place_search:*#{search_term2}* or person_related_person_search:*#{search_term2}*)&quot;
-</code></pre><p>Then use the entry IDs found above (relatedAgentFor_ssim) to get entries metadata:</p>
-<pre><code>result[&apos;relatedAgentFor_ssim&apos;].each do |relatedagent|
-    q_result2 = query.solr_query(&quot;id:#{relatedagent}&quot;, &apos;id,has_model_ssim&apos;, 1, nil, 0, true, -1, &apos;index&apos;, facets, fq_entry)
-end                        
-</code></pre><p>Finally, update ‘entry_id_set’</p>
-<p><a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L45-#L73" target="_blank" rel="noopener">GH Link</a>    </p>
-<p>(3) Place</p>
-<p>Similar to (2) but use:</p>
-<pre><code>has_model_ssim:RelatedPlace
-</code></pre><p>(4) Dates    </p>
-<p>Similar to (2) but use:</p>
-<pre><code>SingleDate
-</code></pre><p>(5) Data aggregation </p>
-<p>To get data ready for frontend UI:</p>
-<p>First, some data come from Entry object, e.g. in <a href="https://github.com/digital-york/arch1_search/blob/master/app/controllers/concerns/solr.rb#L167-#L177" target="_blank" rel="noopener">Here</a></p>
-<pre><code>@element_array &lt;&lt; entry_id
-get_entry_and_folio_details(entry_id)
-@element_array &lt;&lt; get_element(result[&apos;entry_type_facet_ssim&apos;])
-@element_array &lt;&lt; get_element(result[&apos;section_type_facet_ssim&apos;])
-@element_array &lt;&lt; get_element(result[&apos;summary_tesim&apos;])
-@element_array &lt;&lt; get_element(result[&apos;marginalia_tesim&apos;])
-@element_array &lt;&lt; get_element(result[&apos;language_facet_ssim&apos;])
-@element_array &lt;&lt; get_element(result[&apos;subject_facet_ssim&apos;])
-@element_array &lt;&lt; get_element(result[&apos;note_tesim&apos;])
-@element_array &lt;&lt; get_element(result[&apos;editorial_note_tesim&apos;])
-@element_array &lt;&lt; get_element(result[&apos;is_referenced_by_tesim&apos;])
-</code></pre><p>Second, for fields like place, people, dates, doing a second search to get data store them into the same array, e.g. @element_array</p>
-<pre><code>get_places(entry_id, search_term2)
-get_people(entry_id, search_term2)
-get_dates(entry_id, search_term2)
-</code></pre><p>Finally, store the results into @partial_list_array.</p>
-<pre><code>@partial_list_array &lt;&lt; @element_array
-</code></pre><p>(6) view</p>
-<p>In the view page:</p>
-<pre><code>&lt;% @partial_list_array.each_with_index do |t, index| %&gt;
-    &lt;%
-       entry_id = t[0]
-       title = t[1]
-       folio_id = t[2]
-       entry_type = t[3]
-       section_type = t[4]
-       summary = t[5]
-       marginalia = t[6]
-       language = t[7]
-       subject = t[8]
-       note = t[9]
-       editorial_note = t[10]
-       is_referenced_by = t[11]
-       place = t[12]
-       person = t[13]
-       dates = t[14]
-    %&gt;    
-</code></pre><h2 id="About-the-search-facet"><a href="#About-the-search-facet" class="headerlink" title="About the search facet"></a>About the search facet</h2><p>As defined in line 53 of new_solr_fields_controller.rb @ arch1_edit, ‘place_same_as_tesim’ is used to provide the facet data for ‘Place’ facet.</p>
-<p>Therefore, if the place name authority is not synced, it will bring some <strong>strange</strong> behavior in the search APP. For example,</p>
-<p>In live:</p>
-<p><img src="/images/arch1_search_facet_1.png" alt=""></p>
-<p>In local VM:</p>
-<p><img src="/images/arch1_search_facet_2.png" alt=""></p>
-<p>And no Keyby entry in local:</p>
-<p><img src="/images/arch1_search_facet_3.png" alt=""></p>
-<p>Therefore, in the search result page (local),</p>
-<p><img src="/images/arch1_search_facet_4.png" alt=""></p>
-<p>Two ways to fix this problem:</p>
-<p>(1) Recommended - Sync data from live to local<br>(2) Manually add the place needed for this record and edit that record by linking the place to place authority.      </p>
-<h2 id="Issues-and-fixes"><a href="#Issues-and-fixes" class="headerlink" title="Issues and fixes"></a>Issues and fixes</h2><h3 id="Missing-Entry"><a href="#Missing-Entry" class="headerlink" title="Missing Entry"></a>Missing Entry</h3><blockquote>
-<p>I have just been working on Register 7, folio 115 r, and it seems that I’ve just lost entry 1 on that side of the folio somehow - I wasn’t trying to delete it or anything. This happened on Thursday, 25 July.</p>
-</blockquote>
-<p>1) First, find Folio using Solr query:</p>
-<pre><code>preflabel_tesim:&quot;Abp Reg 7 f.115 (recto)&quot;
-</code></pre><p>It return Folio with id: mg74qn90k    </p>
-<p>2) Second, find all child entries using Solr query:</p>
-<pre><code>folio_ssim:mg74qn90k
-</code></pre><p>The above ‘mg74qn90k’ is the Folio id found in Step 1.            </p>
-<p>3) Use related entries to find the missing entry. Usually the entry is linked to a different Folio. </p>
-<p>4) In Rails console, load the missing entry. Update folio property to the correct one.</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/arch1_search_notes/" data-id="cjxpysv5h0000bh05q82kabb6" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-solr-or-query" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/solr-or-query/" class="article-date">
-  <time datetime="2019-06-28T12:40:12.000Z" itemprop="datePublished">2019-06-28</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/solr/">solr</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/solr-or-query/">Solr OR query problem and fix</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>In Solr admin page, e.g. <a href="http://localhost:8983/solr/#/arch1_solrsync/query" target="_blank" rel="noopener">http://localhost:8983/solr/#/arch1_solrsync/query</a></p>
-<p>query for individual object works but the ‘OR’ query is NOT working, e.g. queries: </p>
-<pre><code>id:h702q6403
-id:3b591b35w
-</code></pre><p>are both working, but </p>
-<pre><code>id:3b591b35w OR id:h702q6403
-</code></pre><p>is NOT.</p>
-<p>The quick solution is to put the following in q field:</p>
-<pre><code>id:*
-</code></pre><p>and in the fq field, enter:</p>
-<pre><code>id:3b591b35w OR id:h702q6403
-</code></pre><p>For arch1, a method can be added to app/helpers/solr_query.rb, e.g. (EXPERIMENTAL):</p>
-<pre><code>def solr_query_fq(q, fq, fl=&apos;id&apos;, rows=10, sort=&apos;&apos;, start=0 )
-  CONN.get &apos;select&apos;, :params =&gt; {
-    :q=&gt;q,
-    :fq=&gt;fq,
-    :fl=&gt;fl,
-    :rows=&gt;rows,
-    :sort=&gt;sort,
-    :start=&gt;start
-  }
-end  
-</code></pre><p>And changes to register_folio.rb:</p>
-<pre><code>q.solr_query(&apos;has_model_ssim:OrderedCollection&apos;, &apos;id&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |result|
-    collection = result[&apos;id&apos;]
-
-    q.solr_query(&apos;id:&quot;&apos; + collection + &apos;/list_source&quot;&apos;, &apos;ordered_targets_ssim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |res|
-        order = res[&apos;ordered_targets_ssim&apos;]
-        query = &apos;&apos;
-        order.each do |o|
-            # to parse object id from format like: &quot;production/dz/01/0r/92/dz010r92r&quot;
-            # this may be caused by the version changes of Fedora/Active Fedora
-            id = (o.include? &apos;/&apos;) ? o.rpartition(&apos;/&apos;).last : o
-            if query==&apos;&apos;
-              query = &apos;(id:&quot;&apos; + id + &apos;&quot;&apos;
-            else
-              query = query + &apos; OR id:&quot;&apos; + id + &apos;&quot;&apos;
-            end
-        end
-        query = query + &apos;)&apos;
-        q.solr_query_fq(&apos;*:*&apos;, query, &apos;id,preflabel_tesim,reg_id_tesim&apos;)[&apos;response&apos;][&apos;docs&apos;].map.each do |r|
-            registers[r[&apos;id&apos;]] = [r[&apos;reg_id_tesim&apos;][0], r[&apos;preflabel_tesim&apos;][0]]
-        end
-    end
-end    
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/solr-or-query/" data-id="cjxfyf6nn0000lr05om4yawyx" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-how-to-setup-archbishopsregisters" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/how-to-setup-archbishopsregisters/" class="article-date">
-  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/rails/">rails</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/how-to-setup-archbishopsregisters/">How to setup archbishopsregisters</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Restore-fedora-data-from-live"><a href="#Restore-fedora-data-from-live" class="headerlink" title="Restore fedora data from live"></a>Restore fedora data from live</h2><h3 id="Get-Fedora-settings-right"><a href="#Get-Fedora-settings-right" class="headerlink" title="Get Fedora settings right"></a>Get Fedora settings right</h3><p>Stop Tomcat and clear fedora data folder</p>
-<p>Edit /opt/tomcat/webapps/fedora/WEB-INF/classes/spring/repo.xml:</p>
-<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
-    xmlns:p=&quot;http://www.springframework.org/schema/p&quot;
-    xsi:schemaLocation=&quot;
-    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;&gt;
-
-    &lt;context:annotation-config/&gt;
-
-    &lt;bean name=&quot;modeshapeRepofactory&quot;
-        class=&quot;org.fcrepo.kernel.modeshape.spring.ModeShapeRepositoryFactoryBean&quot;
-        p:repositoryConfiguration=&quot;classpath:/config/file-simple/repository.json&quot;/&gt;
-
-    &lt;bean class=&quot;org.modeshape.jcr.ModeShapeEngine&quot; init-method=&quot;start&quot;/&gt;
-
-    &lt;!-- For the time being, load annotation config here too --&gt;
-    &lt;bean class=&quot;org.fcrepo.metrics.MetricsConfig&quot;/&gt;
-
-    &lt;bean id=&quot;connectionManager&quot; class=&quot;org.apache.http.impl.conn.PoolingHttpClientConnectionManager&quot; /&gt;
-&lt;/beans&gt;
-</code></pre><p>and edit file: /opt/tomcat/webapps/fedora/WEB-INF/classes/config/file-simple/repository.json</p>
-<pre><code>{
-    &quot;name&quot; : &quot;repo&quot;,
-    &quot;jndiName&quot; : &quot;&quot;,
-    &quot;workspaces&quot; : {
-        &quot;predefined&quot; : [&quot;default&quot;],
-        &quot;default&quot; : &quot;default&quot;,
-        &quot;allowCreation&quot; : true,
-        &quot;cacheSize&quot; : 10000
-    },
-    &quot;storage&quot; : {
-        &quot;persistence&quot;: {
-            &quot;type&quot;: &quot;file&quot;,
-            &quot;path&quot; : &quot;${fcrepo.object.directory:target/objects}&quot;
-        },
-        &quot;binaryStorage&quot; : {
-            &quot;type&quot; : &quot;file&quot;,
-            &quot;directory&quot; : &quot;${fcrepo.binary.directory:target/binaries}&quot;,
-            &quot;minimumBinarySizeInBytes&quot; : 4096
-        }
-    },
-    &quot;security&quot; : {
-        &quot;anonymous&quot; : {
-            &quot;roles&quot; : [&quot;readonly&quot;,&quot;readwrite&quot;,&quot;admin&quot;],
-            &quot;useOnFailedLogin&quot; : false
-        },
-        &quot;providers&quot; : [
-            { &quot;classname&quot; : &quot;org.fcrepo.auth.common.BypassSecurityServletAuthenticationProvider&quot; }
-        ]
-    },
-    &quot;garbageCollection&quot; : {
-        &quot;threadPool&quot; : &quot;modeshape-gc&quot;,
-        &quot;initialTime&quot; : &quot;00:00&quot;,
-        &quot;intervalInHours&quot; : 24
-    },
-    &quot;node-types&quot; : [&quot;/home/frank/fcrepo-data/fedora-node-types/fedora-node-types.cnd&quot;]
-}
-</code></pre><p>Restart Tomcat.</p>
-<p>Actually, the config file being used is defined in the environment variables, run the following command to find it out:</p>
-<pre><code>ps -aef | grep java
-</code></pre><p>Copy data (opal-fedora474-475-backup.2019-05-02-20190514T143512Z-001.zip) from <a href="https://drive.google.com/drive/folders/1w3c0AObfp24NvB2vGgtaQJSVEy8gduEJ" target="_blank" rel="noopener">Google Drive</a>, and unzip it to local folder.</p>
-<p>Run the following command to restore data:</p>
-<pre><code>curl -X POST -d &quot;/var/tmp/opal-fedora474-475-backup.2019-05-02&quot; &quot;localhost:8080/fedora/rest/fcr:restore&quot;
-</code></pre><p>It should take 2 minutes to complete.    </p>
-<h3 id="Use-fcrepo-wrapper-as-a-reference"><a href="#Use-fcrepo-wrapper-as-a-reference" class="headerlink" title="Use fcrepo_wrapper as a reference"></a>Use fcrepo_wrapper as a reference</h3><p>If the above steps are not working, can use fcrepo_wrapper as a reference and copy its config files</p>
-<p>Get a copy of arch1_search and run within the app folder:</p>
-<pre><code>bundle exec fcrepo_wrapper
-</code></pre><p>It will load fedora on port 8984, and create a temporary folder like: /tmp/fcrepo-webapp-4.7.5-jetty-console.jar_8984</p>
-<p>Go to that folder and check file webapp/WEB-INF/classes/spring/repo.xml, find modeshapeRepofactory setting:</p>
-<pre><code>&lt;bean name=&quot;modeshapeRepofactory&quot;
-      class=&quot;org.fcrepo.kernel.modeshape.spring.ModeShapeRepositoryFactoryBean&quot;
-      p:repositoryConfiguration=&quot;classpath:/config/file-simple/repository.json&quot;/&gt;
-</code></pre><h2 id="Reindex-all-fedora-data-to-Solr"><a href="#Reindex-all-fedora-data-to-Solr" class="headerlink" title="Reindex all fedora data to Solr"></a>Reindex all fedora data to Solr</h2><p>Clear solr data</p>
-<h3 id="Option-1-not-fully-working-left-around-1000-objects-not-indexed"><a href="#Option-1-not-fully-working-left-around-1000-objects-not-indexed" class="headerlink" title="Option 1 (not fully working - left around 1000 objects not indexed)"></a>Option 1 (not fully working - left around 1000 objects not indexed)</h3><p>In arch1_edit rails console (development), run:</p>
-<pre><code>ActiveFedora::Base.reindex_everything
-</code></pre><p>It takes 1-2 hours to index everything! (BUT in some cases, it’s not fully working, e.g. stopped in the middle.)</p>
-<h3 id="Option-2"><a href="#Option-2" class="headerlink" title="Option 2"></a>Option 2</h3><p>In <strong>arch1</strong> (NOT arch1_search because some classes are missing there) app, run</p>
-<pre><code>rake sync_solr:sync
-</code></pre><p>It will index all objects</p>
-<h2 id="Get-arch1-working"><a href="#Get-arch1-working" class="headerlink" title="Get arch1 working"></a>Get arch1 working</h2><p>The arch1 won’t work in this point, e.g. while loading the app, it shows: </p>
-<pre><code>ArgumentError in LoginController#index
-wrong number of arguments (given 0, expected 1)
-</code></pre><p>The above error occured because the qa gem has changed their interface, e.g. :    </p>
-<p>In 0.5.0 (current arch1 uses), <a href="https://github.com/samvera/questioning_authority/blob/v0.5.0/lib/qa/authorities/web_service_base.rb" target="_blank" rel="noopener">https://github.com/samvera/questioning_authority/blob/v0.5.0/lib/qa/authorities/web_service_base.rb</a></p>
-<p>There is NO response method. However, in later version (from 0.9.0 to 4.1.1), the response method looks like:</p>
-<p>In <a href="https://github.com/samvera/questioning_authority/blob/v4.1.1/lib/qa/authorities/web_service_base.rb#L27-L29" target="_blank" rel="noopener">https://github.com/samvera/questioning_authority/blob/v4.1.1/lib/qa/authorities/web_service_base.rb#L27-L29</a></p>
-<pre><code>def response(url)
-  Faraday.get(url) { |req| req.headers[&apos;Accept&apos;] = &apos;application/json&apos; }
-end
-</code></pre><p>Comment out the above code seems working, but not sure what’s the consequences of this change.<br>Maybe fork from official QA gem and make this change, then declare in the Gemfile:</p>
-<p>UPDATE: it seems that arch1 is NOT using QA gem, at least in the above feature, so maybe it can be removed.</p>
-<h2 id="Get-arch1-search-fully-working"><a href="#Get-arch1-search-fully-working" class="headerlink" title="Get arch1_search fully working"></a>Get arch1_search fully working</h2><p><del>## Initialize arch1_edit</del></p>
-<p>There are two seperate applications, sharing the same Solr instance.</p>
-<p>First get a local copy of <a href="https://github.com/digital-york/arch1" target="_blank" rel="noopener">arch1_edit</a>, </p>
-<p>Switch to branch: ‘update-rails-5’</p>
-<p>Configure Fedora / Solr in the .env</p>
-<p>Run:</p>
-<pre><code>bundle install
-rake db:migrate
-#rake db:schema:load
-</code></pre><p>and run the following rake tasks:</p>
-<pre><code>rake persons:add_persons
-</code></pre><p>You will see this error:</p>
-<pre><code>Concept Scheme ... 
-ERROR in ConceptScheme!
-RSolr::Error::Http - 400 Bad Request
-Error: &apos;undefined field preflabel_tesim&apos;,
-
-URI: http://localhost:8983/solr/arch1/select?wt=ruby&amp;q=preflabel_tesim%3A%22people%22+AND+has_model_ssim%3A%22ConceptScheme%22&amp;fl=id&amp;rows=1&amp;start=0
-</code></pre><p>Copy schema.xml and solrconfig.xml from <a href="https://github.com/digital-york/arch1/tree/master/solr_conf/conf" target="_blank" rel="noopener">https://github.com/digital-york/arch1/tree/master/solr_conf/conf</a>, and save them into solr config folder, e.g. /var/solr/data/arch1/conf</p>
-<p>Also add the following lines to schema.xml:</p>
-<pre><code>&lt;dynamicField name=&quot;*_search&quot; type=&quot;text_en&quot; indexed=&quot;true&quot; stored=&quot;true&quot; multiValued=&quot;true&quot; /&gt;
-&lt;dynamicField name=&quot;*_facet&quot; type=&quot;string&quot; indexed=&quot;true&quot; stored=&quot;true&quot; multiValued=&quot;true&quot; /&gt;
-</code></pre><p>Restart Solr:</p>
-<pre><code>sudo systemctl restart solr
-</code></pre><p>And run this rake task again:</p>
-<pre><code>rake persons:add_persons
-</code></pre><p><del>You will see that some entries are created, together with some error messages.</del><br>In Persons_01_02_16.csv, remove the ? in the first line can make the script running successfully.</p>
-<pre><code>CHANGE 
-    ? Richard; R. as written, 
-TO 
-    Richard; R. as written,
-</code></pre><p>Run other rake tasks:</p>
-<pre><code>rake places:add_places
-</code></pre><p>and </p>
-<pre><code>rake places:load_places                    
-</code></pre><p>You will see lots of exceptions, mainly because of the following bugs:</p>
-<p>1) The ‘/‘ is missing in <a href="https://github.com/digital-york/arch1/blob/master/lib/tasks/places.rake#L25" target="_blank" rel="noopener">this line</a>, The code should be:</p>
-<pre><code>arr = CSV.read(Rails.root + &apos;lib/assets/lists/places/&apos; + l)    
-</code></pre><p>2) Lots of exception checks are missing, e.g. for this line:</p>
-<pre><code>auth.search(q).each do |a|
-</code></pre><p>It would be better to check exception first:</p>
-<pre><code>unless auth.search(q).nil?
-  auth.search(q).each do |a|        
-</code></pre><p>The full patched file is <a href="https://gist.github.com/yf508/fbb397917e91cc2ed5d164548137f9dc" target="_blank" rel="noopener">here</a></p>
-<p>Run this rake task:</p>
-<pre><code>rake persons:add_groups      
-</code></pre><p>It doesn’t add any group, needs investigation (maybe due to some missing Fedora objects)</p>
-<p>Run:<br>    rake concepts:load_terms<br>    rake concepts:load_subjects</p>
-<p>The above 2 tasks are stable and shouldn’t produce any problem.</p>
-<p>Run: </p>
-<pre><code>rake regfols:reg_order
-</code></pre><p>You may see the following error:</p>
-<pre><code>uninitialized constant ActiveFedora::Aggregation::ListSource
-</code></pre><p>It was caused by the backwards compatibility issue between active-fedora 10.3.0 and 9.7.0. It was fixed <a href="https://github.com/digital-york/arch1/commit/4d1e8f1646da7d40bcff877cc24d2a6ebbb83a47" target="_blank" rel="noopener">here</a></p>
-<p>Run:<br>    rake regfols:fol_order[‘Abp_Reg_31.csv’,’qv33rw85n’]<br>    rake regfols:fol_order[‘Abp_Reg_32.csv’,’w3763685q’]</p>
-<p>The above ‘Abp_Reg_32.csv’ can be found from lib/assets/new_regs_and_fols<br>The above ‘qv33rw85n’ can be get from Rails console, e.g. run within Rails console:</p>
-<pre><code>regs = Register.all
-regs[0]
-regs[1]
-etc...
-</code></pre><h2 id="Start-arch1-search"><a href="#Start-arch1-search" class="headerlink" title="Start arch1_search"></a>Start arch1_search</h2><p>Run:</p>
-<pre><code>rails s -b 0.0.0.0 
-</code></pre><p>Access:</p>
-<pre><code>http://localhost:3000
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/how-to-setup-archbishopsregisters/" data-id="cjvpaprz60000a205zjceio3s" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fedora/">fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rails/">rails</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/solr/">solr</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-ngrok" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/ngrok/" class="article-date">
-  <time datetime="2019-04-12T12:40:12.000Z" itemprop="datePublished">2019-04-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/ngrok/">ngrok</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/ngrok/">Amazing dev tool - ngrok</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://ngrok.com/" target="_blank" rel="noopener">ngrok</a> is a tool to provide public URLs for:</p>
-<ul>
-<li>testing your application through any NAT or firewall.</li>
-<li>sending preview to your client.</li>
-<li>exposing your local server.</li>
-<li>building web hook integration.</li>
-<li>SSH access to your Rasberry PI.</li>
-</ul>
-<p>Installation is very easy:</p>
-<p>Just download from <a href="https://ngrok.com/download" target="_blank" rel="noopener">here</a>, unzip, and run:</p>
-<pre><code>./ngrok http 3000
-</code></pre><p>You will see something like below:</p>
-<p><img src="/images/ngrok.jpg" alt="ngrok"> </p>
-<p>Enjoy accessing to <a href="http://xxxxxx.ngrok.io" target="_blank" rel="noopener">http://xxxxxx.ngrok.io</a> from anywhere!</p>
-<p>An alternative is <a href="https://serveo.net/" target="_blank" rel="noopener">serveo</a>, even no need to install, just run:</p>
-<pre><code>ssh -R 80:localhost:3000 serveo.net
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ngrok/" data-id="cjudyfgav0000u9053lu15bo4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tool/">tool</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
   </nav>
 
 </section>
@@ -1019,7 +1046,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/reactjs/">reactjs</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ruby/">ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -1029,7 +1056,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Solr/">Solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/localstack/">localstack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/turbolinks/">turbolinks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chart-js/">Chart.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DynamoDB/">DynamoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ReactJS/">ReactJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SSL/">SSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Solr/">Solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tomcat/">Tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/amplify/">amplify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graphql/">graphql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/localstack/">localstack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest-api/">rest api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/turbolinks/">turbolinks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xforms/">xforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -1039,7 +1066,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 11.67px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 13.33px;">Java</a> <a href="/tags/Solr/" style="font-size: 11.67px;">Solr</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 13.33px;">aws</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 13.33px;">ruby</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/Chart-js/" style="font-size: 10px;">Chart.js</a> <a href="/tags/DynamoDB/" style="font-size: 10px;">DynamoDB</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 11.43px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 15.71px;">Java</a> <a href="/tags/ReactJS/" style="font-size: 11.43px;">ReactJS</a> <a href="/tags/SSL/" style="font-size: 10px;">SSL</a> <a href="/tags/Solr/" style="font-size: 12.86px;">Solr</a> <a href="/tags/Tomcat/" style="font-size: 10px;">Tomcat</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/amplify/" style="font-size: 10px;">amplify</a> <a href="/tags/aws/" style="font-size: 15.71px;">aws</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/graphql/" style="font-size: 10px;">graphql</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 17.14px;">hyrax</a> <a href="/tags/java/" style="font-size: 12.86px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 12.86px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/rest-api/" style="font-size: 10px;">rest api</a> <a href="/tags/ruby/" style="font-size: 14.29px;">ruby</a> <a href="/tags/s3/" style="font-size: 11.43px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.57px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/xforms/" style="font-size: 10px;">xforms</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -1048,7 +1075,7 @@ etc...
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1065,7 +1092,11 @@ etc...
           </li>
         
           <li>
-            <a href="/aws-s3-localstack/">AWS S3 localstack</a>
+            <a href="/ruby-rest-api/">Build Rest API in Ruby</a>
+          </li>
+        
+          <li>
+            <a href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
           </li>
         
           <li>
@@ -1073,11 +1104,7 @@ etc...
           </li>
         
           <li>
-            <a href="/ruby-tips/">Ruby tips</a>
-          </li>
-        
-          <li>
-            <a href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
+            <a href="/react-char-js/">Use ReactJS with Chart.js</a>
           </li>
         
       </ul>
@@ -1092,7 +1119,7 @@ etc...
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Frank<br>
+      &copy; 2020 Frank<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

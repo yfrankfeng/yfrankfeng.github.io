@@ -29,7 +29,7 @@ ga('send', 'pageview');
 <meta property="og:description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  In src/main/java/uk/ac">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://user-images.githubusercontent.com/437701/70224943-03601700-1746-11ea-8803-34824f3c3cf4.png">
-<meta property="og:updated_time" content="2019-12-05T14:49:33.000Z">
+<meta property="og:updated_time" content="2020-01-29T16:27:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="IRIS migration">
 <meta name="twitter:description" content="Hard-coded fedora URLIn src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects)  In src/main/java/uk/ac">
@@ -87,7 +87,7 @@ ga('send', 'pageview');
         <section id="main"><article id="post-iris-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/iris-migration/" class="article-date">
-  <time datetime="2019-12-05T14:49:32.568Z" itemprop="datePublished">2019-12-05</time>
+  <time datetime="2020-01-29T16:27:38.305Z" itemprop="datePublished">2020-01-29</time>
 </a>
     
   <div class="article-category">
@@ -378,7 +378,70 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
 }
 </code></pre><p>It should be changed to:</p>
 <pre><code>if(feedbackiris!=null &amp;&amp; feedbackiris.startsWith(&quot;&lt;?xml version=&quot;))             
-</code></pre><h2 id="IP-restrictions"><a href="#IP-restrictions" class="headerlink" title="IP restrictions"></a>IP restrictions</h2><p>Edit /etc/apache2/sites-enabled/default-ssl.conf, add the following:</p>
+</code></pre><h2 id="Detail-page-problem"><a href="#Detail-page-problem" class="headerlink" title="Detail page problem"></a>Detail page problem</h2><h3 id="Error-message"><a href="#Error-message" class="headerlink" title="Error message"></a>Error message</h3><pre><code>06-Jan-2020 11:42:08.726 SEVERE [http-nio-8080-exec-1] com.sun.xml.bind.v2.util.XmlFactory.createParserFactory null
+ org.xml.sax.SAXNotRecognizedException: http://javax.xml.XMLConstants/feature/secure-processing
+        at org.apache.xerces.parsers.AbstractSAXParser.setFeature(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserImpl.setFeatures(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserImpl.&lt;init&gt;(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserFactoryImpl.newSAXParserImpl(Unknown Source)
+        at org.apache.xerces.jaxp.SAXParserFactoryImpl.setFeature(Unknown Source)
+        at com.sun.xml.bind.v2.util.XmlFactory.createParserFactory(XmlFactory.java:136)
+        at com.sun.xml.bind.v2.runtime.unmarshaller.UnmarshallerImpl.getXMLReader(UnmarshallerImpl.java:154)
+        at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:170)
+        at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:219)
+        at com.yourmediashelf.fedora.client.response.FedoraResponseImpl.unmarshallResponse(FedoraResponseImpl.java:133)
+        at com.yourmediashelf.fedora.client.response.ObjectDatastreamsResponse.getObjectDatastreams(ObjectDatastreamsRespon
+se.java:74)
+        at com.yourmediashelf.fedora.client.response.ListDatastreamsResponse.getDatastreams(ListDatastreamsResponse.java:52
+)
+        at uk.ac.york.dlib.yodling.service.repository.FedoraRepositoryService.getAssets(FedoraRepositoryService.java:565)
+        at uk.ac.york.dlib.yodling.web.AbstractResourceController.detail(AbstractResourceController.java:676)
+</code></pre><h3 id="Reason-amp-solution"><a href="#Reason-amp-solution" class="headerlink" title="Reason &amp; solution"></a>Reason &amp; solution</h3><p>The problem is caused by Xerces impl, remove xercesImpl-2.4.0.jar will fix this problem.</p>
+<p>To remove the dependency from pom.xml, run</p>
+<pre><code>mvn dependency:tree
+</code></pre><p>And found it was Rome causing the problem:</p>
+<pre><code>[INFO] +- rome:rome-fetcher:jar:1.0:compile
+[INFO] |  +- jdom:jdom:jar:1.0:compile
+[INFO] |  +- xerces:xercesImpl:jar:2.4.0:compile
+[INFO] |  \- rome:rome:jar:1.0:compile    
+</code></pre><p>Edit pom.xml:</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;rome&lt;/groupId&gt;
+    &lt;artifactId&gt;rome-fetcher&lt;/artifactId&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
+            &lt;groupId&gt;xerces&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;jaxen&lt;/groupId&gt;
+    &lt;artifactId&gt;jaxen&lt;/artifactId&gt;
+    &lt;version&gt;1.1.1&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
+            &lt;groupId&gt;xerces&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;jcs&lt;/groupId&gt;
+    &lt;artifactId&gt;jcs&lt;/artifactId&gt;
+    &lt;version&gt;1.3&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
+            &lt;groupId&gt;xerces&lt;/groupId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;    
+</code></pre><p>Rebuild &amp; redeploy will fix this problem.                        </p>
+<h2 id="IP-restrictions"><a href="#IP-restrictions" class="headerlink" title="IP restrictions"></a>IP restrictions</h2><p>Edit /etc/apache2/sites-enabled/default-ssl.conf, add the following:</p>
 <pre><code>&lt;Location /solr&gt;
   Allow from TEST_SERVER_IP                     
   ...
@@ -395,7 +458,13 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
 &lt;/Directory&gt;
 </code></pre><p>Restart Apache2</p>
 <pre><code>service apache2 restart
-</code></pre>
+</code></pre><h2 id="Workflow"><a href="#Workflow" class="headerlink" title="Workflow"></a>Workflow</h2><p>As Fedora/Solr server is separated from the front end, there are some work to do to make the workflow working in the new infrastructure.</p>
+<h3 id="Paths"><a href="#Paths" class="headerlink" title="Paths"></a>Paths</h3><p><strong>Where the uploaded files are stored?</strong><br>configured in yodl.properties: iris.imageRootFolder</p>
+<p>So, on the new Java VM,<br>    sudo mkdir /usr/xxxxxxx-webdocs<br>    sudo chown xxxx:xxxx /usr/xxxxxxx-webdocs<br>    mount -v -o vers=3,sec=sys,tcp rdfs:/vol/yodl2/xxxx-xxxx/test-webdocs /usr/xxxxxxx-webdocs</p>
+<p><strong>DO NOT use the default mount parameters!</strong> The following won’t work!</p>
+<pre><code>mount rdfs:/vol/xxxx/xxxx-xxxx/test-webdocs /usr/xxxxxxx-webdocs
+</code></pre><h3 id="File-upload-submission-handling"><a href="#File-upload-submission-handling" class="headerlink" title="File upload/submission handling"></a>File upload/submission handling</h3><p><strong>WorkflowController</strong><br>File upload handler: WorkflowController.fileUpload</p>
+
       
     </div>
     <footer class="article-footer">
@@ -410,19 +479,19 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
     
 <nav id="article-nav">
   
-    <a href="/aws-s3-localstack/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/tomcat-over-apache2/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          AWS S3 localstack
+          Serve Tomcat application over Apache2 and SSL
         
       </div>
     </a>
   
   
-    <a href="/ruby-tips/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/react-char-js/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Ruby tips</div>
+      <div class="article-nav-title">Use ReactJS with Chart.js</div>
     </a>
   
 </nav>
@@ -438,7 +507,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AWS/">AWS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Heroku/">Heroku</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hyrax/">Hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ruby/">Ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/System/">System</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Ubuntu/">Ubuntu</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/blacklight/">blacklight</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/hyrax/">hyrax</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ngrok/">ngrok</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/rails/">rails</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/reactjs/">reactjs</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ruby/">ruby</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/samvera/">samvera</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/solr/">solr</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/system/">system</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/vuejs/">vuejs</a></li></ul>
     </div>
   </div>
 
@@ -448,7 +517,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Solr/">Solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/localstack/">localstack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/turbolinks/">turbolinks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AWS/">AWS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chart-js/">Chart.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DynamoDB/">DynamoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EC2/">EC2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elastic-IP/">Elastic IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IRIS/">IRIS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ReactJS/">ReactJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SSL/">SSL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Solr/">Solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tomcat/">Tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UI/">UI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue-js/">Vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/access-control/">access control</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/amplify/">amplify</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aws/">aws</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklight/">blacklight</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blacklights/">blacklights</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/branch/">branch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cms/">cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/content-blocks/">content blocks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elk/">elk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/facets/">facets</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fedora/">fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/google/">google+</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/graphql/">graphql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyrax/">hyrax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kibana/">kibana</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/localstack/">localstack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ngrok/">ngrok</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/notification/">notification</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth/">oauth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rails/">rails</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/refinery/">refinery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rest-api/">rest api</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ruby/">ruby</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/s3/">s3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/samvera/">samvera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/slack/">slack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/solr/">solr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tool/">tool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/turbolinks/">turbolinks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue-js/">vue.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpacker/">webpacker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xforms/">xforms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zsh/">zsh</a></li></ul>
     </div>
   </div>
 
@@ -458,7 +527,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 11.67px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 13.33px;">Java</a> <a href="/tags/Solr/" style="font-size: 11.67px;">Solr</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/aws/" style="font-size: 13.33px;">aws</a> <a href="/tags/blacklight/" style="font-size: 13.33px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 13.33px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 15px;">fedora</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/heroku/" style="font-size: 11.67px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 16.67px;">hyrax</a> <a href="/tags/java/" style="font-size: 11.67px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/ruby/" style="font-size: 13.33px;">ruby</a> <a href="/tags/s3/" style="font-size: 10px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.33px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
+      <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/Chart-js/" style="font-size: 10px;">Chart.js</a> <a href="/tags/DynamoDB/" style="font-size: 10px;">DynamoDB</a> <a href="/tags/EC2/" style="font-size: 10px;">EC2</a> <a href="/tags/Elastic-IP/" style="font-size: 10px;">Elastic IP</a> <a href="/tags/Fedora/" style="font-size: 11.43px;">Fedora</a> <a href="/tags/IRIS/" style="font-size: 10px;">IRIS</a> <a href="/tags/Java/" style="font-size: 15.71px;">Java</a> <a href="/tags/ReactJS/" style="font-size: 11.43px;">ReactJS</a> <a href="/tags/SSL/" style="font-size: 10px;">SSL</a> <a href="/tags/Solr/" style="font-size: 12.86px;">Solr</a> <a href="/tags/Tomcat/" style="font-size: 10px;">Tomcat</a> <a href="/tags/UI/" style="font-size: 10px;">UI</a> <a href="/tags/Vue-js/" style="font-size: 10px;">Vue.js</a> <a href="/tags/access-control/" style="font-size: 10px;">access control</a> <a href="/tags/amplify/" style="font-size: 10px;">amplify</a> <a href="/tags/aws/" style="font-size: 15.71px;">aws</a> <a href="/tags/blacklight/" style="font-size: 12.86px;">blacklight</a> <a href="/tags/blacklights/" style="font-size: 12.86px;">blacklights</a> <a href="/tags/branch/" style="font-size: 10px;">branch</a> <a href="/tags/cms/" style="font-size: 10px;">cms</a> <a href="/tags/content-blocks/" style="font-size: 10px;">content blocks</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/elasticsearch/" style="font-size: 10px;">elasticsearch</a> <a href="/tags/elk/" style="font-size: 10px;">elk</a> <a href="/tags/facets/" style="font-size: 10px;">facets</a> <a href="/tags/fedora/" style="font-size: 14.29px;">fedora</a> <a href="/tags/git/" style="font-size: 11.43px;">git</a> <a href="/tags/google/" style="font-size: 10px;">google+</a> <a href="/tags/graphql/" style="font-size: 10px;">graphql</a> <a href="/tags/heroku/" style="font-size: 11.43px;">heroku</a> <a href="/tags/hyrax/" style="font-size: 17.14px;">hyrax</a> <a href="/tags/java/" style="font-size: 12.86px;">java</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/localstack/" style="font-size: 10px;">localstack</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/maven/" style="font-size: 10px;">maven</a> <a href="/tags/ngrok/" style="font-size: 10px;">ngrok</a> <a href="/tags/nodejs/" style="font-size: 10px;">nodejs</a> <a href="/tags/notification/" style="font-size: 10px;">notification</a> <a href="/tags/oauth/" style="font-size: 10px;">oauth</a> <a href="/tags/python/" style="font-size: 12.86px;">python</a> <a href="/tags/rails/" style="font-size: 20px;">rails</a> <a href="/tags/react/" style="font-size: 10px;">react</a> <a href="/tags/refinery/" style="font-size: 10px;">refinery</a> <a href="/tags/rest-api/" style="font-size: 10px;">rest api</a> <a href="/tags/ruby/" style="font-size: 14.29px;">ruby</a> <a href="/tags/s3/" style="font-size: 11.43px;">s3</a> <a href="/tags/samvera/" style="font-size: 18.57px;">samvera</a> <a href="/tags/slack/" style="font-size: 10px;">slack</a> <a href="/tags/solr/" style="font-size: 20px;">solr</a> <a href="/tags/tool/" style="font-size: 10px;">tool</a> <a href="/tags/turbolinks/" style="font-size: 10px;">turbolinks</a> <a href="/tags/vue-js/" style="font-size: 10px;">vue.js</a> <a href="/tags/webpacker/" style="font-size: 10px;">webpacker</a> <a href="/tags/xforms/" style="font-size: 10px;">xforms</a> <a href="/tags/zsh/" style="font-size: 10px;">zsh</a>
     </div>
   </div>
 
@@ -467,7 +536,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -484,7 +553,11 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
           </li>
         
           <li>
-            <a href="/aws-s3-localstack/">AWS S3 localstack</a>
+            <a href="/ruby-rest-api/">Build Rest API in Ruby</a>
+          </li>
+        
+          <li>
+            <a href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
           </li>
         
           <li>
@@ -492,11 +565,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
           </li>
         
           <li>
-            <a href="/ruby-tips/">Ruby tips</a>
-          </li>
-        
-          <li>
-            <a href="/rails-page-only-working-after-refresh/">Rails page only working after refresh?</a>
+            <a href="/react-char-js/">Use ReactJS with Chart.js</a>
           </li>
         
       </ul>
@@ -511,7 +580,7 @@ java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Frank<br>
+      &copy; 2020 Frank<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
