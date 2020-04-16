@@ -83,14 +83,14 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
-    <article id="post-ruby-tips" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-yodl-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/ruby-tips/" class="article-date">
-  <time datetime="2019-12-05T11:12:51.114Z" itemprop="datePublished">2019-12-05</time>
+    <a href="/yodl-migration/" class="article-date">
+  <time datetime="2020-04-16T11:13:02.555Z" itemprop="datePublished">2020-04-16</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Ruby/">Ruby</a>
+    <a class="article-category-link" href="/categories/Java/">Java</a>
   </div>
 
   </div>
@@ -101,7 +101,7 @@ ga('send', 'pageview');
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/ruby-tips/">Ruby tips</a>
+      <a class="article-title" href="/yodl-migration/">YODL migration</a>
     </h1>
   
 
@@ -109,169 +109,19 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Language-basics"><a href="#Language-basics" class="headerlink" title="Language basics"></a>Language basics</h2><h3 id=""><a href="#" class="headerlink" title="||="></a>||=</h3><pre><code>x ||= y 
-</code></pre><p>means </p>
-<pre><code>x || x = y 
-</code></pre><p>so if x is nil or false set x to be the value of y.</p>
-<h2 id="Class-attributes"><a href="#Class-attributes" class="headerlink" title="Class attributes"></a>Class attributes</h2><p>Use of attribute readers (public/private)</p>
-<pre><code>attr_reader :names
-def initialize(names)
-    @names = names
-end
-</code></pre><p>Then @names can be accessed via ‘names’</p>
-<pre><code>def latest
-    names.last
-end
-</code></pre><h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><pre><code>String.lines
-</code></pre><p>Check if a string starts with any string from an array:</p>
-<pre><code>prefixes=[&apos;Dr&apos;,&apos;Mr&apos;,&apos;Miss&apos;,&apos;Mrs&apos;]
-&apos;Tom Smith&apos;.starts_with?(*prefixes)
-=&gt; false
-&apos;Mr Tom Smith&apos;.starts_with?(*prefixes)
-=&gt; true        
-</code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><h3 id="Swap-array-rows-with-columns"><a href="#Swap-array-rows-with-columns" class="headerlink" title="Swap array rows with columns"></a>Swap array rows with columns</h3><pre><code>Array.transpose()
-</code></pre><p>e.g.<br>    matrix_string = “1 2 3\n4 5 6\n7 8 9”<br>    @rows = matrix_string.lines.collect{|x| x.split.collect{|y| y.to_i}}<br>    @columns = @rows.transpose()    </p>
-<h3 id="Remove-duplicate-elements-from-array"><a href="#Remove-duplicate-elements-from-array" class="headerlink" title="Remove duplicate elements from array"></a>Remove duplicate elements from array</h3><pre><code>array_name.uniq
-</code></pre><p>OR use the following to operate on the same array</p>
-<pre><code>array_name.uniq!
-</code></pre><h3 id="each-cons"><a href="#each-cons" class="headerlink" title="each_cons"></a>each_cons</h3><pre><code>irb(main):001:0&gt; s = &quot;123456789&quot;
-=&gt; &quot;123456789&quot;
-
-irb(main):002:0&gt; s.chars
-=&gt; [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;9&quot;]
-
-irb(main):003:0&gt; s.chars.each_cons(2).to_a
-=&gt; [[&quot;1&quot;, &quot;2&quot;], [&quot;2&quot;, &quot;3&quot;], [&quot;3&quot;, &quot;4&quot;], [&quot;4&quot;, &quot;5&quot;], [&quot;5&quot;, &quot;6&quot;], [&quot;6&quot;, &quot;7&quot;], [&quot;7&quot;, &quot;8&quot;], [&quot;8&quot;, &quot;9&quot;]]
-
-irb(main):004:0&gt; s.chars.each_cons(2).to_a.collect {|a| a.join}
-=&gt; [&quot;12&quot;, &quot;23&quot;, &quot;34&quot;, &quot;45&quot;, &quot;56&quot;, &quot;67&quot;, &quot;78&quot;, &quot;89&quot;]    
-</code></pre><p>The above expression can be simplified:</p>
-<pre><code>irb(main):004:0&gt; s.chars.each_cons(2).collect(&amp;:join)
-=&gt; [&quot;12&quot;, &quot;23&quot;, &quot;34&quot;, &quot;45&quot;, &quot;56&quot;, &quot;67&quot;, &quot;78&quot;, &quot;89&quot;]    
-</code></pre><h3 id="zip-amp-count"><a href="#zip-amp-count" class="headerlink" title="zip &amp; count"></a>zip &amp; count</h3><pre><code>strand1 = &apos;AAAB&apos;
-strand2 = &apos;AAAC&apos;
-strand1.chars.zip(strand2.chars).count {|n1, n2| n1 != n2}  
-</code></pre><h2 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a>Collections</h2><p>Lots of internal methods can be used in collections, e.g.</p>
-<pre><code>scores.last
-scores.max
-scores.min
-scores.sort
-soores.reverse
-</code></pre><h3 id="Enumerable"><a href="#Enumerable" class="headerlink" title="Enumerable"></a>Enumerable</h3><pre><code>s = &quot;aa bb cc dd ee ff gg aa&quot;
-
-s.scan(/\w+(?:&apos;\w+)*/)
-=&gt; [&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;, &quot;dd&quot;, &quot;ee&quot;, &quot;ff&quot;, &quot;gg&quot;, &quot;aa&quot;]
-
-s.scan(/\w+(?:&apos;\w+)*/).group_by(&amp;:itself)
-=&gt; {&quot;aa&quot;=&gt;[&quot;aa&quot;, &quot;aa&quot;], &quot;bb&quot;=&gt;[&quot;bb&quot;], &quot;cc&quot;=&gt;[&quot;cc&quot;], &quot;dd&quot;=&gt;[&quot;dd&quot;], &quot;ee&quot;=&gt;[&quot;ee&quot;], &quot;ff&quot;=&gt;[&quot;ff&quot;], &quot;gg&quot;=&gt;[&quot;gg&quot;]}
-
-s.scan(/\w+(?:&apos;\w+)*/).group_by(&amp;:itself).transform_values{|x| x.length}
-=&gt; {&quot;aa&quot;=&gt;2, &quot;bb&quot;=&gt;1, &quot;cc&quot;=&gt;1, &quot;dd&quot;=&gt;1, &quot;ee&quot;=&gt;1, &quot;ff&quot;=&gt;1, &quot;gg&quot;=&gt;1}
-</code></pre><p><strong>each_with_object</strong> method gives a way to iterate an Enumerable and doing some process within the loop.<br>    drop = 15<br>    drops = {<br>          3  =&gt; ‘Pling’,<br>          5  =&gt; ‘Plang’,<br>          7  =&gt; ‘Plong’<br>    }<br>    sounds = drops.each_with_object(‘’) { |(factor, note), sound| sound &lt;&lt; note if (drop % factor).zero? }</p>
-<h2 id="Regular-expressions"><a href="#Regular-expressions" class="headerlink" title="Regular expressions"></a>Regular expressions</h2><h3 id="acronyms"><a href="#acronyms" class="headerlink" title="acronyms"></a>acronyms</h3><p>Question: convert a sentence to its acronym, e.g.</p>
-<pre><code>Portable Network Graphics &gt; PNG
-Ruby on Rails &gt; ROR
-First In, First Out &gt; FIFO
-Something - I made up from thin air &gt; SIMUFTA        
-</code></pre><p>The easy solution is to use RE:</p>
-<pre><code>def self.abbreviate(phrase)
-    phrase.scan(/\b\w/).join.upcase
-end
-</code></pre><p>Scan with the regex /\b\w/ will catch ‘word boundaries’ (space, - and more) followed by a word character. This means that scan(/\b\w/) returns an array with the first letters only.    </p>
-<h3 id="Word-counts"><a href="#Word-counts" class="headerlink" title="Word counts"></a>Word counts</h3><pre><code>class Phrase
-  attr_reader :phrase
-
-  def initialize(phrase)
-    @phrase = phrase
-  end
-
-  def word_count
-    counts = Hash.new(0)
-    phrase.downcase.scan(/\w+(?:&apos;\w+)*/).each { |w| counts[w] += 1 }
-    counts
-  end
-end  
-</code></pre><ul>
-<li>\w+ - 1 or more word chars</li>
-<li><p>(?:’\w+)<em> - zero or more sequences (as (?:…)</em> is a non-capturing group that groups a sequence of subpatterns quantified with * quantifier matching 0 or more occurrences) of:</p>
-<ul>
-<li>‘ - apostrophe</li>
-<li><p>\w+ - 1 or more word chars.</p>
-<p>phrase = “Joe can’t tell between ‘large’ and large.”<br>phrase.downcase.scan(/\w+(?:’\w+)*/).each { |w| counts[w] += 1 }</p>
-<blockquote>
-<blockquote>
-</blockquote>
-<p>{“joe”=&gt;1, “can’t”=&gt;1, “tell”=&gt;1, “between”=&gt;1, “large”=&gt;2, “and”=&gt;1}</p>
-</blockquote>
-</li>
-</ul>
-</li>
-</ul>
-<p><strong>Iteration 2</strong>: to remove the temporary variable</p>
-<pre><code>phrase.downcase.scan(/\w+(?:&apos;\w+)*/).group_by{|e| e}.map{|k, v| [k, v.length]}.to_h
-</code></pre><p><strong>Iteration 3</strong>: think about SRP and remove intermediate array generated by map</p>
-<pre><code>def words
-    phrase.downcase.scan(/\w+(?:&apos;\w+)*/)
-end
-
-def word_count
-    #words.group_by(&amp;:itself).transform_values{|x| x.length}
-    words.group_by(&amp;:itself).transform_values(&amp;:length)
-end     
-</code></pre><h2 id="Error-handling"><a href="#Error-handling" class="headerlink" title="Error handling"></a>Error handling</h2><h3 id="Subclassing-a-standard-Error-class"><a href="#Subclassing-a-standard-Error-class" class="headerlink" title="Subclassing a standard Error class"></a>Subclassing a standard Error class</h3><pre><code>class StrandLengthsError &lt; ArgumentError
-  attr_reader :object
-
-  def initialize(message = &apos;Strand lengths must be identical.&apos;, object)
-    super(message)
-    @object = object
-  end
-end
-</code></pre><h2 id="Code-style-conventions"><a href="#Code-style-conventions" class="headerlink" title="Code style conventions"></a>Code style conventions</h2><h3 id="Indentation"><a href="#Indentation" class="headerlink" title="Indentation"></a>Indentation</h3><p>The indentation for Ruby programs should be 2 spaces.</p>
-<h3 id="Spaces"><a href="#Spaces" class="headerlink" title="Spaces"></a>Spaces</h3><p>The ones with space around are:</p>
-<pre><code>=
-==
-!= &lt;---
--
-+
-*
-%
-</code></pre><p>The / method sometimes with space around and sometimes not:</p>
-<ul>
-<li>No space when communication “fraction”</li>
-<li>Space around when communicating “division”</li>
-</ul>
-<p>No Space for ** method, as it mirrors how people write on paper, such as $x^y$.    </p>
-<h3 id="Ruby-class-structure"><a href="#Ruby-class-structure" class="headerlink" title="Ruby class structure"></a>Ruby class structure</h3><pre><code>class Class XX
-
-  # class methods
-
-  private
-
-  # constructors
-
-  # attribute readers
-
-  # private methods
-
-  public
-
-  # public methods
-
-end
-</code></pre><h3 id="defined-by-proximity"><a href="#defined-by-proximity" class="headerlink" title="defined by proximity"></a>defined by proximity</h3><pre><code>def distance
-  nucleotides.count { |n1, n2| n1 != n2 }
-end
-</code></pre><p>From above code, it’s very easy to understand what ‘n1’ and ‘n2’ mean.</p>
-<h3 id="Variable-names"><a href="#Variable-names" class="headerlink" title="Variable names"></a>Variable names</h3><p>If we are talking about programming languages and what each with object does, we<br> might use k and v since those are speaking to the key and value positions,<br> and are “commonly known” to the problem domain of programming languages.<br> But programming language <strong>isn’t the problem being solved in all situations</strong>,<br> so perhaps factor and note and sound makes sense for the argument list in that block in the raindrop program. </p>
-<h3 id="Line-length"><a href="#Line-length" class="headerlink" title="Line length"></a>Line length</h3><p>Rubocop suggests that a single line should not longer than 80 columns.</p>
-
+        <h2 id="Tomcat"><a href="#Tomcat" class="headerlink" title="Tomcat"></a>Tomcat</h2><p>While installed Tomcat via apt, use the following steps to run tomcat service under dlib user:</p>
+        
+          <p class="article-more-link">
+            <a href="/yodl-migration/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ruby-tips/" data-id="cjzxw1akv0001bh05yr23udlh" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/yodl-migration/" data-id="ck48pp4x40001j5058vjxad2a" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li></ul>
 
     </footer>
   </div>
@@ -307,21 +157,11 @@ end
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="The-problem"><a href="#The-problem" class="headerlink" title="The problem"></a>The problem</h2><p>Some Rails pages are not working properly, e.g. the JavaScript code stops working. However, after a refresh, it’s working again.</p>
-<p>Sounds familiar?</p>
-<p>Actually, to be more accurate, the problem happens if:</p>
-<p>You click a link in your Rails application and it takes you to another page, still within the same domain. The JS stops working.</p>
-<p>However, if you copy the second page URL and paste it to the URL address bar, it works. </p>
-<h2 id="Reason"><a href="#Reason" class="headerlink" title="Reason"></a>Reason</h2><p>It’s the compatibility problem between turbolinks and jQuery. Basically, turbolinks optimized the links within the application and only partially load the target page elements and combine it with current page. Sometimes it’s noting working.</p>
-<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><p>Prior to Rails before 2013, you can use a gem called jquery-turbolinks which will resolve this problem for you. </p>
-<p>However, with the latest Rails (5.x+), the gem won’t work.</p>
-<p>The workaround is to monitor the appropriate event, e.g. </p>
-<p>Change</p>
-<pre><code>$(function() {
-</code></pre><p>To:</p>
-<pre><code>$(document).on(&apos;turbolinks:load&apos;, function() {
-</code></pre><p>It should just works.</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a href="https://github.com/onokumus/metismenu/issues/121" target="_blank" rel="noopener">https://github.com/onokumus/metismenu/issues/121</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/rails-page-only-working-after-refresh/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -364,58 +204,11 @@ end
     <div class="article-entry" itemprop="articleBody">
       
         <p>To add a new content block page, you need to follow steps below:</p>
-<h2 id="Register-a-new-content-block-in-models"><a href="#Register-a-new-content-block-in-models" class="headerlink" title="Register a new content block in models"></a>Register a new content block in models</h2><p>app/models/content_block.rb</p>
-<pre><code>def help_page
-  find_by(name: &apos;help_page&apos;) ||
-    create(name: &apos;help_page&apos;, value: default_help_text)
-end
-</code></pre><p>and</p>
-<pre><code>def default_help_text
-  ERB.new(
-    IO.read(
-        Rails.root.join(&apos;app&apos;, &apos;views&apos;, &apos;hyrax&apos;, &apos;content_blocks&apos;, &apos;templates&apos;, &apos;help.html.erb&apos;)
-    )
-  ).result
-end
-</code></pre><h2 id="Template-file"><a href="#Template-file" class="headerlink" title="Template file"></a>Template file</h2><p>app/views/hyrax/content_blocks/templates</p>
-<p>just add any HTML you like to the template file, e.g. help.html.erb</p>
-<p>Still Not showing the new page content?</p>
-<p>You need to delete the record in the database ‘content_blocks’ table</p>
-<h2 id="Add-a-new-content-block-tab-in-Admin-page"><a href="#Add-a-new-content-block-tab-in-Admin-page" class="headerlink" title="Add a new content block tab in Admin page"></a>Add a new content block tab in Admin page</h2><p>app/views/hyrax/content_blocks/_form.html.erb</p>
-<p>On the top, add:</p>
-<pre><code>&lt;li&gt;
-  &lt;a href=&quot;#help&quot; role=&quot;tab&quot; data-toggle=&quot;tab&quot; class=&quot;nav-safety-confirm&quot;&gt;&lt;%= t(:&apos;hyrax.content_blocks.tabs.help&apos;) %&gt;&lt;/a&gt;
-&lt;/li&gt;
-</code></pre><p>On the bottom, add:</p>
-<pre><code>&lt;div id=&quot;help&quot; class=&quot;tab-pane&quot;&gt;
-  &lt;div class=&quot;panel panel-default labels&quot;&gt;
-    &lt;%= simple_form_for ContentBlock.for(:help), url: hyrax.content_block_path(ContentBlock.for(:help)), html: {class: &apos;nav-safety&apos;} do |f| %&gt;
-      &lt;div class=&quot;panel-body&quot;&gt;
-        &lt;div class=&quot;field form-group&quot;&gt;
-          &lt;%= f.label :help %&gt;&lt;br /&gt;
-          &lt;%= f.text_area :help, value: f.object.value, class: &apos;form-control tinymce&apos;, rows: 20, cols: 120 %&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-      &lt;div class=&quot;panel-footer&quot;&gt;
-        &lt;%= link_to t(:&apos;hyrax.content_blocks.cancel&apos;), hyrax.admin_admin_sets_path, class: &apos;btn btn-default pull-right&apos; %&gt;
-        &lt;%= f.button :submit, class: &apos;btn btn-primary pull-right&apos; %&gt;
-      &lt;/div&gt;
-    &lt;% end %&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-</code></pre><h2 id="Content-block-controller"><a href="#Content-block-controller" class="headerlink" title="Content block controller"></a>Content block controller</h2><p>Copy content_blocks_controller.rb from app/controllers/hyrax to NCELP and update the following:</p>
-<pre><code>params.require(:content_block).permit(:marketing,
-                                      :announcement,
-                                      :researcher,
-                                      :help)
-</code></pre><h2 id="Update-locale-file"><a href="#Update-locale-file" class="headerlink" title="Update locale file"></a>Update locale file</h2><p>Edit config/locales/hyrax.en.yml, and add:</p>
-<pre><code>hyrax:
-  content_blocks:
-    help: Help
-</code></pre><h2 id="Add-a-menu-in-the-menubar"><a href="#Add-a-menu-in-the-menubar" class="headerlink" title="Add a menu in the menubar"></a>Add a menu in the menubar</h2><p>Edit app/views/_controls.html.erb, and add:</p>
-<pre><code>&lt;li &lt;%= &apos;class=active&apos; if current_page?(hyrax.about_path) %&gt;&gt;
-    &lt;%= link_to t(:&apos;hyrax.controls.about&apos;), hyrax.about_path, aria: current_page?(hyrax.about_path) ? {current: &apos;page&apos;} : nil %&gt;&lt;/li&gt;   
-</code></pre>
+        
+          <p class="article-more-link">
+            <a href="/hyrax-content-blocks/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -458,19 +251,11 @@ end
     <div class="article-entry" itemprop="articleBody">
       
         <p>The following steps mainly for IRIS admins who left IRIS team, but the email notifications are still triggered. Tons of undelivered email may result in the suspension of the IRIS admin email account.</p>
-<p>1) Open yodl.properties file, and find object PID, e.g. with key iris.userMappings.</p>
-<p>2) Open the fedora object in Fedora admin web UI.</p>
-<p>3) Find matched ownerid for a particular email from UserMapping datastream.</p>
-<p>4) Run the following RI query to find user’s profile object id:</p>
-<pre><code>select $object
-from &lt;#ri&gt;
-where $object &lt;fedora-model:hasModel&gt; &lt;fedora:york:CModel-User&gt;
-and $object &lt;info:fedora/fedora-system:def/model#ownerId&gt; &apos;THE_ABOVE_OWNERID&apos;
-order by $object
-</code></pre><p>5) Open user profile object in Fedora Web UI and open User datastream.</p>
-<p>6) Change notifyDownloads to ‘false’</p>
-<pre><code>&lt;notifyDownloads&gt;false&lt;/notifyDownloads&gt;
-</code></pre>
+        
+          <p class="article-more-link">
+            <a href="/how-to-disable-download-notification-for-a-user/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -781,60 +566,12 @@ response = client.chat_postMessage(channel=&apos;#my channel&apos;, text=&quot;H
       
         <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><p>Use the new way to format string</p>
 <pre><code>&apos;One for {name}, one for me.&apos;.format(name=name)
-</code></pre><p>OR</p>
-<pre><code>&apos;One for {}, one for me.&apos;.format(name)
-</code></pre><p>NOT the old way:</p>
-<pre><code>&quot;One for %s, one for me.&quot; % name
-</code></pre><p>Split string by line breaks and convert it into array:</p>
-<pre><code>my_string.splitlines()      
-</code></pre><h2 id="Array"><a href="#Array" class="headerlink" title="Array"></a>Array</h2><p>Using sorted over sort, will create a fresh copy of the list and avoids possible side effects.</p>
-<pre><code>sorted_array = sorted(scores,reverse=True)
-</code></pre><p>Also, Python automatically detect array boundaries, so no need to check like:</p>
-<pre><code>return sorted_array[0:3] if len(sorted_array)&gt;=3 else sorted_array
-</code></pre><p>Just </p>
-<pre><code>return sorted(scores,reverse=True)[0:3]     
-</code></pre><p>Or even simpler:</p>
-<pre><code>return sorted(scores,reverse=True)[:3]        
-</code></pre><h3 id="String-to-Array"><a href="#String-to-Array" class="headerlink" title="String to Array"></a>String to Array</h3><pre><code>s = &quot;1 2 3 4\n5 6 7 8\n9 8 7 6&quot;
-
-&gt;&gt;&gt; lines = s.splitlines()
-&gt;&gt;&gt; lines
-[&apos;1 2 3 4&apos;, &apos;5 6 7 8&apos;, &apos;9 8 7 6&apos;]
-
-&gt;&gt;&gt; rows = [[int(v) for v in row.split()] for row in lines]
-&gt;&gt;&gt; rows
-[[1, 2, 3, 4], [5, 6, 7, 8], [9, 8, 7, 6]]
-
-&gt;&gt;&gt; [list(column) for column in zip(*rows)]
-[[1, 5, 9], [2, 6, 8], [3, 7, 7], [4, 8, 6]]       
-</code></pre><h2 id="Iterables"><a href="#Iterables" class="headerlink" title="Iterables"></a>Iterables</h2><h3 id="zip"><a href="#zip" class="headerlink" title="zip"></a>zip</h3><pre><code>s1 = &quot;AABBC&quot;
-s2 = &quot;AABBD&quot;
-s = zip(s1, s2)
-&gt;&gt;&gt; list(zip(s1,s2))
-[(&apos;A&apos;, &apos;A&apos;), (&apos;A&apos;, &apos;A&apos;), (&apos;B&apos;, &apos;B&apos;), (&apos;B&apos;, &apos;B&apos;), (&apos;C&apos;, &apos;D&apos;)]
-&gt;&gt;&gt; sum(a!=b for a,b in zip(s1, s2))
-1
-</code></pre><h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><h2 id="check-if-isogram"><a href="#check-if-isogram" class="headerlink" title="check if isogram"></a>check if isogram</h2><p>The best way is to check the size of original string and the set, e.g. len(s) == len(set(s))</p>
-<pre><code>def is_isogram(string):
-    s = string.replace(&apos; &apos;, &apos;&apos;).replace(&apos;-&apos;, &apos;&apos;).lower()
-    return len(s) == len(set(s))
-</code></pre><h2 id="Code-refactoring"><a href="#Code-refactoring" class="headerlink" title="Code refactoring"></a>Code refactoring</h2><p>The following code:</p>
-<pre><code>def convert(number):
-    the_string = &apos;&apos;
-    if number % 3 == 0:
-        the_string += &apos;Pling&apos;
-    if number % 5 == 0:
-        the_string += &apos;Plang&apos;
-    if number % 7 == 0:
-        the_string += &apos;Plong&apos;
-    return the_string or str(number)
-</code></pre><p>Can be shorter and nicer like:</p>
-<pre><code>def convert(number):
-    drops = ((3, &apos;Pling&apos;), (5, &apos;Plang&apos;), (7, &apos;Plong&apos;))
-
-    the_string = [s for n, s in drops if number % n==0]
-    return &quot;&quot;.join(the_string) or str(number)
 </code></pre>
+        
+          <p class="article-more-link">
+            <a href="/python-tips/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -924,98 +661,11 @@ s = zip(s1, s2)
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="Specs"><a href="#Specs" class="headerlink" title="Specs"></a>Specs</h2><p>Virtual Box VM: 6GB RAM<br>Ubuntu 18.04 LTS</p>
-<p>Make sure take a snapshot before starting</p>
-<h2 id="Install-OpenJDK"><a href="#Install-OpenJDK" class="headerlink" title="Install OpenJDK"></a>Install OpenJDK</h2><pre><code>sudo apt -y update &amp;&amp; sudo apt -y upgrade
-sudo apt-get install default-jre
-</code></pre><p>Check:</p>
-<pre><code>java -version
-</code></pre><h2 id="Elasticsearch"><a href="#Elasticsearch" class="headerlink" title="Elasticsearch"></a>Elasticsearch</h2><pre><code>wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-echo &quot;deb https://artifacts.elastic.co/packages/6.x/apt stable main&quot; | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
-sudo apt-get update
-sudo apt-get install elasticsearch
-</code></pre><p>Then edit configuration file:</p>
-<pre><code>sudo nano /etc/elasticsearch/elasticsearch.yml
-</code></pre><p>Add:</p>
-<pre><code>network.host: &quot;localhost&quot;
-http.port: 9200
-</code></pre><p>Start elasticsearch:</p>
-<pre><code>sudo service elasticsearch start
-</code></pre><p>Test if it works:</p>
-<pre><code>curl http://localhost:9200    
-</code></pre><p>It should output a JSON:</p>
-<pre><code>{
-  &quot;name&quot; : &quot;8kGdx7L&quot;,
-  &quot;cluster_name&quot; : &quot;elasticsearch&quot;,
-  &quot;cluster_uuid&quot; : &quot;2O-282HlSSSptP9i2_L9Og&quot;,
-  &quot;version&quot; : {
-    &quot;number&quot; : &quot;6.8.3&quot;,
-    &quot;build_flavor&quot; : &quot;default&quot;,
-    &quot;build_type&quot; : &quot;deb&quot;,
-    &quot;build_hash&quot; : &quot;0c48c0e&quot;,
-    &quot;build_date&quot; : &quot;2019-08-29T19:05:24.312154Z&quot;,
-    &quot;build_snapshot&quot; : false,
-    &quot;lucene_version&quot; : &quot;7.7.0&quot;,
-    &quot;minimum_wire_compatibility_version&quot; : &quot;5.6.0&quot;,
-    &quot;minimum_index_compatibility_version&quot; : &quot;5.0.0&quot;
-  },
-  &quot;tagline&quot; : &quot;You Know, for Search&quot;
-}    
-</code></pre><p>The elasticsearch should NOT be accessiable externally. Especially in production, DO NOT open port 9200 to the world, as tons of bots are crawling for 9200. DO NOT bind elasticsearch to a public IP.</p>
-<p>To make the service start on boot run:</p>
-<pre><code>sudo update-rc.d elasticsearch defaults 95 10
-</code></pre><p>Proxy Elasticsearch API via Nginx:</p>
-<pre><code>location ~ ^/es(.*) {
-   rewrite /es/(.*) /$1  break;
-   proxy_pass http://localhost:9200;
-}
-</code></pre><p>and</p>
-<pre><code>auth_basic &quot;Restricted Access&quot;;
-auth_basic_user_file /etc/nginx/htpasswd.users;
-</code></pre><h2 id="Elasticsearch-APIs"><a href="#Elasticsearch-APIs" class="headerlink" title="Elasticsearch APIs"></a>Elasticsearch APIs</h2><p>From Kibana: <a href="http://localhost/app/kibana#/dev_tools/console?_g=()" target="_blank" rel="noopener">http://localhost/app/kibana#/dev_tools/console?_g=()</a><br>Read this article: <a href="https://logz.io/blog/elasticsearch-api/" target="_blank" rel="noopener">https://logz.io/blog/elasticsearch-api/</a></p>
-<p>Find all indices:<br>curl -X GET “localhost:9200/_cat/indices?v&amp;pretty”</p>
-<p>Search for an IP from Nginx log (via filebeat):<br>curl -X GET “localhost:9200/filebeat-7.3.2-2019.09.24-000001/_search?q=10.0.2.2”</p>
-<p>Search for all error messages:<br>curl -X GET “localhost:9200/filebeat-7.3.2-2019.09.24-000001/_search?q=ERROR&amp;pretty”</p>
-<p>Search for adblocker.css<br>curl -X GET “localhost:9200/filebeat-7.3.2-2019.09.24-000001/_search?q=styles/ad-blocker.css&amp;pretty”</p>
-<p>During development I’ve found this API call – just clear everything inside the database.</p>
-<p>curl -X DELETE <a href="http://localhost:9200/_all" target="_blank" rel="noopener">http://localhost:9200/_all</a> {“acknowledged”:true}<br>I don’t want any user to run this command from anywhere. You can disable this by setting “action.destructive_requires_name” to “true” inside the configuration, but it is not the default.</p>
-<h2 id="Logstash"><a href="#Logstash" class="headerlink" title="Logstash"></a>Logstash</h2><pre><code>sudo apt-get install logstash
-sudo nano /etc/logstash/conf.d/10-syslog.conf
-</code></pre><p>With content</p>
-<p>input {<br>  file {<br>    type =&gt; “syslog”<br>    path =&gt; [ “/var/log/messages”, “/var/log/*.log” ]<br>  }<br>}<br>output {<br>  stdout {<br>    codec =&gt; rubydebug<br>    }<br>    elasticsearch {<br>      hosts =&gt; “localhost” # Use the internal IP of your Elasticsearch server<br>    }<br>}</p>
-<p>Run</p>
-<pre><code>sudo service logstash restart
-sudo curl -XGET &apos;localhost:9200/_cat/indices?v&amp;pretty&apos;
-</code></pre><p>You should see:</p>
-<pre><code>health status index uuid pri rep docs.count docs.deleted store.size pri.store.size
-</code></pre><h2 id="Kibana"><a href="#Kibana" class="headerlink" title="Kibana"></a>Kibana</h2><pre><code>sudo apt-get install kibana
-sudo nano /etc/kibana/kibana.yml
-</code></pre><p>Add:</p>
-<pre><code>server.port: 5601
-server.host: &quot;localhost&quot;
-elasticsearch.url: &quot;http://localhost:9200&quot;
-</code></pre><p>Run:<br>    sudo service kibana start</p>
-<p>You will <strong>NOT</strong> be able to access Kibana right now, to fix this problem:</p>
-<pre><code>sudo apt-get install nginx apache2-utils
-sudo htpasswd -c /etc/nginx/htpasswd.users kibanaadmin
-</code></pre><p>Enter a password</p>
-<p>Then </p>
-<pre><code>sudo nano /etc/nginx/sites-available/default
-</code></pre><p>With content:</p>
-<pre><code>auth_basic &quot;Restricted Access&quot;;
-auth_basic_user_file /etc/nginx/htpasswd.users;
-
-location / {
-   proxy_pass http://localhost:5601;
-   proxy_http_version 1.1;
-   proxy_set_header Upgrade $http_upgrade;
-   proxy_set_header Connection &apos;upgrade&apos;;
-   proxy_set_header Host $host;
-   proxy_cache_bypass $http_upgrade;
-}
-</code></pre><p>Restart Nginx</p>
-<pre><code>sudo service nginx restart
-</code></pre><p>Try to access via <a href="http://localhost" target="_blank" rel="noopener">http://localhost</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/configure-elk-stack-ubuntu/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -1075,7 +725,7 @@ location / {
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -1088,23 +738,23 @@ location / {
       <ul>
         
           <li>
+            <a href="/ruby-tips/">Ruby tips</a>
+          </li>
+        
+          <li>
+            <a href="/aws-s3-localstack/">AWS S3 localstack</a>
+          </li>
+        
+          <li>
+            <a href="/react-graphql-amplify/">React GraphQL and Amplify</a>
+          </li>
+        
+          <li>
+            <a href="/react-iris-statistics/">Use ReactJS to build IRIS statistics app</a>
+          </li>
+        
+          <li>
             <a href="/iris-new-field/">How to add a new field in IRIS</a>
-          </li>
-        
-          <li>
-            <a href="/aws-java-sdk-s3-dynamodb/">Using AWS Java SDK for S3 and DynamoDB</a>
-          </li>
-        
-          <li>
-            <a href="/react-char-js/">Use ReactJS with Chart.js</a>
-          </li>
-        
-          <li>
-            <a href="/iris-migration/">IRIS migration</a>
-          </li>
-        
-          <li>
-            <a href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
           </li>
         
       </ul>

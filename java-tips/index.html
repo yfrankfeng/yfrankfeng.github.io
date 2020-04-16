@@ -20,19 +20,19 @@ ga('send', 'pageview');
   
   <title>Java tips | Frank&#39;s development blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-">
+  <meta name="description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java tips">
 <meta property="og:url" content="https://yfrankfeng.github.io/java-tips/index.html">
 <meta property="og:site_name" content="Frank&#39;s development blog">
-<meta property="og:description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-">
+<meta property="og:description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="https://yfrankfeng.github.io/images/sums.png">
-<meta property="og:updated_time" content="2019-11-07T11:05:16.208Z">
+<meta property="og:updated_time" content="2020-04-16T11:23:57.574Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java tips">
-<meta name="twitter:description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.  Read: https://redfin.engineering/java-string-concatenation-">
+<meta name="twitter:description" content="StringString ConcatenationString.format is extremely slow for a problem that only requires simple String concatenation with the + operator.">
 <meta name="twitter:image" content="https://yfrankfeng.github.io/images/sums.png">
   
     <link rel="alternate" href="/atom.xml" title="Frank&#39;s development blog" type="application/atom+xml">
@@ -111,6 +111,7 @@ ga('send', 'pageview');
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><h3 id="String-Concatenation"><a href="#String-Concatenation" class="headerlink" title="String Concatenation"></a>String Concatenation</h3><p>String.format is extremely slow for a problem that only requires simple String concatenation with the + operator. </p>
+<a id="more"></a>
 <p>Read: <a href="https://redfin.engineering/java-string-concatenation-which-way-is-best-8f590a7d22a8" target="_blank" rel="noopener">https://redfin.engineering/java-string-concatenation-which-way-is-best-8f590a7d22a8</a></p>
 <h3 id="Iterate-each-character-in-a-String"><a href="#Iterate-each-character-in-a-String" class="headerlink" title="Iterate each character in a String"></a>Iterate each character in a String</h3><pre><code>Map&lt;Character, Integer&gt; dict = new HashMap&lt;Character, Integer&gt;();  
 &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;.chars().forEach(letter -&gt; dict.put((char) letter, 1));  
@@ -196,7 +197,7 @@ if(dict.get(c)!=null) {
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -209,23 +210,23 @@ if(dict.get(c)!=null) {
       <ul>
         
           <li>
+            <a href="/ruby-tips/">Ruby tips</a>
+          </li>
+        
+          <li>
+            <a href="/aws-s3-localstack/">AWS S3 localstack</a>
+          </li>
+        
+          <li>
+            <a href="/react-graphql-amplify/">React GraphQL and Amplify</a>
+          </li>
+        
+          <li>
+            <a href="/react-iris-statistics/">Use ReactJS to build IRIS statistics app</a>
+          </li>
+        
+          <li>
             <a href="/iris-new-field/">How to add a new field in IRIS</a>
-          </li>
-        
-          <li>
-            <a href="/aws-java-sdk-s3-dynamodb/">Using AWS Java SDK for S3 and DynamoDB</a>
-          </li>
-        
-          <li>
-            <a href="/react-char-js/">Use ReactJS with Chart.js</a>
-          </li>
-        
-          <li>
-            <a href="/iris-migration/">IRIS migration</a>
-          </li>
-        
-          <li>
-            <a href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
           </li>
         
       </ul>
