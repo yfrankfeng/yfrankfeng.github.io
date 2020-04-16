@@ -83,10 +83,10 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
-    <article id="post-yodl-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-iris-new-field" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/yodl-migration/" class="article-date">
-  <time datetime="2020-04-16T11:13:02.555Z" itemprop="datePublished">2020-04-16</time>
+    <a href="/iris-new-field/" class="article-date">
+  <time datetime="2020-04-16T11:15:46.232Z" itemprop="datePublished">2020-04-16</time>
 </a>
     
   <div class="article-category">
@@ -101,7 +101,7 @@ ga('send', 'pageview');
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/yodl-migration/">YODL migration</a>
+      <a class="article-title" href="/iris-new-field/">How to add a new field in IRIS</a>
     </h1>
   
 
@@ -109,19 +109,28 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Tomcat"><a href="#Tomcat" class="headerlink" title="Tomcat"></a>Tomcat</h2><p>While installed Tomcat via apt, use the following steps to run tomcat service under dlib user:</p>
+        <h2 id="XML-Schema"><a href="#XML-Schema" class="headerlink" title="XML Schema"></a>XML Schema</h2><p>Use ‘reliability’ as an example.</p>
+<p>First, add reliability under _instrumentType: </p>
+<pre><code>&lt;xs:complexType name=&quot;_instrumentType&quot;&gt;
+  &lt;xs:choice minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot;&gt;
+    ...
+    &lt;xs:element ref=&quot;reliability&quot;/&gt;
+    ...
+  &lt;/xs:choice&gt;
+&lt;/xs:complexType&gt;
+</code></pre>
         
           <p class="article-more-link">
-            <a href="/yodl-migration/#more">Read More</a>
+            <a href="/iris-new-field/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/yodl-migration/" data-id="ck48pp4x40001j5058vjxad2a" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/iris-new-field/" data-id="ck56tlql90000aw059zxou1wg" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xforms/">xforms</a></li></ul>
 
     </footer>
   </div>
@@ -130,14 +139,14 @@ ga('send', 'pageview');
 
 
   
-    <article id="post-ruby-rest-api" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-aws-java-sdk-s3-dynamodb" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/ruby-rest-api/" class="article-date">
-  <time datetime="2020-02-21T12:17:34.473Z" itemprop="datePublished">2020-02-21</time>
+    <a href="/aws-java-sdk-s3-dynamodb/" class="article-date">
+  <time datetime="2020-04-16T11:15:32.644Z" itemprop="datePublished">2020-04-16</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/ruby/">ruby</a>
+    <a class="article-category-link" href="/categories/AWS/">AWS</a>
   </div>
 
   </div>
@@ -148,7 +157,7 @@ ga('send', 'pageview');
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/ruby-rest-api/">Build Rest API in Ruby</a>
+      <a class="article-title" href="/aws-java-sdk-s3-dynamodb/">Using AWS Java SDK for S3 and DynamoDB</a>
     </h1>
   
 
@@ -156,885 +165,19 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Followed tutorial in: <a href="https://scotch.io/tutorials/build-a-restful-json-api-with-rails-5-part-one" target="_blank" rel="noopener">https://scotch.io/tutorials/build-a-restful-json-api-with-rails-5-part-one</a></p>
-<h2 id="Create-project"><a href="#Create-project" class="headerlink" title="Create project"></a>Create project</h2><p>rails new todos-api –api -T</p>
-<p>–api argument to tell Rails that we want an API application<br>-T to exclude Minitest the default testing framework.<br>Don’t freak out, we’re going to write tests. We’ll be using RSpec instead to test our API. I find RSpec to be more expressive and easier to start with as compared to Minitest.</p>
-<h2 id="Add-dependencies"><a href="#Add-dependencies" class="headerlink" title="Add dependencies"></a>Add dependencies</h2><p>In Gemfile, add:</p>
-<pre><code>group :development, :test do
-  gem &apos;byebug&apos;, platforms: [:mri, :mingw, :x64_mingw]
-  gem &apos;rspec-rails&apos;
-end
-</code></pre><p>and</p>
-<pre><code>group :test do
-  gem &apos;factory_bot_rails&apos;, &apos;~&gt; 4.0&apos;
-  gem &apos;shoulda-matchers&apos;, &apos;~&gt; 3.1&apos;
-  gem &apos;faker&apos;
-  gem &apos;database_cleaner&apos;
-end
-</code></pre><p>Run </p>
-<pre><code>bundle install
-</code></pre><h2 id="Get-test-folders-ready"><a href="#Get-test-folders-ready" class="headerlink" title="Get test folders ready"></a>Get test folders ready</h2><p>Initialize the spec folder:</p>
-<pre><code>rails g rspec:install
-</code></pre><p>Create a factories folder, where we will define the model factories.</p>
-<pre><code>mkdir spec/factories
-</code></pre><p>Edit spec/rails_helper.rb</p>
-<pre><code>require &apos;database_cleaner&apos;
-</code></pre><p>and</p>
-<pre><code># configure shoulda matchers to use rspec as the test framework and full matcher libraries for rails
-Shoulda::Matchers.configure do |config|
-  config.integrate do |with|
-    with.test_framework :rspec
-    with.library :rails
-  end
-end
-</code></pre><p>and</p>
-<p>Under RSpec.configure do |config|,</p>
-<pre><code>config.include FactoryBot::Syntax::Methods
-
-# start by truncating all the tables but then use the faster transaction strategy the rest of the time.
-config.before(:suite) do
-  DatabaseCleaner.clean_with(:truncation)
-  DatabaseCleaner.strategy = :transaction
-end        
-
-# start the transaction strategy as examples are run
-config.around(:each) do |example|
-  DatabaseCleaner.cleaning do
-    example.run
-  end
-end        
-</code></pre><h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><p>Generate Todo model:</p>
-<pre><code>rails g model Todo title:string created_by:string
-</code></pre><p>Notice that we’ve included the model attributes in the model generation command. This way we don’t have to edit the migration file. The generator invokes active record and rspec to generate the migration, model, and spec respectively.</p>
-<pre><code>rails g model Item name:string done:boolean todo:references
-</code></pre><p>Run</p>
-<pre><code>rails db:migrate
-</code></pre><h2 id="Test-the-model"><a href="#Test-the-model" class="headerlink" title="Test the model"></a>Test the model</h2><p>Edit spec/models/todo_spec.rb:</p>
-<pre><code>RSpec.describe Todo, type: :model do
-  # ensure Todo model has a 1:m relationship with the Item model
-  it { should have_many(:items).dependent(:destroy) }
-  # Validation tests
-  # ensure columns title and created_by are present before saving
-  it { should validate_presence_of(:title) }
-  it { should validate_presence_of(:created_by) }
-end
-</code></pre><p>Edit spec/models/item_spec.rb</p>
-<pre><code>RSpec.describe Item, type: :model do
-  # Association test
-  # ensure an item record belongs to a single todo record
-  it { should belong_to(:todo) }
-  # Validation test
-  # ensure column name is present before saving
-  it { should validate_presence_of(:name) }
-end
-</code></pre><p>Run test:</p>
-<pre><code>bundle exec rspec
-</code></pre><p>It will fails:</p>
-<pre><code>→  todos-api git:(master) bundle exec rspec
-.FFFF
-</code></pre><p>Let’s fix it.</p>
-<p>Edit app/models/todo.rb:</p>
-<pre><code>class Todo &lt; ApplicationRecord
-    # model association
-    has_many :items, dependent: :destroy
-
-    # validations
-    validates_presence_of :title, :created_by
-end
-</code></pre><p>Edit app/models/item.rb:</p>
-<pre><code>class Item &lt; ApplicationRecord
-  belongs_to :todo
-
-  # validation
-  validates_presence_of :name
-end
-</code></pre><p>Run test again</p>
-<pre><code>bundle exec rspec
-</code></pre><h2 id="Controllers"><a href="#Controllers" class="headerlink" title="Controllers"></a>Controllers</h2><p>Run:</p>
-<pre><code>rails g controller Todos
-rails g controller Items
-</code></pre><p>Add a requests folder to spec folder with corresponding spec files:</p>
-<pre><code>mkdir spec/requests &amp;&amp; touch spec/requests/{todos_spec.rb,items_spec.rb} 
-</code></pre><p>Add factories file:</p>
-<pre><code>touch spec/factories/{todos.rb,items.rb}            
-</code></pre><p>Add content to spec/factories/todos.rb:</p>
-<pre><code># spec/factories/todos.rb
-FactoryBot.define do
-  factory :todo do
-    title { Faker::Lorem.word }
-    created_by { Faker::Number.number(10) }
-  end
-end
-</code></pre><p>and add content to spec/factories/items.rb:</p>
-<pre><code># spec/factories/items.rb
-FactoryBot.define do
-  factory :item do
-    name { Faker::StarWars.character }
-    done false
-    todo_id nil
-  end
-end
-</code></pre><p>By wrapping faker methods in a block, we ensure that faker generates dynamic data every time the factory is invoked. This way, we always have unique data.</p>
-<p>Edit spec/requests/todos_spec.rb:</p>
-<pre><code># spec/requests/todos_spec.rb
-require &apos;rails_helper&apos;
-
-RSpec.describe &apos;Todos API&apos;, type: :request do
-    # initialize test data
-    let!(:todos) { create_list(:todo, 10) }
-    let(:todo_id) { todos.first.id }
-
-    # Test suite for GET /todos
-    describe &apos;GET /todos&apos; do
-        # make HTTP get request before each example
-        before { get &apos;/todos&apos; }
-
-        it &apos;returns todos&apos; do
-            # Note `json` is a custom helper to parse JSON responses
-            expect(json).not_to be_empty
-            expect(json.size).to eq(10)
-        end
-
-        it &apos;returns status code 200&apos; do
-            expect(response).to have_http_status(200)
-        end
-    end
-
-    # Test suite for GET /todos/:id
-    describe &apos;GET /todos/:id&apos; do
-        before { get &quot;/todos/#{todo_id}&quot; }
-
-        context &apos;when the record exists&apos; do
-            it &apos;returns the todo&apos; do
-                expect(json).not_to be_empty
-                expect(json[&apos;id&apos;]).to eq(todo_id)
-            end
-
-            it &apos;returns status code 200&apos; do
-                expect(response).to have_http_status(200)
-            end
-        end
-
-        context &apos;when the record does not exist&apos; do
-            let(:todo_id) { 100 }
-
-            it &apos;returns status code 404&apos; do
-                expect(response).to have_http_status(404)
-            end
-
-            it &apos;returns a not found message&apos; do
-                expect(response.body).to match(/Couldn&apos;t find Todo/)
-            end
-        end
-    end
-
-    # Test suite for POST /todos
-    describe &apos;POST /todos&apos; do
-        # valid payload
-        let(:valid_attributes) { { title: &apos;Learn Elm&apos;, created_by: &apos;1&apos; } }
-
-        context &apos;when the request is valid&apos; do
-            before { post &apos;/todos&apos;, params: valid_attributes }
-
-            it &apos;creates a todo&apos; do
-                expect(json[&apos;title&apos;]).to eq(&apos;Learn Elm&apos;)
-            end
-
-            it &apos;returns status code 201&apos; do
-                expect(response).to have_http_status(201)
-            end
-        end
-
-        context &apos;when the request is invalid&apos; do
-            before { post &apos;/todos&apos;, params: { title: &apos;Foobar&apos; } }
-
-            it &apos;returns status code 422&apos; do
-                expect(response).to have_http_status(422)
-            end
-
-            it &apos;returns a validation failure message&apos; do
-                expect(response.body)
-                    .to match(/Validation failed: Created by can&apos;t be blank/)
-            end
-        end
-    end
-
-    # Test suite for PUT /todos/:id
-    describe &apos;PUT /todos/:id&apos; do
-        let(:valid_attributes) { { title: &apos;Shopping&apos; } }
-
-        context &apos;when the record exists&apos; do
-            before { put &quot;/todos/#{todo_id}&quot;, params: valid_attributes }
-
-            it &apos;updates the record&apos; do
-                expect(response.body).to be_empty
-            end
-
-            it &apos;returns status code 204&apos; do
-                expect(response).to have_http_status(204)
-            end
-        end
-    end
-
-    # Test suite for DELETE /todos/:id
-    describe &apos;DELETE /todos/:id&apos; do
-        before { delete &quot;/todos/#{todo_id}&quot; }
-
-        it &apos;returns status code 204&apos; do
-            expect(response).to have_http_status(204)
-        end
-    end
-end
-</code></pre><p>We start by populating the database with a list of 10 todo records (thanks to factory bot). We also have a custom helper method json which parses the JSON response to a Ruby Hash which is easier to work with in our tests. Let’s define it in spec/support/request_spec_helper.</p>
-<pre><code>mkdir spec/support &amp;&amp; touch spec/support/request_spec_helper.rb
-</code></pre><p>Edit spec/support/request_spec_helper.rb:</p>
-<pre><code># spec/support/request_spec_helper
-module RequestSpecHelper
-  # Parse JSON response to ruby hash
-  def json
-    JSON.parse(response.body)
-  end
-end
-</code></pre><p>The support directory is not autoloaded by default. To enable this, open the rails helper and comment out the support directory auto-loading and then include it as shared module for all request specs in the RSpec configuration block.</p>
-<p>Edit spec/rails_helper.rb:</p>
-<pre><code>Dir[Rails.root.join(&apos;spec/support/**/*.rb&apos;)].each { |f| require f }
-# [...]
-RSpec.configuration do |config|
-  # [...]
-  config.include RequestSpecHelper, type: :request
-  # [...]
-end
-</code></pre><p>Run the test:</p>
-<pre><code>bundle exec rspec
-</code></pre><p>We get failing routing errors. This is because we haven’t defined the routes yet. Go ahead and define them in config/routes.rb.</p>
-<p>Edit config/routes.rb</p>
-<pre><code># config/routes.rb
-Rails.application.routes.draw do
-  resources :todos do
-    resources :items
-  end
-end
-</code></pre><p>In our route definition, we’re creating todo resource with a nested items resource. This enforces the 1:m (one to many) associations at the routing level. To view the routes, you can run:</p>
-<pre><code>rails routes
-</code></pre><p>Edit app/controllers/todos_controller.rb:</p>
-<pre><code># app/controllers/todos_controller.rb
-class TodosController &lt; ApplicationController
-  before_action :set_todo, only: [:show, :update, :destroy]
-
-  # GET /todos
-  def index
-    @todos = Todo.all
-    json_response(@todos)
-  end
-
-  # POST /todos
-  def create
-    @todo = Todo.create!(todo_params)
-    json_response(@todo, :created)
-  end
-
-  # GET /todos/:id
-  def show
-    json_response(@todo)
-  end
-
-  # PUT /todos/:id
-  def update
-    @todo.update(todo_params)
-    head :no_content
-  end
-
-  # DELETE /todos/:id
-  def destroy
-    @todo.destroy
-    head :no_content
-  end
-
-  private
-
-  def todo_params
-    # whitelist params
-    params.permit(:title, :created_by)
-  end
-
-  def set_todo
-    @todo = Todo.find(params[:id])
-  end
-end
-</code></pre><p>Add file: app/controllers/concerns/response.rb:</p>
-<pre><code># app/controllers/concerns/response.rb
-module Response
-  def json_response(object, status = :ok)
-    render json: object, status: status
-  end
-end
-</code></pre><p>set_todo - callback method to find a todo by id. In the case where the record does not exist, ActiveRecord will throw an exception ActiveRecord::RecordNotFound. We’ll rescue from this exception and return a 404 message.            </p>
-<p>Add file: app/controllers/concerns/exception_handler.rb:</p>
-<pre><code># app/controllers/concerns/exception_handler.rb
-module ExceptionHandler
-  # provides the more graceful `included` method
-  extend ActiveSupport::Concern
-
-  included do
-    rescue_from ActiveRecord::RecordNotFound do |e|
-      json_response({ message: e.message }, :not_found)
-    end
-
-    rescue_from ActiveRecord::RecordInvalid do |e|
-      json_response({ message: e.message }, :unprocessable_entity)
-    end
-  end
-end
-</code></pre><p>In our create method in the TodosController, note that we’re using create! instead of create. This way, the model will raise an exception ActiveRecord::RecordInvalid. This way, we can avoid deep nested if statements in the controller. Thus, we rescue from this exception in the ExceptionHandler module.    </p>
-<p>However, our controller classes don’t know about these helpers yet. Let’s fix that by including these modules in the application controller.</p>
-<pre><code># app/controllers/application_controller.rb
-class ApplicationController &lt; ActionController::API
-  include Response
-  include ExceptionHandler
-end
-</code></pre><p>Run test:</p>
-<pre><code>bundle exec rspec
-</code></pre><p>It should pass.</p>
-<h2 id="Manual-test"><a href="#Manual-test" class="headerlink" title="Manual test"></a>Manual test</h2><p>Install httpie to test:</p>
-<pre><code>sudo apt-get install httpie
-</code></pre><p>Run tests:</p>
-<pre><code>http :3000/todos
-http POST :3000/todos title=Mozart created_by=1
-http PUT :3000/todos/1 title=Beethoven
-http DELETE :3000/todos/1
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/ruby-rest-api/" data-id="ck92o0m3s000kky05sjmu7lrs" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rest-api/">rest api</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-tomcat-over-apache2" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/tomcat-over-apache2/" class="article-date">
-  <time datetime="2020-02-21T11:10:34.354Z" itemprop="datePublished">2020-02-21</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Java/">Java</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+        <p>Below is just my notes following this official AWS Java SDK tutorial.</p>
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Only-for-testing-Self-signed-SSL-certificate"><a href="#Only-for-testing-Self-signed-SSL-certificate" class="headerlink" title="(Only for testing) Self-signed SSL certificate"></a>(Only for testing) Self-signed SSL certificate</h2><p>For test purpose, you may want to create self signed certificate, so run:</p>
-<pre><code>openssl req -new &gt; new.ssl.csr
-</code></pre><p>With the following inputs:</p>
-<pre><code>Country Name (2 letter code) [AU]: GB
-State or Province Name (full name) [Some-State]: York
-Locality Name (eg, city) []: York
-Organization Name (eg, company) [Internet Widgits Pty Ltd]: University of York
-Organizational Unit Name (eg, section) []: 
-Common Name (eg, YOUR name) []:First and Last Name
-Email Address []:Work Email
-
-Please enter the following &apos;extra&apos; attributes
-to be sent with your certificate request
-A challenge password []: **Leave Blank**
-An optional company name []:Optional
-</code></pre><p>Then run commands:</p>
-<pre><code>sudo openssl rsa -in privkey.pem -out new.cert.key
-sudo openssl x509 -in new.ssl.csr -out new.cert.cert -req -signkey new.cert.key -days 365
-sudo cp new.cert.cert /etc/apache2/ssl/server.crt
-sudo cp new.cert.key /etc/apache2/ssl/server.key
-</code></pre><p>The above server.crt and server.key can be used in apache2.</p>
-<h2 id="Put-the-real-SSL-certificate-files-in-place"><a href="#Put-the-real-SSL-certificate-files-in-place" class="headerlink" title="Put the real SSL certificate files in place"></a>Put the real SSL certificate files in place</h2><p>The files required are:</p>
-<pre><code>/etc/apache2/ssl/www.example.com.crt
-/etc/apache2/ssl/www.example.com.pem
-</code></pre><h2 id="Apache-configuration"><a href="#Apache-configuration" class="headerlink" title="Apache configuration"></a>Apache configuration</h2><pre><code>apt install tomcat8 tomcat8-admin apache2 libapache2-mod-jk
-a2enmod ssl
-a2enmod rewrite
-a2enmod headers
-</code></pre><p>Run command:</p>
-<pre><code>sudo nano /etc/apache2/sites-available/example-ssl.conf
-</code></pre><p>With content:</p>
-<pre><code>&lt;IfModule mod_ssl.c&gt;
-    SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
-    SSLCipherSuite          ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AE$
-    SSLHonorCipherOrder     on
-    SSLCompression          off
-    &lt;VirtualHost *:443&gt;
-        ServerAdmin YOUR_EMAIL
-        ServerName www.example.com
-        JkMount /example_app worker1
-        JkMount /example_app/* worker1
-        RedirectMatch ^/$ /example_app/
-        SSLEngine on
-        SSLCertificateFile /etc/apache2/ssl/www.example.com.crt
-        SSLCertificateKeyFile /etc/apache2/ssl/www.example.com.pem
-        # HSTS (mod_headers is required) (15768000 seconds = 6 months)
-        Header always set Strict-Transport-Security &quot;max-age=15768000&quot;
-    &lt;/VirtualHost&gt;
-&lt;/IfModule&gt;
-</code></pre><p>Edit file /etc/apache2/sites-available/example-non-ssl.conf with content:</p>
-<pre><code>&lt;VirtualHost *:80&gt;
-  ServerAdmin YOUR_EMAIL
-  ServerName www.example.com
-  RedirectMatch / https://www.example.com/$1
-&lt;/VirtualHost&gt;
-</code></pre><p>Run:</p>
-<pre><code>a2ensite example-non-ssl
-a2ensite example-ssl
-a2dissite 000-default
-a2dissite default-ssl
-</code></pre><h2 id="Tomcat-configuration"><a href="#Tomcat-configuration" class="headerlink" title="Tomcat configuration"></a>Tomcat configuration</h2><p>Edit /etc/tomcat8/server.xml:</p>
-<p>Comment out:</p>
-<pre><code>&lt;Connector port=&quot;8080&quot; protocol=&quot;HTTP/1.1&quot;
-           connectionTimeout=&quot;20000&quot;
-           redirectPort=&quot;8443&quot; /&gt;    
-</code></pre><p>add:</p>
-<pre><code>&lt;Connector port=&quot;8080&quot; protocol=&quot;HTTP/1.1&quot;
-           connectionTimeout=&quot;60000&quot;
-           maxThreads=&quot;400&quot;
-           URIEncoding=&quot;UTF-8&quot;
-           redirectPort=&quot;8443&quot;/&gt;
-</code></pre><p>add:</p>
-<pre><code>&lt;!-- Define an AJP 1.3 Connector on port 8009 --&gt;
-&lt;Connector port=&quot;8009&quot; protocol=&quot;AJP/1.3&quot; redirectPort=&quot;8443&quot;  maxthreads=&quot;400&quot; connectionTimeout=&quot;6000&quot; tomcatAuthentication=&quot;false&quot;/&gt;
-</code></pre><p>Edit file: /etc/libapache2-mod-jk/workers.properties with content:</p>
-<pre><code>workers.tomcat_home=/usr/share/tomcat8
-workers.java_home=/usr/lib/jvm/default-java
-ps=/
-
-worker.list=worker1
-worker.worker1.port=8009
-worker.worker1.host=localhost
-worker.worker1.type=ajp13
-</code></pre><h2 id="peer-not-authenticated-problem"><a href="#peer-not-authenticated-problem" class="headerlink" title="peer not authenticated problem"></a>peer not authenticated problem</h2><p>Error message:</p>
-<pre><code>javax.net.ssl.SSLPeerUnverifiedException: peer not authenticated                                    
-        at java.base/sun.security.ssl.SSLSessionImpl.getPeerCertificates(SSLSessionImpl.java:558)
-</code></pre><p>Reason: incorrect SSL certificate.            </p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/tomcat-over-apache2/" data-id="ck92o0m1q0004ky05bnzzx5r1" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SSL/">SSL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tomcat/">Tomcat</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-iris-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/iris-migration/" class="article-date">
-  <time datetime="2020-01-29T16:27:38.305Z" itemprop="datePublished">2020-01-29</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Java/">Java</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+          <p class="article-more-link">
+            <a href="/aws-java-sdk-s3-dynamodb/#more">Read More</a>
+          </p>
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/iris-migration/">IRIS migration</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Hard-coded-fedora-URL"><a href="#Hard-coded-fedora-URL" class="headerlink" title="Hard-coded fedora URL"></a>Hard-coded fedora URL</h2><p>In src/main/java/uk/ac/york/dlib/yodling/service/repository/FedoraAPIMEndpoint.java, there are lots of hard-coded Fedora URL (localhost:880/fedora/objects) </p>
-<p>In src/main/java/uk/ac/york/dlib/yodling/web/workflow/WorkflowController.java, between about L1454-L1482, and other places within that file.</p>
-<h2 id="hard-coded-Solr-URL"><a href="#hard-coded-Solr-URL" class="headerlink" title="hard-coded Solr URL"></a>hard-coded Solr URL</h2><p>In src/main/java/uk/ac/york/dlib/yodling/service/search/SolrSearchService.java, solr is hard-coded:</p>
-<pre><code>private static String pathToSolr = &quot;http://localhost:8080/solr/&quot;;
-</code></pre><p>Now we need to turn this attribute to non-static, and use Spring to inject the Solr URL.</p>
-<p>First, declare the attribute as:</p>
-<pre><code>private String pathToSolr = &quot;http://localhost:8080/solr/&quot;;
-</code></pre><p>Add constructors:</p>
-<pre><code>public SolrSearchService() {
-}
-
-public SolrSearchService(String pathToSolr) {
-    try {
-        if(pathToSolr != null)
-            this.pathToSolr   = pathToSolr;
-        solrSearchServer  = new CommonsHttpSolrServer(this.pathToSolr);
-    } catch (Exception e) {
-        log.error(&quot;Exception while connecting to Solr&quot;, e);
-    }
-}
-</code></pre><p>In Spring config file, e.g. web-application-config.xml, define:</p>
-<pre><code>&lt;bean id=&quot;homeSearchService&quot; class=&quot;uk.ac.york.dlib.yodling.service.search.SolrSearchService&quot;   scope=&quot;prototype&quot;&gt;
-    &lt;constructor-arg name=&quot;pathToSolr&quot; value=&quot;${solr.baseURL}&quot; /&gt;
-
-    XXXXXXXXXXXX
-&lt;/bean&gt;                
-</code></pre><p> In yodl.properties, add:</p>
-<pre><code>solr.baseURL=https://XXXX/solr
-</code></pre><h2 id="hard-coded-XSLT-path"><a href="#hard-coded-XSLT-path" class="headerlink" title="hard coded XSLT path"></a>hard coded XSLT path</h2><pre><code>src/main/webapp/Content/xslt/downloadersorter.xsl
-src/main/webapp/Content/xslt/iris2dc.xsl
-src/main/webapp/Content/xslt/irisData4EmailAlerts.xsl
-src/main/webapp/Content/xslt/updateDownloadCountPerInsType.xsl
-src/main/webapp/Content/xslt/updatePreDataTypes.xsl
-src/main/webapp/Content/xslt/updateDownloadCountPerRA.xsl
-src/main/webapp/Content/xslt/updatePreDomainOfUse.xsl
-src/main/webapp/Content/xslt/updatePreFunders.xsl
-src/main/webapp/Content/xslt/updatePreInsType.xsl
-src/main/webapp/Content/xslt/updatePreJournals.xsl
-src/main/webapp/Content/xslt/updatePreLinguisticTargets.xsl
-src/main/webapp/Content/xslt/updatePreParticipantTypes.xsl
-src/main/webapp/Content/xslt/updatePreProficiencies.xsl
-src/main/webapp/Content/xslt/updatePrePublishers.xsl
-src/main/webapp/Content/xslt/updatePreRequired_software.xsl
-src/main/webapp/Content/xslt/updatePreResearchAreas.xsl
-</code></pre><p>Change all absolute paths to DD to something like:</p>
-<pre><code>&lt;xsl:variable name=&quot;commonsDD&quot;  select=&quot;document(&apos;../xml/datadictionary/commons.xml&apos;, /)&quot;/&gt;
-</code></pre><h2 id="Improvements"><a href="#Improvements" class="headerlink" title="Improvements"></a>Improvements</h2><h3 id="duplicated-web-xml-in-Tomcat-webapp-folders"><a href="#duplicated-web-xml-in-Tomcat-webapp-folders" class="headerlink" title="duplicated web.xml in Tomcat webapp folders"></a>duplicated web.xml in Tomcat webapp folders</h3><p>In pom.xml</p>
-<pre><code>&lt;build&gt;
-        &lt;sourceDirectory&gt;${basedir}/src/main/java&lt;/sourceDirectory&gt;
-        &lt;outputDirectory&gt;${project.build.directory}/WebRoot/WEB-INF/classes&lt;/outputDirectory&gt;
-        &lt;resources&gt;
-            ......
-            &lt;resource&gt;
-                &lt;directory&gt;src/main/resources&lt;/directory&gt;
-                &lt;excludes&gt;
-                    &lt;exclude&gt;**/*.properties&lt;/exclude&gt;
-                    &lt;exclude&gt;**/*web-application-config.xml&lt;/exclude&gt;
-                    &lt;exclude&gt;**/*web.xml&lt;/exclude&gt;
-                &lt;/excludes&gt;
-            &lt;/resource&gt;
-        &lt;/resources&gt;   
-......
-&lt;/build&gt;         
-</code></pre><h2 id="Orbeon-Engine"><a href="#Orbeon-Engine" class="headerlink" title="Orbeon Engine"></a>Orbeon Engine</h2><p>Download Orbeon 3.9 CE and extract the orbeon39.war. Stop Tomcat, Copy orbeon39.war to webapps, and Start Tomcat.</p>
-<p>Edit Tomcat server.xml</p>
-<pre><code>&lt;Host name=&quot;localhost&quot;  ...&gt;
-    &lt;Context path=&quot;/orbeon39&quot; docBase=&quot;orbeon39&quot; crossContext=&quot;true&quot;/&gt;
-    &lt;Context path=&quot;/iris&quot; docBase=&quot;iris&quot; crossContext=&quot;true&quot;/&gt;
-</code></pre><p>Tried Orbeon 2019 CE but couldn’t get it working. The error message is not very useful:</p>
-<p><img src="https://user-images.githubusercontent.com/437701/70224943-03601700-1746-11ea-8803-34824f3c3cf4.png" alt="image"></p>
-<pre><code>2019-12-05 09:58:40,993 ERROR PageFlowControllerProcessor  - error caught {controller: &quot;oxf:/ops/xforms/xforms-renderer-pa$
-2019-12-05 09:58:41,095 ERROR PageFlowControllerProcessor  -
-+----------------------------------------------------------------------------------------------------------------------+
-|An Error has Occurred                                                                                                 |
-|----------------------------------------------------------------------------------------------------------------------|
-|specified pattern is invalid: &apos;-&apos; is an invalid character range. Write &apos;\-&apos;.                                          |
-|----------------------------------------------------------------------------------------------------------------------|
-|Application Call Stack                                                                                                |
-|----------------------------------------------------------------------------------------------------------------------|
-|oxf:/ops/xforms/xforms-renderer-page-flow.xml                                     |reading page model data output|  23|
-|····························································�$
-|element=&lt;page path=&quot;/xforms-renderer&quot; model=&quot;xforms-renderer.xpl&quot;/&gt;                                                   |
-|model  =xforms-renderer.xpl                                                                                           |
-|----------------------------------------------------------------------------------------------------------------------|
-|oxf:/ops/xforms/xforms-renderer.xpl                                               |executing processor           | 130|        
-</code></pre><h2 id="logging-dependency-problem"><a href="#logging-dependency-problem" class="headerlink" title="logging dependency problem"></a>logging dependency problem</h2><p>The web app, e.g. iris working on local VM (Tomcat 9) but cannot start on dlibjavatest0 (Tomcat 8), and the error message is:</p>
-<pre><code>17:08:12.571 SEVERE [http-nio-8080-exec-2] org.apache.catalina.core.StandardContext.listenerStart Exception sending context initialized event to listener instance of class [org.springframework.web.context.ContextLoaderListener]
-java.lang.AbstractMethodError: Receiver class ch.qos.logback.classic.Logger does not define or inherit an implementation of the resolved method &apos;abstract void log(org.slf4j.Marker, java.lang.String, int, java.lang.String, java.lang.Throwable)&apos; of interface org.slf4j.spi.LocationAwareLogger.
-       at org.apache.commons.logging.impl.SLF4JLocationAwareLog.info(SLF4JLocationAwareLog.java:159)
-       at org.springframework.web.context.ContextLoader.initWebApplicationContext(ContextLoader.java:187)
-       at org.springframework.web.context.ContextLoaderListener.contextInitialized(ContextLoaderListener.java:47)
-       at org.apache.catalina.core.StandardContext.listenerStart(StandardContext.java:4643)
-       at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:5109)
-       at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:183)
-       at org.apache.catalina.manager.ManagerServlet.start(ManagerServlet.java:1395)
-       at org.apache.catalina.manager.HTMLManagerServlet.start(HTMLManagerServlet.java:698)
-       at org.apache.catalina.manager.HTMLManagerServlet.doPost(HTMLManagerServlet.java:223)
-       at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
-       at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
-       at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
-</code></pre><h3 id="Reason"><a href="#Reason" class="headerlink" title="Reason"></a>Reason</h3><p>If log4j-over-slf4j.jar and slf4j-log4j12.jar exist on the same classpath, the problem arise.      </p>
-<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p><strong>Manual test</strong><br>delete log4j-over-slf4j-1.7.5.jar on WEB-INF/lib folder and restart Tomcat 8.</p>
-<p><strong>Remove it from pom.xml</strong> </p>
-<p>Find transitive dependency in pom:</p>
-<pre><code>mvn dependency:tree
-</code></pre><p>The output looks like:</p>
-<pre><code>[INFO] +- javax.servlet:servlet-api:jar:2.4:compile
-[INFO] +- javax.faces:jsf-api:jar:1.2_04:provided
-[INFO] +- javax.faces:jsf-impl:jar:1.2_04:provided
-[INFO] +- commons-beanutils:commons-beanutils:jar:1.7.0:compile
-[INFO] +- commons-digester:commons-digester:jar:1.8:compile
-[INFO] +- commons-logging:commons-logging:jar:1.1.1:compile
-[INFO] +- commons-logging:commons-logging-api:jar:1.1:compile
-[INFO] +- junit:junit:jar:4.7:test
-[INFO] +- log4j:log4j:jar:1.2.15:compile
-[INFO] |  +- javax.jms:jms:jar:1.1:compile
-[INFO] |  \- com.sun.jmx:jmxri:jar:1.2.1:compile
-[INFO] +- taglibs:standard:jar:1.1.2:compile
-[INFO] +- org.apache.tiles:tiles-api:jar:2.1.4:compile
-[INFO] +- org.apache.tiles:tiles-core:jar:2.1.4:compile
-[INFO] +- org.apache.tiles:tiles-jsp:jar:2.1.4:compile
-[INFO] |  \- org.apache.tiles:tiles-servlet:jar:2.1.4:compile
-[INFO] +- com.sun.jdmk:jmxtools:jar:1.2.1:compile
-[INFO] +- org.apache.solr:solr-solrj:jar:3.6.2:compile
-[INFO] |  +- commons-httpclient:commons-httpclient:jar:3.1:compile
-[INFO] |  \- org.codehaus.woodstox:wstx-asl:jar:3.2.7:runtime
-[INFO] +- org.slf4j:slf4j-api:jar:1.5.11:compile
-[INFO] +- org.slf4j:slf4j-log4j12:jar:1.5.11:compile
-[INFO] +- org.slf4j:jcl-over-slf4j:jar:1.5.11:compile
-[INFO] +- javax.servlet:jstl:jar:1.2:compile
-[INFO] +- org.jvnet.ws.wadl:wadl-core:jar:1.0-SNAPSHOT-NT:compile
-[INFO] +- javax.xml.bind:jaxb-api:jar:2.3.1:compile
-[INFO] |  \- javax.activation:javax.activation-api:jar:1.2.0:compile
-[INFO] +- javax.activation:activation:jar:1.1:compile
-[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.1:compile
-[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.1:compile
-[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.7:compile
-[INFO] |  +- org.jvnet.staxex:stax-ex:jar:1.8:compile
-[INFO] |  \- com.sun.xml.fastinfoset:FastInfoset:jar:1.2.15:compile
-[INFO] +- javax.ws.rs:jsr311-api:jar:1.1.1:compile
-[INFO] +- com.sun.jersey:jersey-core:jar:1.3:compile
-[INFO] +- com.sun.jersey:jersey-client:jar:1.3:compile
-[INFO] +- com.sun.jersey.contribs:jersey-spring:jar:1.3:compile
-[INFO] +- xalan:xalan:jar:2.7.1:compile
-[INFO] |  \- xalan:serializer:jar:2.7.1:compile
-[INFO] +- com.sun.jersey:jersey-server:jar:1.3:compile
-[INFO] |  \- asm:asm:jar:3.1:compile
-[INFO] +- org.springframework:spring-mock:jar:2.0.8:test
-[INFO] +- org.springframework:spring-test:jar:3.0.5.RELEASE:test
-[INFO] +- org.springframework:spring-web:jar:3.0.5.RELEASE:compile
-[INFO] |  \- aopalliance:aopalliance:jar:1.0:compile
-[INFO] +- org.springframework:spring-webmvc:jar:3.0.5.RELEASE:compile
-[INFO] |  +- org.springframework:spring-asm:jar:3.0.5.RELEASE:compile
-[INFO] |  \- org.springframework:spring-context-support:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework:spring-beans:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework:spring-context:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework:spring-core:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework:spring-expression:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework.security:spring-security-web:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework.security:spring-security-config:jar:3.0.5.RELEASE:compile
-[INFO] +- org.springframework.security:spring-security-taglibs:jar:3.0.5.RELEASE:compile
-[INFO] |  \- org.springframework.security:spring-security-acl:jar:3.0.5.RELEASE:compile
-[INFO] |     \- org.springframework:spring-jdbc:jar:3.0.3.RELEASE:compile
-[INFO] +- org.springframework:spring-aop:jar:3.0.5.RELEASE:compile
-[INFO] +- cglib:cglib:jar:2.2:compile
-[INFO] +- org.aspectj:aspectjweaver:jar:1.6.11:compile
-[INFO] +- com.yourmediashelf.fedora.client:fedora-client-core:jar:0.8s:compile
-[INFO] |  +- com.sun.jersey.contribs:jersey-multipart:jar:1.17.1:compile
-[INFO] |  |  \- org.jvnet:mimepull:jar:1.6:compile
-[INFO] |  +- com.hp.hpl.jena:jena:jar:2.6.4:compile
-[INFO] |  |  +- com.hp.hpl.jena:iri:jar:0.8:compile
-[INFO] |  |  \- com.ibm.icu:icu4j:jar:3.4.4:compile
-[INFO] |  +- org.apache.santuario:xmlsec:jar:1.5.4:compile
-[INFO] |  +- org.slf4j:log4j-over-slf4j:jar:1.7.5:runtime
-[INFO] |  \- xerces:xercesImpl:jar:2.11.0:compile
-[INFO] +- org.openrdf:openrdf-sesame:jar:onejar:2.3.2:compile
-[INFO] +- taglibs:string:jar:1.1.0:compile
-[INFO] +- org.apache.commons:commons-lang3:jar:3.4:compile
-[INFO] +- rome:rome-fetcher:jar:1.0:compile
-[INFO] |  +- jdom:jdom:jar:1.0:compile
-[INFO] |  \- rome:rome:jar:1.0:compile
-[INFO] +- orbeon:xforms-filter:jar:3.9:compile
-[INFO] +- com.jspsmart:upload:jar:1.0:compile
-[INFO] +- commons-fileupload:commons-fileupload:jar:1.2.2:compile
-[INFO] +- commons-io:commons-io:jar:2.0.1:compile
-[INFO] +- dom4j:dom4j:jar:1.6.1:compile
-[INFO] |  \- xml-apis:xml-apis:jar:1.0.b2:compile
-[INFO] +- jaxen:jaxen:jar:1.1.1:compile
-[INFO] |  \- xom:xom:jar:1.0:compile
-[INFO] |     \- xerces:xmlParserAPIs:jar:2.6.2:compile
-[INFO] +- org.apache.commons:commons-compress:jar:1.0:compile
-[INFO] +- javax.mail:mail:jar:1.4.5:compile
-[INFO] +- org.apache.commons:commons-email:jar:1.2:compile
-[INFO] +- org.freemarker:freemarker:jar:2.3.19:compile
-[INFO] +- displaytag:displaytag:jar:1.2:compile
-[INFO] |  +- commons-collections:commons-collections:jar:3.1:compile
-[INFO] |  +- commons-lang:commons-lang:jar:2.3:compile
-[INFO] |  \- com.lowagie:itext:jar:1.3:compile
-[INFO] +- jcs:jcs:jar:1.3:compile
-[INFO] |  +- commons-configuration:commons-configuration:jar:1.4:compile
-[INFO] |  |  +- commons-beanutils:commons-beanutils-core:jar:1.7.0:compile
-[INFO] |  |  \- commons-jxpath:commons-jxpath:jar:1.2:compile
-[INFO] |  |     \- ant:ant-optional:jar:1.5.1:compile
-[INFO] |  +- commons-dbcp:commons-dbcp:jar:1.2.2:compile
-[INFO] |  +- commons-pool:commons-pool:jar:1.3:compile
-[INFO] |  +- concurrent:concurrent:jar:1.0:compile
-[INFO] |  +- mysql:mysql-connector-java:jar:3.0.10:compile
-[INFO] |  |  +- javax.sql:jdbc-stdext:jar:2.0:compile
-[INFO] |  |  \- javax.transaction:jta:jar:1.0.1B:compile
-[INFO] |  +- hsqldb:hsqldb:jar:1.7.3.3:compile
-[INFO] |  +- tomcat:tomcat-util:jar:3.2.1:compile
-[INFO] |  +- velocity:velocity:jar:1.5:compile
-[INFO] |  |  \- oro:oro:jar:2.0.8:compile
-[INFO] |  +- xmlrpc:xmlrpc:jar:2.0:compile
-[INFO] |  \- berkeleydb:berkeleydb:jar:1.5.1:compile
-[INFO] +- net.sf.ehcache:ehcache:jar:2.4.2:compile
-[INFO] |  +- net.sf.ehcache:ehcache-core:jar:2.4.2:compile
-[INFO] |  \- net.sf.ehcache:ehcache-terracotta:jar:2.4.2:compile
-[INFO] +- org.codehaus.jackson:jackson-mapper-lgpl:jar:1.5.6:compile
-[INFO] |  \- org.codehaus.jackson:jackson-core-lgpl:jar:1.5.6:compile
-[INFO] +- org.apache.httpcomponents:httpclient:jar:4.3.6:compile
-[INFO] |  \- commons-codec:commons-codec:jar:1.6:compile
-[INFO] +- org.apache.httpcomponents:httpcore:jar:4.3.3:compile
-[INFO] +- eu.medsea.mimeutil:mime-util:jar:2.1.3:compile
-[INFO] +- joda-time:joda-time:jar:1.6.1:compile
-[INFO] +- org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:jar:1.0.1-SNAPSHOT:compile
-[INFO] +- org.apache.oltu.oauth2:org.apache.oltu.oauth2.common:jar:1.0.1-SNAPSHOT:compile
-[INFO] +- org.json:json:jar:20140107:compile
-[INFO] +- org.springframework.security.oauth:spring-security-oauth2:jar:1.0.5.RELEASE:compile
-[INFO] |  \- org.codehaus.jackson:jackson-mapper-asl:jar:1.9.2:compile
-[INFO] |     \- org.codehaus.jackson:jackson-core-asl:jar:1.9.2:compile
-[INFO] \- org.springframework.security:spring-security-core:jar:3.0.5.RELEASE:compile
-[INFO]    +- org.springframework:spring-tx:jar:3.0.3.RELEASE:compile
-[INFO]    \- org.aspectj:aspectjrt:jar:1.6.8:compile        
-</code></pre><p>Do a text search of ‘log4j-over-slf4j’ on the above result, and it shows that the com.yourmediashelf.fedora.client:fedora-client-core:jar has a transitive dependency on log4j-over-slf4j. </p>
-<p>In the pom.xml, change:</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;com.yourmediashelf.fedora.client&lt;/groupId&gt;
-    &lt;artifactId&gt;fedora-client-core&lt;/artifactId&gt;
-    &lt;version&gt;0.8s&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>to:</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;com.yourmediashelf.fedora.client&lt;/groupId&gt;
-    &lt;artifactId&gt;fedora-client-core&lt;/artifactId&gt;
-    &lt;version&gt;0.8s&lt;/version&gt;
-    &lt;exclusions&gt;
-        &lt;exclusion&gt;
-            &lt;artifactId&gt;log4j-over-slf4j&lt;/artifactId&gt;
-            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
-        &lt;/exclusion&gt;
-    &lt;/exclusions&gt;
-&lt;/dependency&gt;
-</code></pre><h2 id="JSTL-problem"><a href="#JSTL-problem" class="headerlink" title="JSTL problem"></a>JSTL problem</h2><p>While loading details page, an error message is showing in the Tomcat log:</p>
-<pre><code>[Fatal Error] jstl::1:1: Content is not allowed in prolog.
-</code></pre><h3 id="Reason-amp-fix"><a href="#Reason-amp-fix" class="headerlink" title="Reason &amp; fix"></a>Reason &amp; fix</h3><p>The feedbackXML has been’t generated properly if there is no FEEDBACK data stream. In AbstractResourceController.java, line 669:</p>
-<pre><code>try{
-    XXXXXXX
-}catch(Exception e) {
-    XXXXXXX
-}finally {
-&gt;&gt;&gt;&gt;    if(feedbackiris!=null)
-        XXXXXX
-    else
-        XXXXXX
-}
-</code></pre><p>It should be changed to:</p>
-<pre><code>if(feedbackiris!=null &amp;&amp; feedbackiris.startsWith(&quot;&lt;?xml version=&quot;))             
-</code></pre><h2 id="Detail-page-problem"><a href="#Detail-page-problem" class="headerlink" title="Detail page problem"></a>Detail page problem</h2><h3 id="Error-message"><a href="#Error-message" class="headerlink" title="Error message"></a>Error message</h3><pre><code>06-Jan-2020 11:42:08.726 SEVERE [http-nio-8080-exec-1] com.sun.xml.bind.v2.util.XmlFactory.createParserFactory null
- org.xml.sax.SAXNotRecognizedException: http://javax.xml.XMLConstants/feature/secure-processing
-        at org.apache.xerces.parsers.AbstractSAXParser.setFeature(Unknown Source)
-        at org.apache.xerces.jaxp.SAXParserImpl.setFeatures(Unknown Source)
-        at org.apache.xerces.jaxp.SAXParserImpl.&lt;init&gt;(Unknown Source)
-        at org.apache.xerces.jaxp.SAXParserFactoryImpl.newSAXParserImpl(Unknown Source)
-        at org.apache.xerces.jaxp.SAXParserFactoryImpl.setFeature(Unknown Source)
-        at com.sun.xml.bind.v2.util.XmlFactory.createParserFactory(XmlFactory.java:136)
-        at com.sun.xml.bind.v2.runtime.unmarshaller.UnmarshallerImpl.getXMLReader(UnmarshallerImpl.java:154)
-        at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:170)
-        at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:219)
-        at com.yourmediashelf.fedora.client.response.FedoraResponseImpl.unmarshallResponse(FedoraResponseImpl.java:133)
-        at com.yourmediashelf.fedora.client.response.ObjectDatastreamsResponse.getObjectDatastreams(ObjectDatastreamsRespon
-se.java:74)
-        at com.yourmediashelf.fedora.client.response.ListDatastreamsResponse.getDatastreams(ListDatastreamsResponse.java:52
-)
-        at uk.ac.york.dlib.yodling.service.repository.FedoraRepositoryService.getAssets(FedoraRepositoryService.java:565)
-        at uk.ac.york.dlib.yodling.web.AbstractResourceController.detail(AbstractResourceController.java:676)
-</code></pre><h3 id="Reason-amp-solution"><a href="#Reason-amp-solution" class="headerlink" title="Reason &amp; solution"></a>Reason &amp; solution</h3><p>The problem is caused by Xerces impl, remove xercesImpl-2.4.0.jar will fix this problem.</p>
-<p>To remove the dependency from pom.xml, run</p>
-<pre><code>mvn dependency:tree
-</code></pre><p>And found it was Rome causing the problem:</p>
-<pre><code>[INFO] +- rome:rome-fetcher:jar:1.0:compile
-[INFO] |  +- jdom:jdom:jar:1.0:compile
-[INFO] |  +- xerces:xercesImpl:jar:2.4.0:compile
-[INFO] |  \- rome:rome:jar:1.0:compile    
-</code></pre><p>Edit pom.xml:</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;rome&lt;/groupId&gt;
-    &lt;artifactId&gt;rome-fetcher&lt;/artifactId&gt;
-    &lt;version&gt;1.0&lt;/version&gt;
-    &lt;exclusions&gt;
-        &lt;exclusion&gt;
-            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
-            &lt;groupId&gt;xerces&lt;/groupId&gt;
-        &lt;/exclusion&gt;
-    &lt;/exclusions&gt;
-&lt;/dependency&gt;
-
-&lt;dependency&gt;
-    &lt;groupId&gt;jaxen&lt;/groupId&gt;
-    &lt;artifactId&gt;jaxen&lt;/artifactId&gt;
-    &lt;version&gt;1.1.1&lt;/version&gt;
-    &lt;exclusions&gt;
-        &lt;exclusion&gt;
-            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
-            &lt;groupId&gt;xerces&lt;/groupId&gt;
-        &lt;/exclusion&gt;
-    &lt;/exclusions&gt;
-&lt;/dependency&gt;
-
-&lt;dependency&gt;
-    &lt;groupId&gt;jcs&lt;/groupId&gt;
-    &lt;artifactId&gt;jcs&lt;/artifactId&gt;
-    &lt;version&gt;1.3&lt;/version&gt;
-    &lt;exclusions&gt;
-        &lt;exclusion&gt;
-            &lt;artifactId&gt;xercesImpl&lt;/artifactId&gt;
-            &lt;groupId&gt;xerces&lt;/groupId&gt;
-        &lt;/exclusion&gt;
-    &lt;/exclusions&gt;
-&lt;/dependency&gt;    
-</code></pre><p>Rebuild &amp; redeploy will fix this problem.                        </p>
-<h2 id="IP-restrictions"><a href="#IP-restrictions" class="headerlink" title="IP restrictions"></a>IP restrictions</h2><p>Edit /etc/apache2/sites-enabled/default-ssl.conf, add the following:</p>
-<pre><code>&lt;Location /solr&gt;
-  Allow from TEST_SERVER_IP                     
-  ...
-&lt;/Location&gt;  
-
-&lt;Location /fedora/risearch&gt;  
-  Allow from TEST_SERVER_IP                     
-  ...
-&lt;/Location&gt;
-
-&lt;Directory &quot;/usr/digilib-webdocs/digilibImages&quot;&gt;
-  Allow from dlibjavatest0.york.ac.uk
-  ...
-&lt;/Directory&gt;
-</code></pre><p>Restart Apache2</p>
-<pre><code>service apache2 restart
-</code></pre><h2 id="Workflow"><a href="#Workflow" class="headerlink" title="Workflow"></a>Workflow</h2><p>As Fedora/Solr server is separated from the front end, there are some work to do to make the workflow working in the new infrastructure.</p>
-<h3 id="Paths"><a href="#Paths" class="headerlink" title="Paths"></a>Paths</h3><p><strong>Where the uploaded files are stored?</strong><br>configured in yodl.properties: iris.imageRootFolder</p>
-<p>So, on the new Java VM,<br>    sudo mkdir /usr/xxxxxxx-webdocs<br>    sudo chown xxxx:xxxx /usr/xxxxxxx-webdocs<br>    mount -v -o vers=3,sec=sys,tcp rdfs:/vol/yodl2/xxxx-xxxx/test-webdocs /usr/xxxxxxx-webdocs</p>
-<p><strong>DO NOT use the default mount parameters!</strong> The following won’t work!</p>
-<pre><code>mount rdfs:/vol/xxxx/xxxx-xxxx/test-webdocs /usr/xxxxxxx-webdocs
-</code></pre><h3 id="File-upload-submission-handling"><a href="#File-upload-submission-handling" class="headerlink" title="File upload/submission handling"></a>File upload/submission handling</h3><p><strong>WorkflowController</strong><br>File upload handler: WorkflowController.fileUpload</p>
-
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/iris-migration/" data-id="ck3ekt7s40000c2054mykml83" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/aws-java-sdk-s3-dynamodb/" data-id="ck92o0m3o000jky05c8jee76b" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DynamoDB/">DynamoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/s3/">s3</a></li></ul>
 
     </footer>
   </div>
@@ -1046,7 +189,7 @@ se.java:74)
     <article id="post-react-char-js" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
     <a href="/react-char-js/" class="article-date">
-  <time datetime="2020-01-21T11:20:34.982Z" itemprop="datePublished">2020-01-21</time>
+  <time datetime="2020-04-16T11:15:22.748Z" itemprop="datePublished">2020-04-16</time>
 </a>
     
   <div class="article-category">
@@ -1089,76 +232,12 @@ se.java:74)
     &lt;script type=&quot;text/jsx&quot; src=&quot;iris_statistics.js&quot;&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
-</code></pre><h2 id="Javascript"><a href="#Javascript" class="headerlink" title="Javascript"></a>Javascript</h2><pre><code>&apos;use strict&apos;;
-const e = React.createElement;
-
-class LineGraph extends React.Component {
-    chartRef = React.createRef();
-
-    componentDidMount() {
-        const myChartRef = this.chartRef.current.getContext(&quot;2d&quot;);
-
-        new Chart(myChartRef, {
-            type: &quot;line&quot;,
-            data: {
-                labels: [&quot;Jan&quot;, &quot;Feb&quot;, &quot;March&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;June&quot;, &quot;July&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;, &quot;Dec&quot;],
-                datasets: [
-                    {
-                        label: &quot;Downloads&quot;,
-                        data: [651, 1034, 843, 877, 649, 661, 490, 332, 514, 914, 903, 602],
-                    }
-                ]
-            },
-            options: {
-                //Customize chart options
-            }
-        });
-    }
-    render() {
-        return (
-            &lt;div&gt;
-              &lt;canvas
-                id=&quot;myChart&quot;
-                ref={this.chartRef}
-              /&gt;
-            &lt;/div&gt;
-        )
-    }
-}
-
-
-const domContainer = document.querySelector(&apos;#iris_downloader_statistics&apos;);
-ReactDOM.render(e(LineGraph), domContainer);
-</code></pre><h2 id="CSS"><a href="#CSS" class="headerlink" title="CSS"></a>CSS</h2><pre><code>#title {
-  text-align: center;
-  font-family: arial, sans-serif;
-}
-
-#downloads {
-  text-align: center;
-  font-family: &quot;Trebuchet MS&quot;, Arial, Helvetica, sans-serif;
-  border-collapse: collapse;
-  border: 3px solid #ddd;
-  width: 100%;
-}
-
-#downloads td, #downloads th {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-#downloads tr:nth-child(even){background-color: #f2f2f2;}
-
-#downloads tr:hover {background-color: #ddd;}
-
-#downloads th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: center;
-  background-color: #4CAF50;
-  color: white;
-}
 </code></pre>
+        
+          <p class="article-more-link">
+            <a href="/react-char-js/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -1174,390 +253,10 @@ ReactDOM.render(e(LineGraph), domContainer);
 
 
   
-    <article id="post-aws-java-sdk-s3-dynamodb" class="article article-type-post" itemscope="" itemprop="blogPost">
+    <article id="post-iris-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
   <div class="article-meta">
-    <a href="/aws-java-sdk-s3-dynamodb/" class="article-date">
-  <time datetime="2020-01-17T15:20:55.733Z" itemprop="datePublished">2020-01-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/AWS/">AWS</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/aws-java-sdk-s3-dynamodb/">Using AWS Java SDK for S3 and DynamoDB</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Below is just my notes following this official AWS Java SDK tutorial.</p>
-<h2 id="pom-xml"><a href="#pom-xml" class="headerlink" title="pom.xml"></a>pom.xml</h2><pre><code>&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
-    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-
-    &lt;groupId&gt;com.yf.demos&lt;/groupId&gt;
-    &lt;artifactId&gt;aws-java-demo&lt;/artifactId&gt;
-    &lt;version&gt;1.0&lt;/version&gt;
-    &lt;packaging&gt;jar&lt;/packaging&gt;
-
-    &lt;name&gt;aws-java-demo&lt;/name&gt;
-    &lt;url&gt;http://aws.amazon.com/sdkforjava&lt;/url&gt;
-
-    &lt;properties&gt;
-        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
-    &lt;/properties&gt;
-
-    &lt;dependencyManagement&gt;
-        &lt;dependencies&gt;
-            &lt;dependency&gt;
-                &lt;groupId&gt;com.amazonaws&lt;/groupId&gt;
-                &lt;artifactId&gt;aws-java-sdk-bom&lt;/artifactId&gt;
-                &lt;version&gt;1.11.327&lt;/version&gt;
-                &lt;type&gt;pom&lt;/type&gt;
-                &lt;scope&gt;import&lt;/scope&gt;
-            &lt;/dependency&gt;
-        &lt;/dependencies&gt;
-    &lt;/dependencyManagement&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;com.amazonaws&lt;/groupId&gt;
-            &lt;artifactId&gt;aws-java-sdk&lt;/artifactId&gt;
-            &lt;version&gt;1.11.708&lt;/version&gt;
-        &lt;/dependency&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;com.amazonaws&lt;/groupId&gt;
-            &lt;artifactId&gt;aws-java-sdk-dynamodb&lt;/artifactId&gt;
-        &lt;/dependency&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;jakarta.xml.bind&lt;/groupId&gt;
-            &lt;artifactId&gt;jakarta.xml.bind-api&lt;/artifactId&gt;
-            &lt;version&gt;2.3.2&lt;/version&gt;
-        &lt;/dependency&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.glassfish.jaxb&lt;/groupId&gt;
-            &lt;artifactId&gt;jaxb-runtime&lt;/artifactId&gt;
-            &lt;version&gt;2.3.2&lt;/version&gt;
-        &lt;/dependency&gt;
-    &lt;/dependencies&gt;
-
-    &lt;build&gt;
-        &lt;resources&gt;
-            &lt;resource&gt;
-                &lt;directory&gt;${env.HOME}/.aws/&lt;/directory&gt;
-            &lt;/resource&gt;
-        &lt;/resources&gt;
-        &lt;plugins&gt;
-            &lt;plugin&gt;
-                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
-                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
-                &lt;version&gt;2.3&lt;/version&gt;
-                &lt;configuration&gt;
-                    &lt;source&gt;1.8&lt;/source&gt;
-                    &lt;target&gt;1.8&lt;/target&gt;
-                &lt;/configuration&gt;
-            &lt;/plugin&gt;
-            &lt;plugin&gt;
-                &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
-                &lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
-                &lt;version&gt;1.2.1&lt;/version&gt;
-                &lt;executions&gt;
-                    &lt;execution&gt;
-                        &lt;goals&gt;
-                            &lt;goal&gt;java&lt;/goal&gt;
-                        &lt;/goals&gt;
-                    &lt;/execution&gt;
-                &lt;/executions&gt;
-                &lt;configuration&gt;
-                    &lt;mainClass&gt;com.amazonaws.samples.DynamoDBScanTest&lt;/mainClass&gt;
-                &lt;/configuration&gt;
-            &lt;/plugin&gt;
-        &lt;/plugins&gt;
-    &lt;/build&gt;
-&lt;/project&gt;
-</code></pre><h2 id="Access-S3"><a href="#Access-S3" class="headerlink" title="Access S3"></a>Access S3</h2><pre><code>/*
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;).
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the &quot;license&quot; file accompanying this file. This file is distributed
- * on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
-package com.amazonaws.samples;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.UUID;
-
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-
-public class S3Sample {
-
-    public static void main(String[] args) throws IOException {
-        AmazonS3 s3 = new AmazonS3Client();
-        Region euWest1 = Region.getRegion(Regions.EU_WEST_1);
-        s3.setRegion(euWest1);
-
-        String bucketName = &quot;my-first-s3-bucket-&quot; + UUID.randomUUID();
-        String key = &quot;MyObjectKey&quot;;
-
-        System.out.println(&quot;===========================================&quot;);
-        System.out.println(&quot;Getting Started with Amazon S3&quot;);
-        System.out.println(&quot;===========================================\n&quot;);
-
-        try {
-/*
-            System.out.println(&quot;Creating bucket &quot; + bucketName + &quot;\n&quot;);
-            s3.createBucket(bucketName);
-*/
-
-            System.out.println(&quot;Listing buckets&quot;);
-            for (Bucket bucket : s3.listBuckets()) {
-                System.out.println(&quot; - &quot; + bucket.getName());
-            }
-            System.out.println();
-
-/*
-            System.out.println(&quot;Uploading a new object to S3 from a file\n&quot;);
-            s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));
-*/
-
-/*
-            System.out.println(&quot;Downloading an object&quot;);
-            S3Object object = s3.getObject(new GetObjectRequest(bucketName, key));
-            System.out.println(&quot;Content-Type: &quot;  + object.getObjectMetadata().getContentType());
-            displayTextInputStream(object.getObjectContent());
-*/
-/*
-            System.out.println(&quot;Listing objects&quot;);
-            ObjectListing objectListing = s3.listObjects(new ListObjectsRequest()
-                    .withBucketName(bucketName)
-                    .withPrefix(&quot;My&quot;));
-            for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-                System.out.println(&quot; - &quot; + objectSummary.getKey() + &quot;  &quot; +
-                        &quot;(size = &quot; + objectSummary.getSize() + &quot;)&quot;);
-            }
-            System.out.println();
-*/
-
-/*
-            System.out.println(&quot;Deleting an object\n&quot;);
-            s3.deleteObject(bucketName, key);
-*/
-
-/*
-            System.out.println(&quot;Deleting bucket &quot; + bucketName + &quot;\n&quot;);
-            s3.deleteBucket(bucketName);
- */
-        } catch (AmazonServiceException ase) {
-            System.out.println(&quot;Caught an AmazonServiceException, which means your request made it &quot;
-                    + &quot;to Amazon S3, but was rejected with an error response for some reason.&quot;);
-            System.out.println(&quot;Error Message:    &quot; + ase.getMessage());
-            System.out.println(&quot;HTTP Status Code: &quot; + ase.getStatusCode());
-            System.out.println(&quot;AWS Error Code:   &quot; + ase.getErrorCode());
-            System.out.println(&quot;Error Type:       &quot; + ase.getErrorType());
-            System.out.println(&quot;Request ID:       &quot; + ase.getRequestId());
-        } catch (AmazonClientException ace) {
-            System.out.println(&quot;Caught an AmazonClientException, which means the client encountered &quot;
-                    + &quot;a serious internal problem while trying to communicate with S3, &quot;
-                    + &quot;such as not being able to access the network.&quot;);
-            System.out.println(&quot;Error Message: &quot; + ace.getMessage());
-        }
-    }
-
-    private static File createSampleFile() throws IOException {
-        File file = File.createTempFile(&quot;aws-java-sdk-&quot;, &quot;.txt&quot;);
-        file.deleteOnExit();
-
-        Writer writer = new OutputStreamWriter(new FileOutputStream(file));
-        writer.write(&quot;abcdefghijklmnopqrstuvwxyz\n&quot;);
-        writer.write(&quot;01234567890112345678901234\n&quot;);
-        writer.write(&quot;!@#$%^&amp;*()-=[]{};&apos;:&apos;,.&lt;&gt;/?\n&quot;);
-        writer.write(&quot;01234567890112345678901234\n&quot;);
-        writer.write(&quot;abcdefghijklmnopqrstuvwxyz\n&quot;);
-        writer.close();
-
-        return file;
-    }
-
-    private static void displayTextInputStream(InputStream input) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        while (true) {
-            String line = reader.readLine();
-            if (line == null) break;
-
-            System.out.println(&quot;    &quot; + line);
-        }
-        System.out.println();
-    }
-
-}
-</code></pre><h2 id="Query-DynamoDB"><a href="#Query-DynamoDB" class="headerlink" title="Query DynamoDB"></a>Query DynamoDB</h2><pre><code>package com.amazonaws.samples;
-
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.model.*;
-import com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException;
-import com.amazonaws.AmazonServiceException;
-
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.io.IOException;
-
-public class DynamoDBQueryTest {
-    public static &lt;DynamoDbClient, ScanIterable, ScanResponse&gt; void main(String[] args) throws IOException {
-        String table_name = &quot;XXXXXXXX&quot;;
-        String partition_key_name = &quot;date&quot;;
-        String partition_key_val = &quot;2013-03-08&quot;;
-        String partition_alias = &quot;#a&quot;;
-
-        System.out.format(&quot;Querying %s&quot;, table_name);
-        System.out.println(&quot;&quot;);
-
-        final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
-
-        //set up an alias for the partition key name in case it&apos;s a reserved word
-        HashMap&lt;String,String&gt; attrNameAlias =
-                new HashMap&lt;String,String&gt;();
-        attrNameAlias.put(partition_alias, partition_key_name);
-
-        //set up mapping of the partition name with the value
-        HashMap&lt;String, AttributeValue&gt; attrValues =
-                new HashMap&lt;String,AttributeValue&gt;();
-        attrValues.put(&quot;:&quot;+partition_key_name, new AttributeValue().withS(partition_key_val));
-
-        QueryRequest queryReq = new QueryRequest()
-                .withTableName(table_name)
-                .withKeyConditionExpression(partition_alias + &quot; = :&quot; + partition_key_name)
-                .withExpressionAttributeNames(attrNameAlias)
-                .withExpressionAttributeValues(attrValues);
-
-        try {
-            QueryResult response = ddb.query(queryReq);
-            //System.out.println(response.getCount());
-            System.out.println();
-            System.out.println(response);
-        } catch (AmazonDynamoDBException e) {
-            System.err.println(e.getErrorMessage());
-            System.exit(1);
-        }
-    }
-}
-</code></pre><h2 id="Scan-a-DynamoDB"><a href="#Scan-a-DynamoDB" class="headerlink" title="Scan a DynamoDB"></a>Scan a DynamoDB</h2><pre><code>package com.amazonaws.samples;
-
-import java.util.Iterator;
-
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.ItemCollection;
-import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
-import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
-import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
-import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
-
-public class DynamoDBScanTest {
-    public static void main(String[] args) throws Exception {
-        String table_name = &quot;XXXXXXXX&quot;;
-        String partition_key_name = &quot;date&quot;;
-        String partition_key_val = &quot;2013-03-08&quot;;
-        String partition_alias = &quot;#a&quot;;
-
-        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
-                .build();
-
-        DynamoDB dynamoDB = new DynamoDB(client);
-
-        Table table = dynamoDB.getTable(table_name);
-
-        // Scan between 2 dates
-        /*
-        ScanSpec scanSpec = new ScanSpec().withProjectionExpression(&quot;#date, pid, downloads, title&quot;)
-                .withFilterExpression(&quot;#date between :start_date and :end_date&quot;).withNameMap(new NameMap().with(&quot;#date&quot;, &quot;date&quot;))
-                .withValueMap(new ValueMap().withString(&quot;:start_date&quot;, &quot;2018-08-01&quot;).withString(&quot;:end_date&quot;, &quot;2018-08-31&quot;));
-         */
-
-        // Scan a month
-        ScanSpec scanSpec = new ScanSpec().withProjectionExpression(&quot;#date, pid, downloads, title&quot;)
-                .withFilterExpression(&quot;contains(#date, :month)&quot;)
-                .withNameMap(new NameMap().with(&quot;#date&quot;, &quot;date&quot;))
-                .withValueMap(new ValueMap().withString(&quot;:month&quot;, &quot;2018-08&quot;));
-
-        try {
-            ItemCollection&lt;ScanOutcome&gt; items = table.scan(scanSpec);
-            Iterator&lt;Item&gt; iter = items.iterator();
-            while (iter.hasNext()) {
-                Item item = iter.next();
-                System.out.println(item.toString());
-            }
-        }
-        catch (Exception e) {
-            System.err.println(&quot;Unable to scan the table:&quot;);
-            System.err.println(e.getMessage());
-        }
-
-    }
-}
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/aws-java-sdk-s3-dynamodb/" data-id="ck92o0m3o000jky05c8jee76b" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DynamoDB/">DynamoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/aws/">aws</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/s3/">s3</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-iris-new-field" class="article article-type-post" itemscope="" itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/iris-new-field/" class="article-date">
-  <time datetime="2020-01-14T11:20:45.854Z" itemprop="datePublished">2020-01-14</time>
+    <a href="/iris-migration/" class="article-date">
+  <time datetime="2020-04-16T11:15:10.436Z" itemprop="datePublished">2020-04-16</time>
 </a>
     
   <div class="article-category">
@@ -1572,7 +271,7 @@ public class DynamoDBScanTest {
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/iris-new-field/">How to add a new field in IRIS</a>
+      <a class="article-title" href="/iris-migration/">IRIS migration</a>
     </h1>
   
 
@@ -1580,63 +279,163 @@ public class DynamoDBScanTest {
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="XML-Schema"><a href="#XML-Schema" class="headerlink" title="XML Schema"></a>XML Schema</h2><p>Use ‘reliability’ as an example.</p>
-<p>First, add reliability under _instrumentType: </p>
-<pre><code>&lt;xs:complexType name=&quot;_instrumentType&quot;&gt;
-  &lt;xs:choice minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot;&gt;
-    ...
-    &lt;xs:element ref=&quot;reliability&quot;/&gt;
-    ...
-  &lt;/xs:choice&gt;
-&lt;/xs:complexType&gt;
-</code></pre><p>Declare reliability element:</p>
-<pre><code>&lt;xs:element name=&quot;reliability&quot;&gt;
-    &lt;xs:complexType&gt;
-      &lt;xs:simpleContent&gt;
-        &lt;xs:extension base=&quot;xs:string&quot;&gt;
-          &lt;xs:attribute name=&quot;vocab&quot; type=&quot;xs:anyURI&quot;/&gt;
-          &lt;xs:attribute name=&quot;newValue&quot; type=&quot;xs:string&quot;/&gt;
-        &lt;/xs:extension&gt;
-      &lt;/xs:simpleContent&gt;
-    &lt;/xs:complexType&gt;
-  &lt;/xs:element&gt;      
-</code></pre><h2 id="Data-dictionary"><a href="#Data-dictionary" class="headerlink" title="Data dictionary"></a>Data dictionary</h2><p>Edit commons.xml, and add:</p>
-<pre><code>&lt;Reliabilities name=&quot;Reliability&quot; vocab=&quot;http://dlib.york.ac.uk/ontologies/iris/reliability&quot;&gt;
-    &lt;Reliability vocab=&quot;http://dlib.york.ac.uk/ontologies/iris/reliability#&quot; value=&quot;001&quot; label=&quot;Kappa&quot;/&gt;
-    &lt;Reliability vocab=&quot;http://dlib.york.ac.uk/ontologies/iris/reliability#&quot; value=&quot;999&quot; label=&quot;Other&quot;/&gt;
-&lt;/Reliabilities&gt;
-</code></pre><p>Add preReliabilities.xml</p>
-<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-
-&lt;reliabilities&gt;
-&lt;/reliabilities&gt;
-</code></pre><h2 id="Default-xml-file"><a href="#Default-xml-file" class="headerlink" title="Default xml file"></a>Default xml file</h2><p>Edit IRIS.xml and add placeholder:</p>
-<pre><code>&lt;iris:reliability newValue=&quot;&quot;/&gt;
-</code></pre><h2 id="Xforms"><a href="#Xforms" class="headerlink" title="Xforms"></a>Xforms</h2><p>To enable show/hide button/link, add:</p>
-<pre><code>&lt;xforms:instance id=&quot;xform-tree-switches&quot;&gt;
-    &lt;irisform:switches&gt;
-        ......
-        &lt;irisform:reliability open=&quot;true&quot;/&gt;
-    &lt;/irisform:switches&gt;    
-&lt;/xforms:instance&gt;
-</code></pre><p>Add related xform sections for reliability.    </p>
-<h2 id="gsearch-XSLT"><a href="#gsearch-XSLT" class="headerlink" title="gsearch XSLT"></a>gsearch XSLT</h2><p>Edit foxmlToSolrGenerated.xslt</p>
-<h2 id="Solr"><a href="#Solr" class="headerlink" title="Solr"></a>Solr</h2><p>Edit schema.xml and add:</p>
-<pre><code>&lt;field name=&quot;iris.instrument.reliability&quot;  type=&quot;string&quot;  indexed=&quot;true&quot;  stored=&quot;true&quot; multiValued=&quot;true&quot;/&gt;
-...
-&lt;field name=&quot;iris2.instrument.reliability&quot;  type=&quot;string&quot;  indexed=&quot;true&quot;  stored=&quot;true&quot; multiValued=&quot;true&quot;/&gt;
-...
-&lt;copyField source=&quot;iris.instrument.reliability&quot; dest=&quot;iris2.instrument.reliability&quot;/&gt; 
-</code></pre><p>Edit solrconfig.xml and add:</p>
-<pre><code>iris2.instrument.reliability^2
-</code></pre><h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2>
+        <h2 id="Hard-coded-fedora-URL"><a href="#Hard-coded-fedora-URL" class="headerlink" title="Hard-coded fedora URL"></a>Hard-coded fedora URL</h2>
+        
+          <p class="article-more-link">
+            <a href="/iris-migration/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yfrankfeng.github.io/iris-new-field/" data-id="ck56tlql90000aw059zxou1wg" class="article-share-link">Share</a>
+      <a data-url="https://yfrankfeng.github.io/iris-migration/" data-id="ck3ekt7s40000c2054mykml83" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xforms/">xforms</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-tomcat-over-apache2" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/tomcat-over-apache2/" class="article-date">
+  <time datetime="2020-04-16T11:14:59.208Z" itemprop="datePublished">2020-04-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Only-for-testing-Self-signed-SSL-certificate"><a href="#Only-for-testing-Self-signed-SSL-certificate" class="headerlink" title="(Only for testing) Self-signed SSL certificate"></a>(Only for testing) Self-signed SSL certificate</h2><p>For test purpose, you may want to create self signed certificate, so run:</p>
+<pre><code>openssl req -new &gt; new.ssl.csr
+</code></pre>
+        
+          <p class="article-more-link">
+            <a href="/tomcat-over-apache2/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/tomcat-over-apache2/" data-id="ck92o0m1q0004ky05bnzzx5r1" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SSL/">SSL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tomcat/">Tomcat</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-ruby-rest-api" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/ruby-rest-api/" class="article-date">
+  <time datetime="2020-04-16T11:14:46.496Z" itemprop="datePublished">2020-04-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/ruby/">ruby</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/ruby-rest-api/">Build Rest API in Ruby</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Followed tutorial in: <a href="https://scotch.io/tutorials/build-a-restful-json-api-with-rails-5-part-one" target="_blank" rel="noopener">https://scotch.io/tutorials/build-a-restful-json-api-with-rails-5-part-one</a></p>
+<h2 id="Create-project"><a href="#Create-project" class="headerlink" title="Create project"></a>Create project</h2><p>rails new todos-api –api -T</p>
+        
+          <p class="article-more-link">
+            <a href="/ruby-rest-api/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/ruby-rest-api/" data-id="ck92o0m3s000kky05sjmu7lrs" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rest-api/">rest api</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ruby/">ruby</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-yodl-migration" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/yodl-migration/" class="article-date">
+  <time datetime="2020-04-16T11:13:02.555Z" itemprop="datePublished">2020-04-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/yodl-migration/">YODL migration</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Tomcat"><a href="#Tomcat" class="headerlink" title="Tomcat"></a>Tomcat</h2><p>While installed Tomcat via apt, use the following steps to run tomcat service under dlib user:</p>
+        
+          <p class="article-more-link">
+            <a href="/yodl-migration/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yfrankfeng.github.io/yodl-migration/" data-id="ck48pp4x40001j5058vjxad2a" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Solr/">Solr</a></li></ul>
 
     </footer>
   </div>
@@ -2284,7 +1083,7 @@ testUpload()
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li></ul>
     </div>
   </div>
 
@@ -2297,15 +1096,15 @@ testUpload()
       <ul>
         
           <li>
-            <a href="/yodl-migration/">YODL migration</a>
+            <a href="/iris-new-field/">How to add a new field in IRIS</a>
           </li>
         
           <li>
-            <a href="/ruby-rest-api/">Build Rest API in Ruby</a>
+            <a href="/aws-java-sdk-s3-dynamodb/">Using AWS Java SDK for S3 and DynamoDB</a>
           </li>
         
           <li>
-            <a href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
+            <a href="/react-char-js/">Use ReactJS with Chart.js</a>
           </li>
         
           <li>
@@ -2313,7 +1112,7 @@ testUpload()
           </li>
         
           <li>
-            <a href="/react-char-js/">Use ReactJS with Chart.js</a>
+            <a href="/tomcat-over-apache2/">Serve Tomcat application over Apache2 and SSL</a>
           </li>
         
       </ul>
